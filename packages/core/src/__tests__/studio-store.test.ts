@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { StudioStore, MysteryLedger, WorkflowHarness } from "../studio/index.js";
+import { StudioStore, KnowledgeBase, MysteryLedger, WorkflowHarness } from "../studio/index.js";
 
 const stores: StudioStore[] = [];
 function store(): StudioStore { const value = new StudioStore(":memory:"); stores.push(value); return value; }
@@ -28,5 +28,14 @@ describe("StudioStore", () => {
     const harness = new WorkflowHarness(db); const options = { idempotencyKey: "unique-run", budgetCents: 10, capabilities: new Set(["research", "write", "canon", "publish"] as const) };
     const first = harness.start(bookId, options); const second = harness.start(bookId, options);
     expect(first).toBe(second); expect(() => db.chargeJob(first, 11)).toThrow("budget exceeded");
+  });
+
+  it("searches literary knowledge when FTS5 is unavailable", () => {
+    const db = store();
+    db.db.exec("DROP TABLE knowledge_fts");
+    const knowledge = new KnowledgeBase(db);
+    const sourceId = knowledge.addSource({ title: "Craft", origin: "test", licenseNote: "original", version: "1" });
+    knowledge.addChunk(sourceId, { content: "A clue must be visible before the reveal.", topics: ["mystery"], applicability: ["mystery"], citation: "Fair play" });
+    expect(knowledge.search("clue")[0]?.citation).toBe("Fair play");
   });
 });

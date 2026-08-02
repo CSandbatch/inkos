@@ -48,9 +48,19 @@ export class StudioStore {
       CREATE TABLE IF NOT EXISTS job_events (id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE, node_id TEXT, level TEXT NOT NULL, message TEXT NOT NULL, data_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS knowledge_sources (id TEXT PRIMARY KEY, title TEXT NOT NULL, origin TEXT NOT NULL, license_note TEXT NOT NULL, version TEXT NOT NULL, created_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS knowledge_chunks (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES knowledge_sources(id) ON DELETE CASCADE, content TEXT NOT NULL, topics_json TEXT NOT NULL, applicability_json TEXT NOT NULL, citation TEXT NOT NULL, created_at TEXT NOT NULL);
-      CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(chunk_id UNINDEXED, content, topics);
       CREATE TABLE IF NOT EXISTS research_items (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, url TEXT NOT NULL, title TEXT NOT NULL, excerpt TEXT NOT NULL, source_snapshot TEXT NOT NULL, claim TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', citation TEXT NOT NULL, created_at TEXT NOT NULL, approved_at TEXT);
     `);
+    // FTS5 is optional in SQLite builds shipped by some supported Node runtimes.
+    // knowledge_chunks remains canonical and KnowledgeBase falls back to LIKE search.
+    try {
+      this.db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(chunk_id UNINDEXED, content, topics)");
+    } catch {
+      // A missing FTS5 extension must not prevent Studio from opening a project.
+    }
+  }
+
+  supportsKnowledgeFts(): boolean {
+    return Boolean(this.db.prepare("SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'knowledge_fts'").get());
   }
 
   createSeries(input: SeriesInput): string {
