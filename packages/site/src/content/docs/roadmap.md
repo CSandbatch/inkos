@@ -10,12 +10,14 @@ slug: docs/roadmap
 - Durable standard-workflow records and mystery fairness ledger.
 - Local Hono API and routed Studio alpha.
 - Fixture-backed public demonstration.
+- Versioned Fair-Play Detective 2026 and English prose-pattern rule packs.
+- Four mystery modes, sealed solution capabilities, reader projections, specialist DAG topology, and deterministic closure findings.
 
 ## Active
 
 - Complete agent execution through every DAG node.
 - Rich diff and rollback controls.
-- Character-state timelines, alibi matrices, and reader-panel configuration.
+- Character-state timelines, advanced alibi matrices, and reader-panel configuration.
 - EPUB metadata and publication-quality export validation.
 
 ## Planned

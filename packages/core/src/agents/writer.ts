@@ -105,7 +105,7 @@ export class WriterAgent extends BaseAgent {
     const creativeSystemPrompt = buildWriterSystemPrompt(
       book, genreProfile, bookRules, bookRulesBody, genreBody, styleGuide, styleFingerprint,
       chapterNumber, "creative", fanficContext, resolvedLanguage,
-    );
+    ) + (this.ctx.mysteryContext ? `\n\n${this.ctx.mysteryContext}` : "");
 
     const creativeUserPrompt = this.buildUserPrompt({
       chapterNumber,

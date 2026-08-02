@@ -19,7 +19,9 @@
     "verify:publish-manifests": "node scripts/verify-no-workspace-protocol.mjs packages/core packages/studio packages/cli",
     "release": "pnpm build && pnpm test",
     "site:dev": "pnpm --filter @actalk/inkos-site dev",
-    "site:build": "pnpm --filter @actalk/inkos-site build"
+    "site:build": "pnpm --filter @actalk/inkos-site build",
+    "docs:generate": "corepack pnpm --filter @actalk/inkos-core build && node scripts/generate-fair-play-reference.mjs",
+    "docs:check": "node scripts/generate-fair-play-reference.mjs --check"
   },
   "engines": {
     "node": ">=22.13.0",

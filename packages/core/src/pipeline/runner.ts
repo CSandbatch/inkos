@@ -19,6 +19,7 @@ import { StateManager } from "../state/manager.js";
 import { dispatchNotification, dispatchWebhookEvent } from "../notify/dispatcher.js";
 import type { WebhookEvent } from "../notify/webhook.js";
 import type { AgentContext } from "../agents/base.js";
+import { compileLegacyMysteryContext } from "../studio/mystery-compat.js";
 import type { AuditResult, AuditIssue } from "../agents/continuity.js";
 import type { RadarResult } from "../agents/radar.js";
 import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
@@ -120,6 +121,7 @@ export class PipelineRunner {
       bookId,
       logger: this.config.logger,
       onStreamProgress: this.config.onStreamProgress,
+      mysteryContext: compileLegacyMysteryContext(this.config.projectRoot, bookId, "generic"),
     };
   }
 
@@ -158,7 +160,7 @@ export class PipelineRunner {
     return { model: override.model, client };
   }
 
-  private agentCtxFor(agent: string, bookId?: string): AgentContext {
+  private agentCtxFor(agent: string, bookId?: string, throughChapter?: number): AgentContext {
     const { model, client } = this.resolveOverride(agent);
     return {
       client,
@@ -167,6 +169,7 @@ export class PipelineRunner {
       bookId,
       logger: this.config.logger?.child(agent),
       onStreamProgress: this.config.onStreamProgress,
+      mysteryContext: compileLegacyMysteryContext(this.config.projectRoot, bookId, agent, throughChapter),
     };
   }
 
@@ -257,7 +260,7 @@ export class PipelineRunner {
 
       const { profile: gp } = await this.loadGenreProfile(book.genre);
 
-      const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
+      const writer = new WriterAgent(this.agentCtxFor("writer", bookId, chapterNumber));
       const output = await writer.writeChapter({
         book,
         bookDir,
@@ -322,7 +325,7 @@ export class PipelineRunner {
     }
 
     const content = await this.readChapterContent(bookDir, targetChapter);
-    const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
+    const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId, targetChapter));
     const llmResult = await auditor.auditChapter(bookDir, content, targetChapter, book.genre);
 
     // Merge rule-based AI-tell detection
@@ -385,7 +388,7 @@ export class PipelineRunner {
 
       // Re-audit to get structured issues (index only stores strings)
       const content = await this.readChapterContent(bookDir, targetChapter);
-      const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
+      const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId, targetChapter));
       const auditResult = await auditor.auditChapter(bookDir, content, targetChapter, book.genre);
 
       if (auditResult.passed && auditResult.issues.filter(i => i.severity === "warning" || i.severity === "critical").length === 0) {
@@ -394,7 +397,7 @@ export class PipelineRunner {
 
       const { profile: gp } = await this.loadGenreProfile(book.genre);
 
-      const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
+      const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId, targetChapter));
       const reviseOutput = await reviser.reviseChapter(
         bookDir, content, targetChapter, auditResult.issues, mode, book.genre,
       );
@@ -525,7 +528,7 @@ export class PipelineRunner {
     const { profile: gp } = await this.loadGenreProfile(book.genre);
 
     // 1. Write chapter
-    const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
+    const writer = new WriterAgent(this.agentCtxFor("writer", bookId, chapterNumber));
     const output = await writer.writeChapter({
       book,
       bookDir,
@@ -547,7 +550,7 @@ export class PipelineRunner {
       this.config.logger?.warn(
         `${output.postWriteErrors.length} post-write errors detected, triggering spot-fix before audit`,
       );
-      const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
+      const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId, chapterNumber));
       const spotFixIssues = output.postWriteErrors.map((v) => ({
         severity: "critical" as const,
         category: v.rule,
@@ -571,7 +574,7 @@ export class PipelineRunner {
     }
 
     // 2b. LLM audit
-    const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
+    const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId, chapterNumber));
     const llmAudit = await auditor.auditChapter(
       bookDir,
       finalContent,
@@ -594,7 +597,7 @@ export class PipelineRunner {
         (i) => i.severity === "critical",
       );
       if (criticalIssues.length > 0) {
-        const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
+        const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId, chapterNumber));
         const reviseOutput = await reviser.reviseChapter(
           bookDir,
           output.content,

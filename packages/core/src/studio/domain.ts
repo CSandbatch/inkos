@@ -50,7 +50,9 @@ export type ReaderFeedback = z.infer<typeof ReaderFeedbackSchema>;
 
 export interface ClosureFinding { readonly code: string; readonly severity: "critical" | "warning"; readonly message: string; readonly entityId?: string; }
 export interface ClosureReport { readonly publishable: boolean; readonly findings: ReadonlyArray<ClosureFinding>; readonly generatedAt: string; }
-export interface WorkflowNode { readonly id: string; readonly kind: "research" | "outline" | "scene-plan" | "draft" | "validate" | "graph-update" | "audit" | "reader-panel" | "revise" | "approval"; readonly dependsOn: ReadonlyArray<string>; readonly capability: "research" | "write" | "canon" | "publish"; }
+export const AgentCapabilitySchema = z.enum(["research", "write", "canon", "publish", "story:read", "reader-view:read", "solution:read", "solution:write", "research:web", "draft:write", "canon:propose", "approval:request", "publish:export"]);
+export type AgentCapability = z.infer<typeof AgentCapabilitySchema>;
+export interface WorkflowNode { readonly id: string; readonly kind: string; readonly dependsOn: ReadonlyArray<string>; readonly capability: AgentCapability; readonly artifactVisibility?: "reader-visible" | "solution-authorized" | "author-only"; }
 
 export const BALANCED_READER_PANEL: ReadonlyArray<ReaderPersona> = [
   { id: "genre-fan", name: "Genre Fan", role: "Tests genre promises and delight", weight: 1, blocksApproval: true, prompt: "Evaluate whether the chapter delivers the selected genre's promises." },
@@ -71,4 +73,24 @@ export const STANDARD_WORKFLOW: ReadonlyArray<WorkflowNode> = [
   { id: "reader-panel", kind: "reader-panel", dependsOn: ["audit"], capability: "write" },
   { id: "revise", kind: "revise", dependsOn: ["reader-panel"], capability: "write" },
   { id: "approval", kind: "approval", dependsOn: ["revise"], capability: "publish" },
+];
+
+export const MYSTERY_WORKFLOW: ReadonlyArray<WorkflowNode> = [
+  { id: "policy", kind: "policy-setup", dependsOn: [], capability: "canon:propose", artifactVisibility: "author-only" },
+  { id: "research", kind: "research", dependsOn: ["policy"], capability: "research:web", artifactVisibility: "author-only" },
+  { id: "solution", kind: "solution-architect", dependsOn: ["research"], capability: "solution:write", artifactVisibility: "solution-authorized" },
+  { id: "evidence", kind: "evidence-architect", dependsOn: ["solution"], capability: "solution:read", artifactVisibility: "solution-authorized" },
+  { id: "timeline", kind: "timeline-access-builder", dependsOn: ["solution"], capability: "solution:read", artifactVisibility: "solution-authorized" },
+  { id: "solution-approval", kind: "solution-approval", dependsOn: ["evidence", "timeline"], capability: "approval:request", artifactVisibility: "author-only" },
+  { id: "scene-plan", kind: "scene-plan", dependsOn: ["solution-approval"], capability: "reader-view:read", artifactVisibility: "reader-visible" },
+  { id: "draft", kind: "draft", dependsOn: ["scene-plan"], capability: "draft:write", artifactVisibility: "reader-visible" },
+  { id: "validate", kind: "deterministic-validation", dependsOn: ["draft"], capability: "story:read", artifactVisibility: "author-only" },
+  { id: "adversarial", kind: "adversarial-solver", dependsOn: ["validate"], capability: "reader-view:read", artifactVisibility: "author-only" },
+  { id: "fairness", kind: "fairness-auditor", dependsOn: ["adversarial"], capability: "solution:read", artifactVisibility: "author-only" },
+  { id: "realism", kind: "realism-auditor", dependsOn: ["validate"], capability: "research:web", artifactVisibility: "author-only" },
+  { id: "reader-panel", kind: "reader-panel", dependsOn: ["fairness", "realism"], capability: "reader-view:read", artifactVisibility: "author-only" },
+  { id: "prose", kind: "prose-pattern-analysis", dependsOn: ["draft"], capability: "story:read", artifactVisibility: "author-only" },
+  { id: "revise", kind: "mystery-reviser", dependsOn: ["reader-panel", "prose"], capability: "canon:propose", artifactVisibility: "author-only" },
+  { id: "reaudit", kind: "re-audit", dependsOn: ["revise"], capability: "solution:read", artifactVisibility: "author-only" },
+  { id: "approval", kind: "closure-approval", dependsOn: ["reaudit"], capability: "publish:export", artifactVisibility: "author-only" },
 ];

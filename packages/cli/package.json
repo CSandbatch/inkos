@@ -1,7 +1,7 @@
 {
   "name": "@actalk/inkos",
   "version": "0.4.9",
-  "description": "InkOS CLI — multi-agent novel production system",
+  "description": "InkOS CLI — local agent production OS for fiction",
   "type": "module",
   "bin": {
     "inkos": "dist/index.js"
