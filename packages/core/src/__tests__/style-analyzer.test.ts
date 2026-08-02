@@ -30,8 +30,8 @@ describe("analyzeStyle", () => {
   });
 
   it("includes source name when provided", () => {
-    const profile = analyzeStyle(sampleText, "测试来源");
-    expect(profile.sourceName).toBe("测试来源");
+    const profile = analyzeStyle(sampleText, "Test Source");
+    expect(profile.sourceName).toBe("Test Source");
   });
 
   it("includes analyzed timestamp", () => {

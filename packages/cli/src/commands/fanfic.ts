@@ -5,7 +5,7 @@ import { PipelineRunner, type BookConfig, type FanficMode } from "@actalk/inkos-
 import { loadConfig, buildPipelineConfig, findProjectRoot, resolveBookId, log, logError } from "../utils.js";
 
 export const fanficCommand = new Command("fanfic")
-  .description("Fan fiction writing tools (同人创作)");
+  .description("Fan fiction writing tools");
 
 fanficCommand
   .command("init")
@@ -26,7 +26,7 @@ fanficCommand
 
       const mode = opts.mode as FanficMode;
       if (!["canon", "au", "ooc", "cp"].includes(mode)) {
-        throw new Error(`无效的同人模式："${mode}"。可选：canon, au, ooc, cp`);
+        throw new Error(`Invalid fan fiction mode: "${mode}". Options: canon, au, ooc, cp`);
       }
 
       // Read source material
@@ -35,7 +35,7 @@ fanficCommand
       const sourceName = basename(sourcePath);
 
       if (!sourceText || sourceText.length < 100) {
-        throw new Error(`源素材文件内容过短（${sourceText.length} 字符）。请提供至少 100 字符的原作素材。`);
+        throw new Error(`Source material is too short (${sourceText.length} characters). Provide at least 100 characters of source material.`);
       }
 
       const bookId = opts.title
@@ -111,7 +111,7 @@ fanficCommand
       try {
         canon = await readFile(join(bookDir, "story/fanfic_canon.md"), "utf-8");
       } catch {
-        throw new Error(`该书没有同人正典文件。用 inkos fanfic init 创建同人书。`);
+        throw new Error(`This book has no fan fiction canon file. Use inkos fanfic init to create a fan fiction book.`);
       }
 
       if (opts.json) {
@@ -176,7 +176,7 @@ async function readSourceMaterial(sourcePath: string): Promise<string> {
     const files = await readdir(sourcePath);
     const textFiles = files.filter((f) => f.endsWith(".txt") || f.endsWith(".md"));
     if (textFiles.length === 0) {
-      throw new Error(`目录 ${sourcePath} 中没有 .txt 或 .md 文件。`);
+      throw new Error(`Directory ${sourcePath} contains no .txt or .md files.`);
     }
     const contents = await Promise.all(
       textFiles.sort().map((f) => readFile(join(sourcePath, f), "utf-8")),

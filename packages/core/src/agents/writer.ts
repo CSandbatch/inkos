@@ -460,13 +460,13 @@ ${params.volumeOutline}
   }
 
   /** Save new truth files (summaries, subplots, emotional arcs, character matrix). */
-  async saveNewTruthFiles(bookDir: string, output: WriteChapterOutput): Promise<void> {
+  async saveNewTruthFiles(bookDir: string, output: WriteChapterOutput, language: "zh" | "en" = "zh"): Promise<void> {
     const storyDir = join(bookDir, "story");
     const writes: Array<Promise<void>> = [];
 
     // Append chapter summary to chapter_summaries.md
     if (output.chapterSummary) {
-      writes.push(this.appendChapterSummary(storyDir, output.chapterSummary));
+      writes.push(this.appendChapterSummary(storyDir, output.chapterSummary, language));
     }
 
     // Overwrite subplot board
@@ -487,20 +487,22 @@ ${params.volumeOutline}
     await Promise.all(writes);
   }
 
-  private async appendChapterSummary(storyDir: string, summary: string): Promise<void> {
+  private async appendChapterSummary(storyDir: string, summary: string, language: "zh" | "en"): Promise<void> {
     const summaryPath = join(storyDir, "chapter_summaries.md");
     let existing = "";
     try {
       existing = await readFile(summaryPath, "utf-8");
     } catch {
       // File doesn't exist yet — start with header
-      existing = "# 章节摘要\n\n| 章节 | 标题 | 出场人物 | 关键事件 | 状态变化 | 伏笔动态 | 情绪基调 | 章节类型 |\n|------|------|----------|----------|----------|----------|----------|----------|\n";
+      existing = language === "en"
+        ? "# Chapter Summaries\n\n| Chapter | Title | Characters | Key events | State changes | Hook activity | Emotional tone | Chapter type |\n|---|---|---|---|---|---|---|---|\n"
+        : "# 章节摘要\n\n| 章节 | 标题 | 出场人物 | 关键事件 | 状态变化 | 伏笔动态 | 情绪基调 | 章节类型 |\n|------|------|----------|----------|----------|----------|----------|----------|\n";
     }
 
     // Extract only the data row(s) from the summary (skip header lines)
     const dataRows = summary
       .split("\n")
-      .filter((line) => line.startsWith("|") && !line.startsWith("| 章节") && !line.startsWith("|--"))
+      .filter((line) => line.startsWith("|") && !line.startsWith("| 章节") && !line.startsWith("| Chapter") && !line.startsWith("|--"))
       .join("\n");
 
     if (dataRows) {

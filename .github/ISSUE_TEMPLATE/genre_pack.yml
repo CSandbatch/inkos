@@ -1,0 +1,20 @@
+name: Genre pack proposal
+description: Propose planning templates, state extensions, reader expectations, and audit rules for a genre
+labels: ["genre-pack", "proposal"]
+body:
+  - type: input
+    id: genre
+    attributes: { label: Genre or subgenre }
+    validations: { required: true }
+  - type: textarea
+    id: contract
+    attributes:
+      label: Proposed contract
+      description: Describe planning templates, graph extensions, audit rules, reader expectations, and optional tools.
+    validations: { required: true }
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Rights-cleared guidance and test fixtures
+      description: Link original or reusable sources and describe fixtures that prove the rules.
+    validations: { required: true }

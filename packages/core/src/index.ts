@@ -57,3 +57,6 @@ export { sendTelegram, type TelegramConfig } from "./notify/telegram.js";
 export { sendFeishu, type FeishuConfig } from "./notify/feishu.js";
 export { sendWechatWork, type WechatWorkConfig } from "./notify/wechat-work.js";
 export { sendWebhook, type WebhookConfig, type WebhookEvent, type WebhookPayload } from "./notify/webhook.js";
+
+// Studio: English-first transactional story graph, workflow, and research services
+export * from "./studio/index.js";

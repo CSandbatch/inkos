@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos.git",
+    "url": "https://github.com/CSandbatch/inkos.git",
     "directory": "packages/core"
   },
   "scripts": {
@@ -38,7 +38,10 @@
     "openai": "^4.80.0",
     "zod": "^3.24.0"
   },
+  "homepage": "https://csandbatch.github.io/inkos/",
+  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "@types/js-yaml": "^4.0.9",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"

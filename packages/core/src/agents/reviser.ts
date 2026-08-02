@@ -41,6 +41,14 @@ const MODE_DESCRIPTIONS: Record<ReviseMode, string> = {
   "spot-fix": "定点修复：只修改审稿意见指出的具体句子或段落，其余所有内容必须原封不动保留。修改范围限定在问题句子及其前后各一句。禁止改动无关段落",
 };
 
+const EN_MODE_DESCRIPTIONS: Record<ReviseMode, string> = {
+  polish: "Polish: change expression, rhythm, and paragraph breathing without changing facts or plot conclusions. Do not add/remove paragraphs, rename entities, add plot/dialogue, or change causality.",
+  rewrite: "Rewrite: you may change narrative order, imagery, and intensity while preserving core facts and character motives.",
+  rework: "Rework: you may restructure scene progression and conflict organization without changing the main setting or major-event outcomes.",
+  "anti-detect": "Anti-detect rewrite: preserve the plot while reducing detectable AI patterns through varied syntax, concrete sensory detail, natural dialogue, and specific reactions.",
+  "spot-fix": "Spot fix: change only the sentences or paragraphs identified by the review. Preserve everything else exactly.",
+};
+
 export class ReviserAgent extends BaseAgent {
   get name(): string {
     return "reviser";
@@ -82,7 +90,8 @@ export class ReviserAgent extends BaseAgent {
       .map((i) => `- [${i.severity}] ${i.category}: ${i.description}\n  建议: ${i.suggestion}`)
       .join("\n");
 
-    const modeDesc = MODE_DESCRIPTIONS[mode];
+    const isEnglish = gp.language === "en";
+    const modeDesc = isEnglish ? EN_MODE_DESCRIPTIONS[mode] : MODE_DESCRIPTIONS[mode];
     const numericalRule = gp.numericalSystem
       ? "\n3. 数值错误必须精确修正，前后对账"
       : "";
@@ -90,12 +99,34 @@ export class ReviserAgent extends BaseAgent {
       ? `\n\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}。修改不得违反人设。`
       : "";
 
-    const isEnglish = gp.language === "en";
     const langPrefix = isEnglish
-      ? `【LANGUAGE OVERRIDE】ALL output (FIXED_ISSUES, REVISED_CONTENT, UPDATED_STATE, UPDATED_HOOKS) MUST be in English. The revised chapter content must be written entirely in English.\n\n`
+      ? `LANGUAGE OVERRIDE: ALL output (FIXED_ISSUES, REVISED_CONTENT, UPDATED_STATE, UPDATED_HOOKS) MUST be in English. The revised chapter content must be entirely in English.\n\n`
       : "";
 
-    const systemPrompt = `${langPrefix}你是一位专业的${gp.name}网络小说修稿编辑。你的任务是根据审稿意见对章节进行修正。${protagonistBlock}
+    const systemPrompt = isEnglish
+      ? `${langPrefix}You are a professional ${gp.name} web-fiction revision editor. Revise the chapter according to the audit findings.${bookRules?.protagonist ? ` The protagonist is ${bookRules.protagonist.name}; do not violate the established personality or behavioral constraints.` : ""}
+
+Revision mode: ${modeDesc}
+
+Rules:
+1. Control the scope according to the selected mode.
+2. Fix root causes rather than applying surface polish.
+${gp.numericalSystem ? "3. Correct numerical errors precisely and reconcile the ledger." : ""}
+4. Keep the hook pool synchronized.
+5. Do not change the plot direction or core conflict.
+6. Preserve the source's voice and rhythm.
+7. Update the state card${gp.numericalSystem ? ", ledger" : ""}, and hook pool.
+
+Output format:
+=== FIXED_ISSUES ===
+(One fixed issue per line)
+=== REVISED_CONTENT ===
+(Complete revised chapter)
+=== UPDATED_STATE ===
+(Complete updated state card)
+${gp.numericalSystem ? "=== UPDATED_LEDGER ===\n(Complete updated resource ledger)\n" : ""}=== UPDATED_HOOKS ===
+(Complete updated hook pool)`
+      : `${langPrefix}你是一位专业的${gp.name}网络小说修稿编辑。你的任务是根据审稿意见对章节进行修正。${protagonistBlock}
 
 修稿模式：${modeDesc}
 
@@ -148,7 +179,24 @@ ${gp.numericalSystem ? "\n=== UPDATED_LEDGER ===\n(更新后的完整资源账�
       ? `\n## 同人正典参照（修稿专用）\n本书为同人作品。修改时参照正典角色档案和世界规则，不可违反正典事实。角色对话必须保留原作语癖。\n${fanficCanon}\n`
       : "";
 
-    const userPrompt = `请修正第${chapterNumber}章。
+    const userPrompt = isEnglish
+      ? `Revise chapter ${chapterNumber}.
+
+## Audit Issues
+${issueList}
+
+## Current State Card
+${currentState}
+${ledgerBlock}
+## Hook Pool
+${hooks}
+${outlineBlock}${bibleBlock}${matrixBlock}${summariesBlock}${canonBlock}${fanficCanonBlock}
+## Style Guide
+${styleGuide}
+
+## Chapter to Revise
+${chapterContent}`
+      : `请修正第${chapterNumber}章。
 
 ## 审稿问题
 ${issueList}

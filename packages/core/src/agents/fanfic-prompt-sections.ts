@@ -26,7 +26,17 @@ const MODE_PREAMBLES: Record<FanficMode, string> = {
 export function buildFanficCanonSection(
   fanficCanon: string,
   mode: FanficMode,
+  language: "zh" | "en" = "zh",
 ): string {
+  if (language === "en") {
+    const preambles: Record<FanficMode, string> = {
+      canon: "You are writing canon-compliant fan fiction. Follow source rules, character voices, and the key-event timeline strictly.",
+      au: "You are writing alternate-universe fan fiction. Apply only declared deviations and keep all changes internally consistent.",
+      ooc: "You are writing OOC fan fiction. Character departures must be situation-driven; preserve recognizable speech patterns.",
+      cp: "You are writing relationship-centered fan fiction. Give the paired characters meaningful, chemistry-filled interaction and gradual progression.",
+    };
+    return `\n## Fanfic Canon Reference\n\n${preambles[mode]}\n\nUse the following source-canon information:\n\n${fanficCanon}`;
+  }
   return `
 ## 同人正典参照
 
@@ -37,7 +47,7 @@ ${MODE_PREAMBLES[mode]}
 ${fanficCanon}`;
 }
 
-export function buildCharacterVoiceProfiles(fanficCanon: string): string {
+export function buildCharacterVoiceProfiles(fanficCanon: string, language: "zh" | "en" = "zh"): string {
   // Extract character table from fanfic_canon.md
   const tableMatch = fanficCanon.match(
     /## 角色档案[\s\S]*?\n(\|[^\n]+\|\n\|[-|\s]+\|\n(?:\|[^\n]+\|\n)*)/,
@@ -60,18 +70,25 @@ export function buildCharacterVoiceProfiles(fanficCanon: string): string {
   const profiles = rows.map((cells) => {
     const [name, , , catchphrases, speakingStyle, behavior] = cells;
     const parts: string[] = [`### ${name}`];
-    if (catchphrases && catchphrases !== "（素材未提及）") {
-      parts.push(`- 口头禅/语癖：${catchphrases}`);
+    const missing = language === "en" ? "(not mentioned in source)" : "（素材未提及）";
+    if (catchphrases && catchphrases !== missing) {
+      parts.push(language === "en" ? `- Catchphrases/speech habits: ${catchphrases}` : `- 口头禅/语癖：${catchphrases}`);
     }
-    if (speakingStyle && speakingStyle !== "（素材未提及）") {
-      parts.push(`- 说话风格：${speakingStyle}`);
+    if (speakingStyle && speakingStyle !== missing) {
+      parts.push(language === "en" ? `- Speaking style: ${speakingStyle}` : `- 说话风格：${speakingStyle}`);
     }
-    if (behavior && behavior !== "（素材未提及）") {
-      parts.push(`- 典型行为：${behavior}`);
+    if (behavior && behavior !== missing) {
+      parts.push(language === "en" ? `- Typical behavior: ${behavior}` : `- 典型行为：${behavior}`);
     }
     return parts.join("\n");
   });
 
+  if (language === "en") return `
+## Character Voice References (for fanfic writing)
+
+The following dialogue and behavior must reflect the source. Before writing dialogue, ask how this character would speak in the source.
+
+${profiles.join("\n\n")}`;
   return `
 ## 角色语音参照（同人写作专用）
 
@@ -97,7 +114,18 @@ const MODE_CHECKS: Record<FanficMode, string> = {
 export function buildFanficModeInstructions(
   mode: FanficMode,
   allowedDeviations: ReadonlyArray<string>,
+  language: "zh" | "en" = "zh",
 ): string {
+  if (language === "en") {
+    const checks: Record<FanficMode, string> = {
+      canon: "- Canon compliance: no source-rule or voice violations.\n- Information boundaries: characters use only information they could know.",
+      au: "- AU deviation log: record changed rules and verify internal consistency.\n- Character recognizability: readers can identify characters from dialogue.",
+      ooc: "- OOC deviation log: record departures and their drivers.\n- Voice retention: preserve source-character speech traits.",
+      cp: "- Relationship check: meaningful interaction and progression.\n- Interaction quality: chemistry rather than parallel action.",
+    };
+    const deviations = allowedDeviations.length > 0 ? `\nAllowed deviations:\n${allowedDeviations.map((d) => `- ${d}`).join("\n")}` : "";
+    return `\n## Fanfic Self-Check (include in PRE_WRITE_CHECK)\n\n${checks[mode]}${deviations}`;
+  }
   const deviationsBlock = allowedDeviations.length > 0
     ? `\n允许的偏离（不视为违规）：\n${allowedDeviations.map((d) => `- ${d}`).join("\n")}\n`
     : "";

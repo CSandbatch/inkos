@@ -130,14 +130,14 @@ export const doctorCommand = new Command("doctor")
       const hints: string[] = [];
 
       if (errMsg.includes("Connection error") || errMsg.includes("ECONNREFUSED") || errMsg.includes("fetch failed")) {
-        hints.push("baseUrl 可能不正确，检查 INKOS_LLM_BASE_URL 是否包含完整路径（如 /v1）");
+        hints.push("baseUrl may be incorrect; check whether INKOS_LLM_BASE_URL includes the full path (such as /v1)");
       }
       if (errMsg.includes("400")) {
-        hints.push("尝试在 inkos.json 中设置 \"stream\": false");
-        hints.push("检查模型名称是否正确（INKOS_LLM_MODEL）");
+        hints.push("Try setting \"stream\": false in inkos.json");
+        hints.push("Check whether the model name is correct (INKOS_LLM_MODEL)");
       }
       if (errMsg.includes("401")) {
-        hints.push("API Key 无效，检查 INKOS_LLM_API_KEY");
+        hints.push("API key is invalid; check INKOS_LLM_API_KEY");
       }
 
       checks.push({

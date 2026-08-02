@@ -16,9 +16,9 @@ body:
       label: Steps to reproduce
       description: Minimal steps to reproduce the issue.
       placeholder: |
-        1. inkos init test
-        2. inkos book create --title '...' --genre xuanhuan
-        3. inkos write next ...
+        1. npx @actalk/inkos studio --no-open
+        2. Create a local project
+        3. Open Manuscript or DAG control
         4. See error: ...
     validations:
       required: true
@@ -36,7 +36,7 @@ body:
     attributes:
       label: InkOS version
       description: Output of `inkos --version`
-      placeholder: "0.4.5"
+      placeholder: "0.4.9"
     validations:
       required: true
 
