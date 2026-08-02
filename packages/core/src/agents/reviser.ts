@@ -103,7 +103,7 @@ export class ReviserAgent extends BaseAgent {
       ? `LANGUAGE OVERRIDE: ALL output (FIXED_ISSUES, REVISED_CONTENT, UPDATED_STATE, UPDATED_HOOKS) MUST be in English. The revised chapter content must be entirely in English.\n\n`
       : "";
 
-    const systemPrompt = isEnglish
+    const systemPromptBase = isEnglish
       ? `${langPrefix}You are a professional ${gp.name} web-fiction revision editor. Revise the chapter according to the audit findings.${bookRules?.protagonist ? ` The protagonist is ${bookRules.protagonist.name}; do not violate the established personality or behavioral constraints.` : ""}
 
 Revision mode: ${modeDesc}
@@ -151,6 +151,7 @@ ${gp.numericalSystem ? "=== UPDATED_LEDGER ===\n(Complete updated resource ledge
 ${gp.numericalSystem ? "\n=== UPDATED_LEDGER ===\n(更新后的完整资源账本)" : ""}
 === UPDATED_HOOKS ===
 (更新后的完整伏笔池)`;
+    const systemPrompt = systemPromptBase + (this.ctx.mysteryContext ? `\n\n${this.ctx.mysteryContext}\nDo not alter locked mystery canon; propose any required retcon for author approval.` : "");
 
     const ledgerBlock = gp.numericalSystem
       ? `\n## 资源账本\n${ledger}`

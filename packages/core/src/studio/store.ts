@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdir, writeFile } from "node:fs/promises";
-import { mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { BALANCED_READER_PANEL, BookInputSchema, ChapterInputSchema, ChapterUpdateSchema, CharacterInputSchema, ObligationInputSchema, ReaderFeedbackSchema, SeriesInputSchema } from "./domain.js";
@@ -17,16 +17,18 @@ function atomic(db: DatabaseSync, work: () => void): void {
 export class StudioStore {
   readonly db: DatabaseSync;
 
-  constructor(readonly filename: string) {
+  constructor(readonly filename: string, options: { failMigrationVersion?: number } = {}) {
     this.db = new DatabaseSync(filename);
     this.db.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
-    this.migrate();
+    try { this.migrate(options); } catch (error) { this.db.close(); throw error; }
   }
 
   close(): void { this.db.close(); }
 
-  private migrate(): void {
+  private migrate(options: { failMigrationVersion?: number }): void {
+    const hadProjectSchema = Boolean(this.db.prepare("SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'books'").get());
     this.db.exec(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS series (id TEXT PRIMARY KEY, title TEXT NOT NULL, premise TEXT NOT NULL, publication_target TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS books (id TEXT PRIMARY KEY, series_id TEXT NOT NULL REFERENCES series(id) ON DELETE CASCADE, title TEXT NOT NULL, premise TEXT NOT NULL, genre_pack TEXT NOT NULL, planned_order INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS chapters (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, number INTEGER NOT NULL, title TEXT NOT NULL, content_markdown TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(book_id, number));
@@ -50,6 +52,60 @@ export class StudioStore {
       CREATE TABLE IF NOT EXISTS knowledge_chunks (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES knowledge_sources(id) ON DELETE CASCADE, content TEXT NOT NULL, topics_json TEXT NOT NULL, applicability_json TEXT NOT NULL, citation TEXT NOT NULL, created_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS research_items (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, url TEXT NOT NULL, title TEXT NOT NULL, excerpt TEXT NOT NULL, source_snapshot TEXT NOT NULL, claim TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', citation TEXT NOT NULL, created_at TEXT NOT NULL, approved_at TEXT);
     `);
+    this.db.prepare("INSERT OR IGNORE INTO schema_migrations VALUES (1, 'studio-foundation', ?)").run(now());
+    const fairPlayMigration = this.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 2").get();
+    if (!fairPlayMigration) {
+      if (hadProjectSchema) this.backupBeforeMigration(2);
+      const jobNodeColumns = this.db.prepare("PRAGMA table_info(job_nodes)").all() as Array<{ name: string }>;
+      atomic(this.db, () => {
+        if (!jobNodeColumns.some((column) => column.name === "artifact_visibility")) this.db.exec("ALTER TABLE job_nodes ADD COLUMN artifact_visibility TEXT NOT NULL DEFAULT 'author-only'");
+        this.db.exec(`
+          CREATE TABLE IF NOT EXISTS mystery_policies (
+            book_id TEXT PRIMARY KEY REFERENCES books(id) ON DELETE CASCADE,
+            mode TEXT NOT NULL, central_crime TEXT NOT NULL, period TEXT NOT NULL, technology_level TEXT NOT NULL,
+            investigator_structure TEXT NOT NULL, responsibility_model TEXT NOT NULL, prose_patterns_enabled INTEGER NOT NULL,
+            rule_pack_version TEXT NOT NULL, audit_generation INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS mystery_solutions (
+            book_id TEXT PRIMARY KEY REFERENCES books(id) ON DELETE CASCADE,
+            content_json TEXT NOT NULL, locked INTEGER NOT NULL DEFAULT 0, revision INTEGER NOT NULL DEFAULT 1,
+            approved_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS mystery_suspects (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, name TEXT NOT NULL, introduced_chapter INTEGER, prominent INTEGER NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_evidence (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, title TEXT NOT NULL, kind TEXT NOT NULL, reliability TEXT NOT NULL, visibility TEXT NOT NULL, first_appearance_chapter INTEGER, reveal_chapter INTEGER, required INTEGER NOT NULL, red_herring INTEGER NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_timeline (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, label TEXT NOT NULL, earliest TEXT NOT NULL, latest TEXT NOT NULL, reliability TEXT NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_access (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, character_id TEXT NOT NULL, access_kind TEXT NOT NULL, resource TEXT NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_knowledge (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, character_id TEXT NOT NULL, state TEXT NOT NULL, chapter INTEGER, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_hypotheses (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, kind TEXT NOT NULL, status TEXT NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS mystery_deductions (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, sequence INTEGER NOT NULL, visibility TEXT NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS validation_runs (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, rule_pack_version TEXT NOT NULL, audit_generation INTEGER NOT NULL, status TEXT NOT NULL, summary_json TEXT NOT NULL, created_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS rule_findings (id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES validation_runs(id) ON DELETE CASCADE, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, rule_code TEXT NOT NULL, rule_pack_version TEXT NOT NULL, suite TEXT NOT NULL, severity TEXT NOT NULL, status TEXT NOT NULL, message TEXT NOT NULL, evidence_ids_json TEXT NOT NULL, entity_type TEXT, entity_id TEXT, permitted_actions_json TEXT NOT NULL, created_at TEXT NOT NULL, resolved_at TEXT);
+          CREATE TABLE IF NOT EXISTS rule_waivers (id TEXT PRIMARY KEY, finding_id TEXT NOT NULL UNIQUE REFERENCES rule_findings(id) ON DELETE CASCADE, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, rationale TEXT NOT NULL, approved_by TEXT NOT NULL, created_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS workflow_artifacts (id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE, node_id TEXT REFERENCES job_nodes(id) ON DELETE SET NULL, kind TEXT NOT NULL, visibility TEXT NOT NULL, rule_pack_version TEXT NOT NULL, content_json TEXT NOT NULL, created_at TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS solution_access_events (id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE, job_id TEXT, node_id TEXT, actor TEXT NOT NULL, capability TEXT NOT NULL, allowed INTEGER NOT NULL, reason TEXT NOT NULL, created_at TEXT NOT NULL);
+          CREATE INDEX IF NOT EXISTS idx_mystery_evidence_book ON mystery_evidence(book_id, first_appearance_chapter);
+          CREATE INDEX IF NOT EXISTS idx_rule_findings_book ON rule_findings(book_id, status, severity);
+          CREATE INDEX IF NOT EXISTS idx_workflow_artifacts_job ON workflow_artifacts(job_id, visibility);
+        `);
+        const legacyCases = this.db.prepare("SELECT m.*, b.genre_pack FROM mystery_cases m JOIN books b ON b.id = m.book_id").all() as Array<{ book_id: string; culprit: string; motive: string; means: string; opportunity: string; solution_locked: number; genre_pack: string }>;
+        const insertPolicy = this.db.prepare("INSERT OR IGNORE INTO mystery_policies VALUES (?, 'contemporary', 'Legacy mystery requiring review', 'unspecified', 'unspecified', 'principal', 'single', 1, 'fair-play-detective-2026@1', 1, ?, ?)");
+        const insertSolution = this.db.prepare("INSERT OR IGNORE INTO mystery_solutions VALUES (?, ?, 0, 1, NULL, ?, ?)");
+        for (const legacy of legacyCases) {
+          const migratedAt = now();
+          insertPolicy.run(legacy.book_id, migratedAt, migratedAt);
+          insertSolution.run(legacy.book_id, json({ bookId: legacy.book_id, victimOrTarget: "Unspecified legacy target", responsibleParties: [legacy.culprit], actualEvent: `Legacy method: ${legacy.means}`, apparentEvent: "Not represented by the legacy schema", motive: { actual: legacy.motive, selfJustification: "", publicExplanation: "", investigatorInterpretation: "" }, method: legacy.means, opportunity: legacy.opportunity, concealment: "Not represented by the legacy schema", reconstruction: ["Review and complete this migrated solution before locking it."], uncertainty: "unresolved", locked: false }), migratedAt, migratedAt);
+        }
+        const legacyClues = this.db.prepare("SELECT * FROM clues").all() as Array<{ id: string; book_id: string; title: string; evidence: string; discovered_chapter: number | null; interpretation: string; visibility: string; payoff_chapter: number | null; red_herring: number; status: string; created_at: string; updated_at: string }>;
+        const insertEvidence = this.db.prepare("INSERT OR IGNORE INTO mystery_evidence VALUES (?, ?, ?, 'physical', 'unresolved', ?, ?, ?, ?, ?, ?, ?, ?)");
+        for (const clue of legacyClues) {
+          const visibility = clue.visibility === "reader-visible" ? "reader-visible" : "solution-authorized";
+          const content = { id: clue.id, bookId: clue.book_id, title: clue.title, kind: "physical", source: "Legacy clue ledger", reliability: "unresolved", visibility, firstAppearanceChapter: clue.discovered_chapter ?? undefined, revealChapter: clue.payoff_chapter ?? undefined, apparentMeaning: clue.evidence, trueMeaning: clue.interpretation || clue.evidence, required: clue.status === "resolved", redHerring: Boolean(clue.red_herring), corroborates: [], contradicts: [], extensions: { legacyStatus: clue.status } };
+          insertEvidence.run(clue.id, clue.book_id, clue.title, visibility, clue.discovered_chapter, clue.payoff_chapter, clue.status === "resolved" ? 1 : 0, clue.red_herring, json(content), clue.created_at, clue.updated_at);
+        }
+        if (options.failMigrationVersion === 2) throw new Error("Injected fair-play migration failure");
+        this.db.prepare("INSERT INTO schema_migrations VALUES (2, 'fair-play-detective-2026', ?)").run(now());
+      });
+    }
     // FTS5 is optional in SQLite builds shipped by some supported Node runtimes.
     // knowledge_chunks remains canonical and KnowledgeBase falls back to LIKE search.
     try {
@@ -57,6 +113,15 @@ export class StudioStore {
     } catch {
       // A missing FTS5 extension must not prevent Studio from opening a project.
     }
+  }
+
+  private backupBeforeMigration(version: number): void {
+    if (this.filename === ":memory:" || !existsSync(this.filename)) return;
+    this.db.exec("PRAGMA wal_checkpoint(FULL)");
+    const backupDirectory = join(dirname(this.filename), "backups");
+    mkdirSync(backupDirectory, { recursive: true });
+    const timestamp = now().replaceAll(":", "-");
+    copyFileSync(this.filename, join(backupDirectory, `studio-pre-v${version}-${timestamp}.sqlite`));
   }
 
   supportsKnowledgeFts(): boolean {
@@ -204,12 +269,24 @@ export class StudioStore {
     }
     const blockedFeedback = this.db.prepare("SELECT f.id, p.name FROM reader_feedback f JOIN reader_personas p ON p.id = f.persona_id WHERE f.book_id = ? AND f.severity = 'critical' AND p.blocks_approval = 1 AND f.resolved_at IS NULL").all(bookId) as Array<{ id: string; name: string }>;
     for (const feedback of blockedFeedback) findings.push({ code: "READER_PANEL_BLOCK", severity: "critical", entityId: feedback.id, message: `Blocking reader persona feedback from ${feedback.name} remains unresolved.` });
+    const hasFairPlayPolicy = Boolean(this.db.prepare("SELECT 1 FROM mystery_policies WHERE book_id = ?").get(bookId));
     const mystery = this.db.prepare("SELECT * FROM mystery_cases WHERE book_id = ?").get(bookId) as { solution_locked: number } | undefined;
-    if (mystery) {
+    if (mystery && !hasFairPlayPolicy) {
       if (!mystery.solution_locked) findings.push({ code: "MYSTERY_SOLUTION_UNLOCKED", severity: "critical", message: "Mystery solution is not locked." });
       const clues = this.db.prepare("SELECT id, title, status, payoff_chapter FROM clues WHERE book_id = ?").all(bookId) as Array<{ id: string; title: string; status: string; payoff_chapter: number | null }>;
       if (!clues.some((clue) => clue.status === "resolved" && clue.payoff_chapter !== null)) findings.push({ code: "MYSTERY_NO_PAYOFF_EVIDENCE", severity: "critical", message: "Mystery has no resolved clue with a documented payoff." });
       for (const clue of clues.filter((item) => item.status === "open")) findings.push({ code: "MYSTERY_OPEN_CLUE", severity: "warning", entityId: clue.id, message: `Clue remains open: ${clue.title}` });
+    }
+    const policy = this.db.prepare("SELECT audit_generation, mode FROM mystery_policies WHERE book_id = ?").get(bookId) as { audit_generation: number; mode: string } | undefined;
+    if (policy) {
+      const latestRun = this.db.prepare("SELECT id, status FROM validation_runs WHERE book_id = ? AND audit_generation = ? ORDER BY created_at DESC LIMIT 1").get(bookId, policy.audit_generation) as { id: string; status: string } | undefined;
+      if (!latestRun || latestRun.status === "stale") findings.push({ code: "MYSTERY_AUDIT_REQUIRED", severity: "critical", message: "The current fair-play policy and canon require a fresh validation run." });
+      if (latestRun) {
+        const ruleFindings = this.db.prepare("SELECT id, rule_code, severity, status, message FROM rule_findings WHERE run_id = ? AND status = 'open'").all(latestRun.id) as Array<{ id: string; rule_code: string; severity: string; status: string; message: string }>;
+        for (const item of ruleFindings) findings.push({ code: item.rule_code, severity: item.severity === "blocker" || item.severity === "major" ? "critical" : "warning", entityId: item.id, message: item.message });
+      }
+      const waivers = this.db.prepare("SELECT w.finding_id, w.rationale, f.rule_code FROM rule_waivers w JOIN rule_findings f ON f.id = w.finding_id WHERE w.book_id = ?").all(bookId) as Array<{ finding_id: string; rationale: string; rule_code: string }>;
+      for (const waiver of waivers) findings.push({ code: `${waiver.rule_code}_WAIVED`, severity: "warning", entityId: waiver.finding_id, message: `Author waiver: ${waiver.rationale}` });
     }
     return { publishable: findings.every((finding) => finding.severity !== "critical"), findings, generatedAt: now() };
   }

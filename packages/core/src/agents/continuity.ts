@@ -256,7 +256,7 @@ export class ContinuityAuditor extends BaseAgent {
     const resolvedLanguage = gp.language;
     const isEnglish = resolvedLanguage === "en";
 
-    const systemPrompt = isEnglish
+    const systemPromptBase = isEnglish
       ? `You are a strict ${gp.name} web fiction editor. Audit the chapter for continuity, consistency, and quality. ALL OUTPUT MUST BE IN ENGLISH.${protagonistBlock}${searchNote}
 
 Audit dimensions:
@@ -297,6 +297,7 @@ ${dimList}
 }
 
 只有当存在 critical 级别问题时，passed 才为 false。`;
+    const systemPrompt = systemPromptBase + (this.ctx.mysteryContext ? `\n\n${this.ctx.mysteryContext}` : "");
 
     const ledgerBlock = gp.numericalSystem
       ? `\n## 资源账本\n${ledger}`

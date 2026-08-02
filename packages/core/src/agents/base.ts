@@ -9,6 +9,7 @@ export interface AgentContext {
   readonly bookId?: string;
   readonly logger?: Logger;
   readonly onStreamProgress?: OnStreamProgress;
+  readonly mysteryContext?: string;
 }
 
 export abstract class BaseAgent {

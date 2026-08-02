@@ -20,7 +20,7 @@
 
 ![InkOS Signal Grid: a manuscript connected to causal and workflow nodes](packages/site/public/assets/signal-grid-hero.png)
 
-> InkOS is alpha software. The transactional core and Studio vertical slice are usable, while end-to-end autonomous node execution and advanced graph views remain active development.
+> InkOS is alpha software. The transactional core, Fair-Play Detective 2026 rule pack, and Studio vertical slice are usable, while end-to-end autonomous node execution and advanced graph views remain active development.
 
 ## Start in one command
 
@@ -79,6 +79,8 @@ React Studio / CLI / fixture demo
 The monorepo contains:
 
 - `packages/core`: domain schemas, SQLite store, story graph, mystery ledger, knowledge retrieval, research provenance, and workflow harness.
+- `fair-play-detective-2026`: four mystery modes, sealed solutions, reader projections, evidence/timeline/access matrices, specialist validation, and auditable waivers.
+- `english-prose-patterns-2026`: aggressive advisory prose-pattern locations without AI-authorship classification or automatic rewriting.
 - `packages/cli`: command-line client and local Studio launcher.
 - `packages/studio`: React authoring/control interface and Hono API.
 - `packages/site`: Astro/Starlight website, documentation, and fixture-backed demo.

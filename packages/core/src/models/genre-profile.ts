@@ -13,9 +13,17 @@ export const GenreProfileSchema = z.object({
   pacingRule: z.string().default(""),
   satisfactionTypes: z.array(z.string()).default([]),
   auditDimensions: z.array(z.number()).default([]),
+  rulePacks: z.array(z.string()).default([]),
+  workflowTemplate: z.string().default("standard"),
+  stateExtensions: z.array(z.string()).default([]),
+  validators: z.array(z.string()).default([]),
+  readerPersonas: z.array(z.string()).default([]),
+  requiredCapabilities: z.array(z.string()).default([]),
 });
 
-export type GenreProfile = z.infer<typeof GenreProfileSchema>;
+type ParsedGenreProfileValue = z.infer<typeof GenreProfileSchema>;
+type ExtensionKeys = "rulePacks" | "workflowTemplate" | "stateExtensions" | "validators" | "readerPersonas" | "requiredCapabilities";
+export type GenreProfile = Omit<ParsedGenreProfileValue, ExtensionKeys> & Partial<Pick<ParsedGenreProfileValue, ExtensionKeys>>;
 
 export interface ParsedGenreProfile {
   readonly profile: GenreProfile;

@@ -28,4 +28,6 @@ SQLite is authoritative. Markdown and JSON are export formats. Agents retrieve c
 - Major canon changes require an approval record.
 - A hard obligation must be resolved, deliberately deferred, or waived with rationale.
 - A mystery solution is established before the reveal and significant clues have documented payoffs.
+- Sealed solution data is capability-filtered from drafting and reader agents; their reader projection is chapter-bounded and auditable.
+- Fair-play policy, evidence, chronology, access, knowledge, hypotheses, deductions, findings, waivers, and workflow artifacts are versioned SQLite records.
 - Jobs are resumable and cannot spend beyond their run or monthly caps.

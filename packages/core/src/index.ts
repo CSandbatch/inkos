@@ -32,6 +32,7 @@ export { parseWriterOutput, parseCreativeOutput, type ParsedWriterOutput, type C
 export { buildSettlerSystemPrompt, buildSettlerUserPrompt } from "./agents/settler-prompts.js";
 export { parseSettlementOutput, type SettlementOutput } from "./agents/settler-parser.js";
 export { FanficCanonImporter, type FanficCanonOutput } from "./agents/fanfic-canon-importer.js";
+export { SolutionArchitectAgent, EvidenceArchitectAgent, TimelineAccessBuilderAgent, AdversarialSolverAgent, FairnessAuditorAgent, RealismAuditorAgent, MysteryReviserAgent, createMysterySpecialist, type MysterySpecialistKind, type SolutionArchitectInput, type EvidenceArchitectInput, type TimelineAccessInput, type AdversarialSolverInput, type FairnessAuditInput, type RealismAuditInput, type MysteryRevisionInput } from "./agents/mystery-agents.js";
 export { getFanficDimensionConfig, FANFIC_DIMENSIONS, type FanficDimensionConfig } from "./agents/fanfic-dimensions.js";
 export { buildFanficCanonSection, buildCharacterVoiceProfiles, buildFanficModeInstructions } from "./agents/fanfic-prompt-sections.js";
 

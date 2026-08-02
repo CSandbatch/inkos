@@ -1,15 +1,17 @@
 import { serve, type ServerType } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { mkdirSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync } from "node:fs";
 import { spawn } from "node:child_process";
 import {
-  ApprovalResolutionSchema, BookInputSchema, ChapterInputSchema, ChapterUpdateSchema,
-  MysteryCaseInputSchema, MysteryLedger, ObligationInputSchema, openStudioStore,
+  AgentCapabilitySchema, ApprovalResolutionSchema, BookInputSchema, ChapterInputSchema, ChapterUpdateSchema,
+  ObligationInputSchema, openStudioStore,
   ResearchService, seedCuratedKnowledge, SeriesInputSchema, WorkflowHarness, KnowledgeBase,
+  AccessRecordSchema, analyzeEnglishProsePatterns, DeductionSchema, HypothesisSchema, KnowledgeRecordSchema,
+  MYSTERY_WORKFLOW, MysteryCapabilitySchema, MysteryEngine, MysteryEvidenceSchema, MysteryPolicySchema,
+  MysterySolutionSchema, MysterySuspectSchema, TimelineEventSchema,
 } from "@actalk/inkos-core";
 
 export interface StartStudioOptions {
@@ -19,7 +21,9 @@ export interface StartStudioOptions {
   openBrowser?: boolean;
 }
 
-const staticRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "client");
+const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+const productionStaticRoot = join(moduleDirectory, "..", "client");
+const staticRoot = existsSync(productionStaticRoot) ? productionStaticRoot : join(moduleDirectory, "client");
 const appCleanup = new WeakMap<object, () => void>();
 
 function openUrl(url: string): void {
@@ -34,12 +38,10 @@ export function createStudioApp(projectRoot: string): Hono {
   appCleanup.set(store, () => store.close());
   seedCuratedKnowledge(store);
   const harness = new WorkflowHarness(store);
-  const mystery = new MysteryLedger(store);
+  const fairPlay = new MysteryEngine(store);
   const knowledge = new KnowledgeBase(store);
   const research = new ResearchService(store);
   const app = new Hono();
-  app.use("/api/*", cors());
-
   app.get("/api/v1/health", (c) => c.json({ ok: true }));
   app.get("/api/v1/bootstrap", (c) => {
     const count = store.db.prepare("SELECT COUNT(*) AS count FROM books").get() as { count: number };
@@ -52,12 +54,12 @@ export function createStudioApp(projectRoot: string): Hono {
     recentEvents: store.db.prepare("SELECT id, event_type, rationale, created_at FROM events ORDER BY created_at DESC LIMIT 10").all(),
   }));
   app.post("/api/v1/projects", async (c) => {
-    const body = await c.req.json<{ seriesTitle: string; bookTitle: string; premise: string; genrePack: string; seedMystery?: boolean }>();
+    const body = await c.req.json<{ seriesTitle: string; bookTitle: string; premise: string; genrePack: string; seedMystery?: boolean; mysteryMode?: "strict-golden-age" | "contemporary" | "hybrid" | "rule-breaking" }>();
     const seriesId = store.createSeries(SeriesInputSchema.parse({ title: body.seriesTitle, premise: body.premise, publicationTarget: "general" }));
     const bookId = store.createBook(BookInputSchema.parse({ seriesId, title: body.bookTitle, premise: body.premise, genrePack: body.genrePack, plannedOrder: 1 }));
     store.createChapter(ChapterInputSchema.parse({ bookId, number: 1, title: "Opening", contentMarkdown: "" }));
     if (body.seedMystery) {
-      mystery.lockSolution(MysteryCaseInputSchema.parse({ bookId, culprit: "Undecided suspect", motive: "To be established", means: "To be established", opportunity: "To be established", solutionLocked: false }));
+      fairPlay.configurePolicy(MysteryPolicySchema.parse({ bookId, mode: body.mysteryMode ?? "contemporary", centralCrime: "A consequential hidden event", period: "contemporary", technologyLevel: "contemporary", investigatorStructure: "principal", responsibilityModel: body.mysteryMode === "strict-golden-age" ? "single" : "multiple-traceable", prosePatternsEnabled: true }));
       store.createObligation(ObligationInputSchema.parse({ bookId, kind: "clue", title: "Establish the decisive clue", description: "Plant fair evidence before drafting the reveal.", hard: true, dependencies: [] }));
     }
     return c.json({ bookId }, 201);
@@ -77,14 +79,38 @@ export function createStudioApp(projectRoot: string): Hono {
     const approvals = store.db.prepare("SELECT id, 'approval' AS source, kind AS title, rationale AS detail, 'warning' AS severity, status FROM approvals WHERE book_id = ?").all(id);
     return c.json([...reader, ...approvals]);
   });
-  app.post("/api/v1/books/:bookId/mystery", async (c) => { mystery.lockSolution(MysteryCaseInputSchema.parse({ ...(await c.req.json()), bookId: c.req.param("bookId") })); return c.json({ ok: true }); });
-  app.post("/api/v1/books/:bookId/jobs", async (c) => { const body = await c.req.json<{ idempotencyKey: string; budgetCents: number }>(); const id = harness.start(c.req.param("bookId"), { idempotencyKey: body.idempotencyKey, budgetCents: body.budgetCents, capabilities: new Set(["research", "write", "canon", "publish"]) }); return c.json({ id }, 201); });
-  app.get("/api/v1/jobs/:jobId", (c) => { const id = c.req.param("jobId"); const job = store.db.prepare("SELECT * FROM jobs WHERE id = ?").get(id); if (!job) return c.json({ error: "Job not found" }, 404); return c.json({ job, nodes: store.db.prepare("SELECT * FROM job_nodes WHERE job_id = ? ORDER BY rowid").all(id), events: store.db.prepare("SELECT * FROM job_events WHERE job_id = ? ORDER BY created_at").all(id) }); });
+  app.post("/api/v1/books/:bookId/mystery", (c) => c.json({ error: "Deprecated endpoint. Use /api/v1/books/:bookId/mystery/solution with solution:write capability." }, 410));
+  app.get("/api/v1/books/:bookId/mystery/workbench", (c) => c.json(fairPlay.workbench(c.req.param("bookId"))));
+  app.get("/api/v1/books/:bookId/mystery/policy", (c) => { const policy = fairPlay.getPolicy(c.req.param("bookId")); return policy ? c.json(policy) : c.json({ error: "Mystery policy not configured" }, 404); });
+  app.put("/api/v1/books/:bookId/mystery/policy", async (c) => { fairPlay.configurePolicy(MysteryPolicySchema.parse({ ...(await c.req.json()), bookId: c.req.param("bookId") })); return c.json({ ok: true }); });
+  app.get("/api/v1/books/:bookId/mystery/solution", (c) => { const capability = MysteryCapabilitySchema.parse(c.req.header("x-inkos-capability")); return c.json({ solution: fairPlay.getSolution(c.req.param("bookId"), capability, "studio-author") }); });
+  app.put("/api/v1/books/:bookId/mystery/solution", async (c) => { const capability = MysteryCapabilitySchema.parse(c.req.header("x-inkos-capability")); fairPlay.saveSolution(MysterySolutionSchema.parse({ ...(await c.req.json()), bookId: c.req.param("bookId") }), capability); return c.json({ ok: true }); });
+  const mysteryResources = {
+    suspects: [MysterySuspectSchema, (value: unknown) => fairPlay.addSuspect(value)],
+    evidence: [MysteryEvidenceSchema, (value: unknown) => fairPlay.addEvidence(value)],
+    timeline: [TimelineEventSchema, (value: unknown) => fairPlay.addTimelineEvent(value)],
+    access: [AccessRecordSchema, (value: unknown) => fairPlay.addAccess(value)],
+    knowledge: [KnowledgeRecordSchema, (value: unknown) => fairPlay.addKnowledge(value)],
+    hypotheses: [HypothesisSchema, (value: unknown) => fairPlay.addHypothesis(value)],
+    deductions: [DeductionSchema, (value: unknown) => fairPlay.addDeduction(value)],
+  } as const;
+  for (const [resource, [schema, create]] of Object.entries(mysteryResources)) app.post(`/api/v1/books/:bookId/mystery/${resource}`, async (c) => { const value = schema.parse({ ...(await c.req.json()), bookId: c.req.param("bookId") }); return c.json({ id: create(value) }, 201); });
+  app.get("/api/v1/books/:bookId/mystery/reader-projection", (c) => c.json(fairPlay.readerProjection(c.req.param("bookId"), Number(c.req.query("throughChapter") ?? Number.MAX_SAFE_INTEGER))));
+  app.post("/api/v1/books/:bookId/mystery/validate", (c) => c.json(fairPlay.validate(c.req.param("bookId"))));
+  app.post("/api/v1/books/:bookId/mystery/findings/:findingId/waive", async (c) => { const body = await c.req.json<{ rationale: string }>(); return c.json({ id: fairPlay.waiveFinding(c.req.param("bookId"), c.req.param("findingId"), body.rationale) }, 201); });
+  app.post("/api/v1/prose-patterns/analyze", async (c) => { const body = await c.req.json<{ content: string }>(); return c.json({ findings: analyzeEnglishProsePatterns(body.content) }); });
+  app.post("/api/v1/books/:bookId/jobs", async (c) => { const body = await c.req.json<{ idempotencyKey: string; budgetCents: number }>(); const bookId = c.req.param("bookId"); const nodes = fairPlay.getPolicy(bookId) ? MYSTERY_WORKFLOW : undefined; const capabilities = new Set(["research", "write", "canon", "publish", "story:read", "reader-view:read", "solution:read", "solution:write", "research:web", "draft:write", "canon:propose", "approval:request", "publish:export"] as const); const id = harness.start(bookId, { idempotencyKey: body.idempotencyKey, budgetCents: body.budgetCents, capabilities, nodes }); return c.json({ id }, 201); });
+  app.get("/api/v1/jobs/:jobId", (c) => { const id = c.req.param("jobId"); const job = store.db.prepare("SELECT * FROM jobs WHERE id = ?").get(id); if (!job) return c.json({ error: "Job not found" }, 404); return c.json({ job, nodes: store.db.prepare("SELECT * FROM job_nodes WHERE job_id = ? ORDER BY rowid").all(id), events: store.db.prepare("SELECT * FROM job_events WHERE job_id = ? ORDER BY created_at").all(id), artifacts: store.db.prepare("SELECT id, kind, visibility, rule_pack_version, created_at FROM workflow_artifacts WHERE job_id = ? ORDER BY created_at").all(id), solutionAccess: store.db.prepare("SELECT actor, capability, allowed, reason, created_at FROM solution_access_events WHERE job_id = ? ORDER BY created_at").all(id) }); });
+  app.get("/api/v1/jobs/:jobId/ready", (c) => c.json({ nodes: harness.readyNodes(c.req.param("jobId"), requestCapabilities(c.req.header("x-inkos-capabilities"))) }));
+  app.post("/api/v1/jobs/:jobId/nodes/:nodeId/begin", async (c) => { const body = await c.req.json<{ input?: unknown }>(); harness.beginNode(c.req.param("jobId"), c.req.param("nodeId"), body.input, requestCapabilities(c.req.header("x-inkos-capabilities"))); return c.json({ ok: true }); });
+  app.post("/api/v1/jobs/:jobId/nodes/:nodeId/complete", async (c) => { const body = await c.req.json<{ output?: unknown; costCents?: number }>(); harness.completeNode(c.req.param("jobId"), c.req.param("nodeId"), body.output, requestCapabilities(c.req.header("x-inkos-capabilities")), body.costCents ?? 0); return c.json({ ok: true }); });
+  app.post("/api/v1/jobs/:jobId/nodes/:nodeId/fail", async (c) => { const body = await c.req.json<{ error?: unknown; retryable?: boolean }>(); harness.failNode(c.req.param("jobId"), c.req.param("nodeId"), body.error, requestCapabilities(c.req.header("x-inkos-capabilities")), body.retryable ?? false); return c.json({ ok: true }); });
   app.post("/api/v1/jobs/:jobId/cancel", (c) => { harness.requestCancellation(c.req.param("jobId")); return c.json({ ok: true }); });
   app.post("/api/v1/jobs/:jobId/resume", (c) => { harness.resume(c.req.param("jobId")); return c.json({ ok: true }); });
   app.post("/api/v1/approvals/:approvalId/resolve", async (c) => { const body = ApprovalResolutionSchema.parse(await c.req.json()); store.resolveApproval(c.req.param("approvalId"), body.approved); return c.json({ ok: true, rationale: body.rationale }); });
   app.post("/api/v1/obligations/:obligationId/resolve", async (c) => { const body = await c.req.json<{ status: "resolved" | "deferred" | "waived"; rationale: string }>(); store.resolveObligation(c.req.param("obligationId"), body.status, body.rationale); return c.json({ ok: true }); });
   app.post("/api/v1/books/:bookId/research", async (c) => { const body = await c.req.json<{ url: string; claim: string }>(); return c.json({ id: await research.collect(c.req.param("bookId"), body.url, body.claim) }, 201); });
+  app.post("/api/v1/books/:bookId/research/:researchId/approve", async (c) => { const body = await c.req.json<{ rationale: string }>(); return c.json({ approvalId: research.approve(c.req.param("bookId"), c.req.param("researchId"), body.rationale) }); });
   app.get("/api/v1/knowledge/search", (c) => c.json({ matches: knowledge.search(c.req.query("q") ?? "") }));
   app.post("/api/v1/books/:bookId/export", async (c) => { const id = c.req.param("bookId"); const outputDirectory = join(projectRoot, ".inkos", "exports", id); await store.exportBook(id, outputDirectory); return c.json({ outputDirectory, files: readdirSync(outputDirectory) }); });
 
@@ -93,6 +119,12 @@ export function createStudioApp(projectRoot: string): Hono {
   app.get("/*", serveStatic({ root: staticRoot, path: "index.html" }));
   appCleanup.set(app, () => store.close());
   return app;
+}
+
+export function closeStudioApp(app: Hono): void { appCleanup.get(app)?.(); }
+
+function requestCapabilities(header: string | undefined): Set<ReturnType<typeof AgentCapabilitySchema.parse>> {
+  return new Set((header ?? "").split(",").map((value) => value.trim()).filter(Boolean).map((value) => AgentCapabilitySchema.parse(value)));
 }
 
 export async function startStudio(options: StartStudioOptions): Promise<{ server: ServerType; url: string }> {
