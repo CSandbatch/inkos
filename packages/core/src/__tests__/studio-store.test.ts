@@ -32,7 +32,7 @@ describe("StudioStore", () => {
 
   it("searches literary knowledge when FTS5 is unavailable", () => {
     const db = store();
-    db.db.exec("DROP TABLE knowledge_fts");
+    db.db.exec("DROP TABLE IF EXISTS knowledge_fts");
     const knowledge = new KnowledgeBase(db);
     const sourceId = knowledge.addSource({ title: "Craft", origin: "test", licenseNote: "original", version: "1" });
     knowledge.addChunk(sourceId, { content: "A clue must be visible before the reveal.", topics: ["mystery"], applicability: ["mystery"], citation: "Fair play" });
