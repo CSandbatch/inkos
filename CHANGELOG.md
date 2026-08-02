@@ -14,7 +14,7 @@ All notable InkOS changes are documented here. The format follows [Keep a Change
 ### Changed
 
 - Repositioned InkOS from an autonomous file-first CLI to a supervised local agent production OS for fiction.
-- Raised the supported runtime to Node.js 22.5 or newer for the built-in SQLite API.
+- Raised the supported runtime to Node.js 22.13 or newer, where the built-in SQLite API is available without an experimental flag.
 - Made English the sole product, documentation, prompt, and generation language.
 - Replaced legacy truth-file claims with SQLite transactions, immutable revisions, and attributable events.
 

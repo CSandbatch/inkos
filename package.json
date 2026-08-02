@@ -22,7 +22,7 @@
     "site:build": "pnpm --filter @actalk/inkos-site build"
   },
   "engines": {
-    "node": ">=22.5.0",
+    "node": ">=22.13.0",
     "pnpm": ">=9.0.0"
   }
 }

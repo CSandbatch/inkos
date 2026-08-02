@@ -24,7 +24,7 @@
 
 ## Start in one command
 
-Requires Node.js 22.5 or newer.
+Requires Node.js 22.13 or newer. That is the first Node 22 release where the built-in SQLite module is enabled without an experimental flag.
 
 ```bash
 npx @actalk/inkos studio

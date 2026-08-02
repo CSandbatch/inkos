@@ -4,7 +4,7 @@ description: Launch a private InkOS Studio workspace and complete the first prod
 slug: docs/getting-started
 ---
 
-InkOS requires Node.js 22.5 or newer. Manuscripts, credentials, revisions, and story state remain in the project directory on your machine.
+InkOS requires Node.js 22.13 or newer. This is the first Node 22 release where the built-in SQLite module is enabled without an experimental flag. Manuscripts, credentials, revisions, and story state remain in the project directory on your machine.
 
 ## Launch Studio
 
