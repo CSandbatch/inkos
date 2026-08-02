@@ -4,7 +4,7 @@ import type { GenreProfile } from "../models/genre-profile.js";
 
 const baseProfile: GenreProfile = {
   id: "test",
-  name: "测试",
+  name: "Test",
   language: "zh",
   chapterTypes: [],
   fatigueWords: [],

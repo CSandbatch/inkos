@@ -192,7 +192,7 @@ export class PipelineRunner {
 
     const { profile: gp } = await this.loadGenreProfile(book.genre);
     const foundation = await architect.generateFoundation(book, this.config.externalContext);
-    await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem);
+    await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem, book.language ?? gp.language);
 
     // Ensure chapters directory exists (prevents ENOENT if init was previously interrupted)
     await mkdir(join(bookDir, "chapters"), { recursive: true });
@@ -239,7 +239,7 @@ export class PipelineRunner {
     const architect = new ArchitectAgent(this.agentCtxFor("architect", book.id));
     const { profile: gp } = await this.loadGenreProfile(book.genre);
     const foundation = await architect.generateFanficFoundation(book, fanficCanon, fanficMode);
-    await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem);
+    await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem, book.language ?? gp.language);
 
     // Step 3: Initialize chapters directory + snapshot
     await mkdir(join(bookDir, "chapters"), { recursive: true });
@@ -281,7 +281,7 @@ export class PipelineRunner {
 
       // Save truth files
       await writer.saveChapter(bookDir, output, gp.numericalSystem, resolvedLang);
-      await writer.saveNewTruthFiles(bookDir, output);
+      await writer.saveNewTruthFiles(bookDir, output, book.language ?? gp.language);
 
       // Update index
       const existingIndex = await this.state.loadChapterIndex(bookId);
@@ -675,7 +675,7 @@ export class PipelineRunner {
     }
 
     // Save new truth files (summaries, subplots, emotional arcs, character matrix)
-    await writer.saveNewTruthFiles(bookDir, output);
+    await writer.saveNewTruthFiles(bookDir, output, book.language ?? gp.language);
 
     // 5. Update chapter index
     const existingIndex = await this.state.loadChapterIndex(bookId);
@@ -962,7 +962,7 @@ ${matrix}`,
 
         const architect = new ArchitectAgent(this.agentCtxFor("architect", input.bookId));
         const foundation = await architect.generateFoundationFromImport(book, allText);
-        await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem);
+        await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem, book.language ?? gp.language);
         await this.state.saveChapterIndex(input.bookId, []);
         log?.info("Foundation generated.");
       }
@@ -1000,7 +1000,7 @@ ${matrix}`,
           ...output,
           postWriteErrors: [],
           postWriteWarnings: [],
-        });
+        }, book.language ?? gp.language);
 
         // Update chapter index
         const existingIndex = await this.state.loadChapterIndex(input.bookId);

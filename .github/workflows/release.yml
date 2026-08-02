@@ -7,14 +7,11 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20, 22]
-
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22.13
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -62,7 +59,7 @@ jobs:
       - name: Smoke test — verify no workspace:* in tarballs
         run: |
           set -euo pipefail
-          for pkg in packages/core packages/cli; do
+          for pkg in packages/core packages/studio packages/cli; do
             echo "--- Checking $pkg ---"
             cd "$pkg"
             PACKDIR=$(mktemp -d)
@@ -100,6 +97,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - run: npm install --global npm@11
 
       - name: Derive release versions
         id: versions
@@ -117,14 +115,14 @@ jobs:
       - name: Publish core canary
         working-directory: packages/core
         run: pnpm publish --tag canary --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Studio canary
+        working-directory: packages/studio
+        run: pnpm publish --tag canary --access public --no-git-checks
 
       - name: Publish CLI canary
         working-directory: packages/cli
         run: pnpm publish --tag canary --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   verify-canary:
     runs-on: ubuntu-latest
@@ -193,6 +191,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - run: npm install --global npm@11
 
       - name: Rewrite package versions for final publish
         run: |
@@ -202,14 +201,14 @@ jobs:
       - name: Publish core latest
         working-directory: packages/core
         run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Studio latest
+        working-directory: packages/studio
+        run: pnpm publish --access public --no-git-checks
 
       - name: Publish CLI latest
         working-directory: packages/cli
         run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   verify-release:
     runs-on: ubuntu-latest

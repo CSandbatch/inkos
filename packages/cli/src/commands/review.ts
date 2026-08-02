@@ -52,7 +52,7 @@ reviewCommand
           });
           if (!opts.json) {
             log(
-              `  Ch.${ch.number} "${ch.title}" | ${ch.wordCount}字 | ${ch.status}`,
+              `  Ch.${ch.number} "${ch.title}" | ${ch.wordCount} words | ${ch.status}`,
             );
             if (ch.auditIssues.length > 0) {
               for (const issue of ch.auditIssues) {

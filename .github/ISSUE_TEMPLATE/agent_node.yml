@@ -1,0 +1,24 @@
+name: Agent node RFC
+description: Propose a typed node or tool for the supervised DAG
+labels: ["agent-node", "rfc"]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Production problem }
+    validations: { required: true }
+  - type: textarea
+    id: contract
+    attributes:
+      label: Typed contract
+      description: Define inputs, outputs, artifacts, idempotency behavior, retries, and structured errors.
+    validations: { required: true }
+  - type: dropdown
+    id: capability
+    attributes:
+      label: Required capability
+      options: [research, write, canon, publish]
+    validations: { required: true }
+  - type: textarea
+    id: safety
+    attributes: { label: Budget, approval, and failure boundaries }
+    validations: { required: true }

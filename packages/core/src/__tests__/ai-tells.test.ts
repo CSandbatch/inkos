@@ -18,7 +18,7 @@ describe("analyzeAITells", () => {
 
   it("detects uniform paragraph lengths (dim 20)", () => {
     // Generate paragraphs of nearly identical length
-    const para = "这是一个测试段落的内容，长度大约相同。";
+    const para = "这是一个Test段落的内容，长度大约相同。";
     const content = [para, "", para, "", para, "", para].join("\n");
 
     const result = analyzeAITells(content);

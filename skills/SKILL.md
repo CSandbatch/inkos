@@ -2,7 +2,7 @@
 name: inkos
 description: Autonomous novel writing CLI agent - use for creative fiction writing, novel generation, style imitation, chapter continuation/import, EPUB export, and AIGC detection. Supports Chinese web novel genres (xuanhuan, xianxia, urban, horror, other) with multi-agent pipeline, two-phase writer (creative + settlement), 33-dimension auditing, token usage analytics, creative brief input, structured logging (JSON Lines), and custom OpenAI-compatible provider support.
 version: 1.4.0
-metadata: { "openclaw": { "emoji": "📖", "requires": { "bins": ["inkos", "node"], "env": [] }, "primaryEnv": "", "homepage": "https://github.com/Narcooo/inkos", "install": [{ "id": "npm", "kind": "node", "package": "@actalk/inkos", "label": "Install InkOS (npm)" }] } }
+metadata: { "openclaw": { "emoji": "📖", "requires": { "bins": ["inkos", "node"], "env": [] }, "primaryEnv": "", "homepage": "https://github.com/CSandbatch/inkos", "install": [{ "id": "npm", "kind": "node", "package": "@actalk/inkos", "label": "Install InkOS (npm)" }] } }
 ---
 
 # InkOS - Autonomous Novel Writing Agent
@@ -370,7 +370,7 @@ inkos down
 
 ## Support & Resources
 
-- **Homepage**: https://github.com/Narcooo/inkos
+- **Homepage**: https://github.com/CSandbatch/inkos
 - **Configuration**: Stored in project root after `inkos init`
 - **Truth files**: Located in `.inkos/` directory per book
 - **Logs**: Check output of `inkos doctor` for troubleshooting

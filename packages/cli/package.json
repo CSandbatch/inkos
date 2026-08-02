@@ -13,9 +13,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos.git",
+    "url": "https://github.com/CSandbatch/inkos.git",
     "directory": "packages/cli"
   },
+  "homepage": "https://csandbatch.github.io/inkos/",
+  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
   "scripts": {
     "prepack": "node ../../scripts/prepare-package-for-publish.mjs",
     "postpack": "node ../../scripts/restore-package-json.mjs",
@@ -27,6 +29,7 @@
   },
   "dependencies": {
     "@actalk/inkos-core": "workspace:*",
+    "@actalk/inkos-studio": "workspace:*",
     "commander": "^13.0.0",
     "dotenv": "^16.4.0",
     "epub-gen-memory": "^1.0.10",

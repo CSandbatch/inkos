@@ -1,64 +1,64 @@
 ---
-name: 玄幻
+name: Xuanhuan
 id: xuanhuan
-chapterTypes: ["战斗章", "布局章", "过渡章", "回收章"]
-fatigueWords: ["冷笑", "蝼蚁", "倒吸凉气", "瞳孔骤缩", "不可置信", "轰然炸裂", "满场死寂", "难以置信", "仿佛", "不禁", "宛如", "竟然"]
+chapterTypes: ["Combat", "Setup", "Transition", "Payoff"]
+fatigueWords: ["sneer", "insect", "sharp inhale", "pupils contracted", "unbelievable", "exploded with a boom", "the room fell silent", "unbelievable", "as if", "couldn't help but", "like", "surprisingly"]
 numericalSystem: true
 powerScaling: true
 eraResearch: false
-pacingRule: "三章内必有明确反馈：打脸、收益兑现、信息反转、地位变化"
-satisfactionTypes: ["打脸", "升级突破", "收益兑现", "智斗碾压", "身份揭示", "底牌亮出"]
+pacingRule: "Provide clear feedback within three chapters: humiliation, reward delivered, information reversal, or status change"
+satisfactionTypes: ["Opponent humbled", "Level breakthrough", "Reward delivered", "Outsmarting victory", "Identity revealed", "Trump card revealed"]
 auditDimensions: [1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,24,25,26]
 ---
 
-## 题材禁忌
+## Genre Prohibitions
 
-- 主角为推剧情突然仁慈、犯蠢、讲武德
-- 同质资源不写衰减默认全额结算
-- 用"暴涨""海量"跳过数值结算
-- 无铺垫的能力觉醒
-- 反派像木桩一样排队送死
-- 无铺垫强行让退场角色回归
-- 在没有铺垫的情况下突然塞入新体系、新地图、新外挂解决问题
-- 把所有章节都写成高爆裂战斗章
-- 拆解知识库反向污染正文，写成"似曾相识"的拼装文
-- 风格混入都市腔、科幻腔、游戏系统播报腔、轻小说吐槽腔
+- Have the protagonist suddenly become merciful, foolish, or preach martial virtue to advance the plot
+- Assume full returns when repeated same-type resources have no stated diminishing returns
+- Skip numerical settlement with phrases such as "surged" or "vast amounts"
+- Awaken abilities without setup
+- Have villains line up to die like wooden targets
+- Bring back an exited character without setup
+- Introduce a new system, map, or cheat ability without setup to solve a problem
+- Turn every chapter into an explosive combat chapter
+- Let the knowledge base contaminate the prose into a stitched-together, déjà-vu-like text
+- Mix in urban, science-fiction, game-system, or light-novel snark diction
 
-## 数值规则
+## Numerical Rules
 
-- 设定不可吃书：前文确立的设定数值后文不可无升级过程地随意改变
-- 金手指四维约束：
-  - 能力上限：必须设定明确的能力天花板，不可无限升级
-  - 附加代价：使用伴随代价（寿命、体力、副作用），权衡利弊增强冲突
-  - 触发条件：激活与特定场景/事件关联，不可随时随地无条件使用
-  - 成长路径：随主角经历同步升级，解锁过程与剧情节点绑定
-- 同质资源重复吞噬必须写明衰减，不得默认全额结算
-- 同质吞噬衰减公式：收益 = 基础值 × max(0.3, 1 - 0.15×(N-1))
-- 不要用"暴涨""海量""难以估量"跳过数值结算
-- 期初值从账本取（不凭记忆），增量逐笔列出并注明来源
-- 消耗逐笔列出并注明用途，期末 = 期初 + 增量 - 消耗，不得跳步
-- 正文中出现的系统提示（如【气血值+X】）必须与POST_SETTLEMENT一致
-- 若正文写了"比A还高"这类比较句，必须数值验证后再保留
-- 数值连续性必须可追溯：同层级、同类型样本的增量不得无说明跨越一个数量级
+- Do not rewrite established facts: values fixed earlier cannot change later without an upgrade process
+- Cheat abilities have four constraints:
+  - Capacity ceiling: define a clear ability ceiling; no infinite leveling
+  - Added cost: use carries a cost such as lifespan, stamina, or side effects
+  - Trigger condition: activation must be tied to a specific scene or event
+  - Growth path: upgrades follow the protagonist's experience and bind unlocks to plot milestones
+- Repeated consumption of the same resource must state diminishing returns
+- Diminishing-return formula: gain = base value × max(0.3, 1 - 0.15×(N-1))
+- Do not skip numerical settlement with "surged", "vast amounts", or "immeasurable"
+- Take starting values from the ledger and list each increment with its source
+- List each expenditure with its purpose; ending = starting + increments - expenditures
+- System prompts appearing in prose (for example, 【Vitality +X】) must match POST_SETTLEMENT
+- Verify comparative statements such as "higher than A" numerically before retaining them
+- Numerical continuity must be traceable; same-level, same-type samples cannot jump an order of magnitude without explanation
 
-## 语言铁律
+## Language Rules
 
-- 力量体系的量级感用体感传达，不用抽象数字。✗"他的火元从12缕增加到24缕" → ✓"手臂比先前有力了，握拳时指骨发紧"
-- 同一高潮段（如吞火/突破/觉醒）中，同一意象域的渲染不超过两轮，第三轮必须切入新信息或新动作
-- 搜尸/清点/装备段落禁止清单式列举，必须带入角色判断或取舍：✗"他翻出粗盐、水囊、黑面饼" → ✓"水囊最值钱，剩下那点水比命轻不了多少"
+- Convey the scale of the power system through physical sensation, not abstract numbers. ✗ "His fire essence rose from 12 strands to 24" → ✓ "His arm felt stronger than before; his knuckles tightened when he made a fist"
+- In one climax using the same image domain, render it no more than twice; the third pass must introduce new information or action
+- Search, inventory, and equipment scenes must not be list-like; include the character's judgment or tradeoff: ✗ "He found salt, a waterskin, and black bread" → ✓ "The waterskin was worth the most; the remaining water was nearly as valuable as life"
 
-## 叙事指导
+## Narrative Guidance
 
-以战斗和资源获取驱动剧情。主角行为由利益驱动，杀伐果断。
-金手指/能力系统必须有限制：使用频率、范围限制或使用代价。
-设定不可吃书：前文确立的数值后文不可无升级过程地随意改变。
+Drive the plot through combat and resource acquisition. The protagonist is motivated by interest and acts decisively.
+Cheat abilities and power systems must have limits: usage frequency, range, or cost.
+Do not rewrite established values without an upgrade process.
 
-三章内应有明确反馈，但反馈可以是打脸、收益兑现、信息反转、地位变化，不限于杀人。
-涉及吞噬时，收益必须同时落到资源说明与具体增量，不能只写抽象提升。
-小冲突尽快兑现反馈；不要把爽点无限后置。
+Provide clear feedback within three chapters; it can be humiliation, a delivered reward, an information reversal, or a status change—not only a kill.
+When consuming resources, record the gain both in the resource description and as a concrete increment.
+Pay off small conflicts quickly; do not postpone every reward.
 
-核心对手必须有脑子，有试探、有误判、有反扑。
-可以留人、钓鱼、示弱、借刀杀人，但前提只能是利益更大，绝不能是心软。
+Core opponents must be intelligent, with probing, misjudgment, and counterattacks.
+The protagonist may spare someone, fish for information, feign weakness, or manipulate others into killing, but only when the gain is greater—not out of softness.
 
-用动作、伤势、声音、重量、冲击、温度来落地"强"，少用空泛判断。
-每个场景至少推进一项：信息、地位、资源、伤亡、仇恨、境界。
+Ground strength in action, injury, sound, weight, impact, and temperature; use fewer vague judgments.
+Every scene must advance at least one of: information, status, resources, casualties, hatred, or realm.

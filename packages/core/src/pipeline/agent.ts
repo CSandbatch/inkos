@@ -7,7 +7,7 @@ import type { ReviseMode } from "../agents/reviser.js";
 const TOOLS: ReadonlyArray<ToolDefinition> = [
   {
     name: "write_draft",
-    description: "写一章草稿。生成正文、更新状态卡/账本/伏笔池、保存章节文件。",
+    description: "Write a chapter draft, update the state card/ledger/hook pool, and save the chapter file.",
     parameters: {
       type: "object",
       properties: {

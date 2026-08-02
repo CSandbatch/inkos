@@ -3,7 +3,7 @@ import { parseWriterOutput, parseCreativeOutput, type ParsedWriterOutput } from 
 import type { GenreProfile } from "../models/genre-profile.js";
 
 const defaultGenreProfile: GenreProfile = {
-  name: "测试",
+  name: "Test",
   id: "test",
   language: "zh",
   chapterTypes: [],
@@ -209,7 +209,7 @@ describe("WriterAgent parseOutput", () => {
   });
 
   it("correctly counts Chinese characters in wordCount", () => {
-    const chineseContent = "这是一段测试文本，包含二十个中文字符加上标点符号。";
+    const chineseContent = "这是一段Test文本，包含二十个中文字符加上标点符号。";
     const output = [
       "=== CHAPTER_CONTENT ===",
       chineseContent,

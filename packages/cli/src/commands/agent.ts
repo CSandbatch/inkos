@@ -18,7 +18,7 @@ export const agentCommand = new Command("agent")
       const context = await resolveContext(opts);
 
       const fullInstruction = context
-        ? `${instruction}\n\n补充信息：${context}`
+        ? `${instruction}\n\nAdditional context: ${context}`
         : instruction;
 
       const maxTurns = parseInt(opts.maxTurns, 10);

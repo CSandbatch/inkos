@@ -1,51 +1,51 @@
 ---
-name: 恐怖
+name: Horror
 id: horror
-chapterTypes: ["氛围章", "事件章", "揭示章", "过渡章", "回收章"]
-fatigueWords: ["毛骨悚然", "不寒而栗", "浑身发冷", "头皮发麻", "鸡皮疙瘩", "心跳加速", "仿佛", "不禁", "宛如", "竟然"]
+chapterTypes: ["Atmosphere", "Event", "Revelation", "Transition", "Payoff"]
+fatigueWords: ["chilling", "shuddering", "cold all over", "scalp tingling", "goosebumps", "heart racing", "as if", "couldn't help but", "like", "surprisingly"]
 numericalSystem: false
 powerScaling: false
 eraResearch: false
-pacingRule: "氛围递进：安全感→微妙不适→确认异常→恐惧升级→高潮→喘息，循环推进"
-satisfactionTypes: ["真相揭示", "成功逃脱", "反杀怪物", "谜团解开", "同伴获救", "规则发现"]
+pacingRule: "Atmospheric escalation: safety → subtle unease → confirmed anomaly → rising fear → climax → respite, cycling forward"
+satisfactionTypes: ["Truth revealed", "Successful escape", "Monster counterattack", "Mystery solved", "Companion rescued", "Rule discovered"]
 auditDimensions: [1,2,3,6,7,8,9,10,13,14,15,16,17,18,19,24,25,26]
 ---
 
-## 题材禁忌
+## Genre Prohibitions
 
-- 恐怖源头过早完全暴露（未知才恐怖）
-- 主角无脑刚正面解决一切
-- 用打脸/升级等爽文套路替代恐怖氛围
-- 恐怖元素与日常场景割裂（好的恐怖来自日常的扭曲）
-- 角色面对恐怖事件完全不害怕
-- 用大量血腥描写替代心理恐惧
+- Reveal the source of horror completely too early (the unknown is what frightens)
+- Have the protagonist solve everything by charging straight at it without thinking
+- Replace horror atmosphere with standard power-fantasy devices such as humiliation or leveling
+- Separate the horror from everyday settings (good horror comes from twisting the ordinary)
+- Have characters face horrific events without fear
+- Replace psychological fear with excessive gore
 
-## 恐惧层级
+## Fear Levels
 
-- 第一层：不适感（微妙的错位、违和）
-- 第二层：不安（确认有异常，但看不清全貌）
-- 第三层：恐惧（威胁明确化，逃生本能启动）
-- 第四层：绝望（规则被打破，安全感彻底崩塌）
-- 不要跳过层级直达高潮，递进才有力量
+- Level one: unease (subtle dislocation and wrongness)
+- Level two: anxiety (an anomaly is confirmed, but its full shape remains unclear)
+- Level three: fear (the threat becomes clear and the survival instinct activates)
+- Level four: despair (the rules break and all sense of safety collapses)
+- Do not skip levels and jump straight to the climax; escalation gives fear its force
 
-## 语言铁律
+## Language Rules
 
-- 恐怖用事实传达，不用情绪标签。✗"他感到一阵恐惧" → ✓"他后颈的汗毛一根根立起来"
-- 禁止过度解释恐怖。异常现象只需呈现，不需叙述者出来总结"这一切都太不正常了"
-- 克制叙事：越恐怖越冷静。句子随恐惧升级而变短，但叙述者语气始终平稳
-- 被淘汰/伤害的配角必须有至少一个暗示其个人故事的细节（书包里的补习班收据、手机壳上的贴纸），让淘汰有重量
+- Convey horror through facts, not emotion labels. ✗ "He felt a wave of fear" → ✓ "The hairs on the back of his neck rose one by one"
+- Do not over-explain horror. Present abnormal phenomena without having the narrator summarize, "This is all far too abnormal"
+- Restrained narration: the more frightening it becomes, the calmer the prose. Sentences may shorten as fear rises, but the narrator's tone stays steady
+- A supporting character who is eliminated or harmed must have at least one detail hinting at a personal story (a tutoring receipt in a schoolbag, a sticker on a phone case), so the loss has weight
 
-## 叙事指导
+## Narrative Guidance
 
-氛围是第一生产力。用五感细节（声音、气味、温度、触感）建立不安。
-恐怖来自对未知的恐惧，信息揭示要克制。
-"看不见的"永远比"看见的"更可怕。
+Atmosphere is the primary engine. Build unease through sensory detail: sound, smell, temperature, and touch.
+Horror comes from fear of the unknown; reveal information sparingly.
+The unseen is always more frightening than the seen.
 
-角色的恐惧反应必须真实：颤抖、口干、思维混乱、判断力下降。
-求生本能驱动行为，不是英雄主义。
-每个安全区都是暂时的，喘息之后是更深的恐惧。
+Characters' fear responses must feel real: trembling, dry mouth, confused thoughts, and impaired judgment.
+Behavior is driven by the survival instinct, not heroism.
+Every safe zone is temporary; after the respite comes deeper fear.
 
-规则感：恐怖世界有自己的规则，发现规则是生存的关键。
-信息管理：读者知道的和角色知道的之间的差距制造悬念。
-日常的扭曲比凭空出现的怪物更恐怖。
-每3章必须打破一次已建立的模式（规则矛盾、可信来源说谎、安全区失效），避免机械重复。
+Rules matter: the horror world has its own rules, and discovering them is the key to survival.
+Information management: the gap between what readers know and what characters know creates suspense.
+The distortion of the ordinary is more frightening than a monster appearing from nowhere.
+Every three chapters, break one established pattern (a rule contradiction, a trusted source lying, or a safe zone failing) to avoid mechanical repetition.

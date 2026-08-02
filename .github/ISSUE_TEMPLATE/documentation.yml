@@ -1,0 +1,20 @@
+name: Documentation report
+description: Report missing, inaccurate, or confusing InkOS documentation
+labels: ["documentation"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Page or section
+      placeholder: https://csandbatch.github.io/inkos/docs/...
+    validations: { required: true }
+  - type: textarea
+    id: problem
+    attributes:
+      label: What blocked you?
+      description: Include the goal you were trying to complete and the point where the documentation stopped helping.
+    validations: { required: true }
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction or example

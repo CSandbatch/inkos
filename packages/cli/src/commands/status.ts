@@ -80,7 +80,7 @@ export const statusCommand = new Command("status")
             log("");
             for (const ch of index) {
               const icon = ch.status === "approved" ? "+" : ch.status === "audit-failed" ? "!" : "~";
-              log(`    [${icon}] Ch.${ch.number} "${ch.title}" | ${ch.wordCount}字 | ${ch.status}`);
+              log(`    [${icon}] Ch.${ch.number} "${ch.title}" | ${ch.wordCount} words | ${ch.status}`);
               if (ch.status === "audit-failed" && ch.auditIssues.length > 0) {
                 const criticals = ch.auditIssues.filter((i: string) => i.startsWith("[critical]"));
                 const warnings = ch.auditIssues.filter((i: string) => i.startsWith("[warning]"));

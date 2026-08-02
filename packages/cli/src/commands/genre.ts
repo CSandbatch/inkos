@@ -93,23 +93,23 @@ genreCommand
       const template = `---
 name: ${name}
 id: ${id}
-chapterTypes: ["推进章", "布局章", "过渡章", "回收章"]
-fatigueWords: ["震惊", "不可思议", "难以置信"]
+chapterTypes: ["progress", "setup", "transition", "payoff"]
+fatigueWords: ["shocked", "unbelievable", "incredible"]
 numericalSystem: ${opts.numerical}
 powerScaling: ${opts.power}
 eraResearch: ${opts.era}
-pacingRule: "每2-3章有一个明确的进展或反馈"
-satisfactionTypes: ["目标达成", "困难克服", "真相揭示"]
+pacingRule: "Every 2–3 chapters should contain clear progress or feedback"
+satisfactionTypes: ["goal achieved", "obstacle overcome", "truth revealed"]
 auditDimensions: [1,2,3,6,7,8,9,10,13,14,15,16,17,18,19]
 ---
 
-## 题材禁忌
+## Genre taboos
 
-- (根据题材添加禁忌)
+- (Add genre-specific taboos here)
 
-## 叙事指导
+## Narrative guidance
 
-(根据题材描述叙事重心和风格要求)
+(Describe the narrative focus and style requirements for this genre here)
 `;
 
       await writeFile(filePath, template, "utf-8");

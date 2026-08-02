@@ -39,7 +39,32 @@ export class ArchitectAgent extends BaseAgent {
       ? "- 需要年代考据支撑（在 book_rules 中设置 eraConstraints）"
       : "";
 
-    const systemPrompt = `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
+    const resolvedLanguage = book.language ?? gp.language;
+    const systemPrompt = resolvedLanguage === "en"
+      ? `You are a professional web-fiction architect. Create the complete foundation for a ${gp.name} novel. Write all generated content in English. Preserve the exact === SECTION: <name> === markers. ${externalContext ? `External instructions:\n${externalContext}` : ""}
+
+Required book details: platform ${book.platform}; genre ${gp.name} (${book.genre}); target chapters ${book.targetChapters}; approximately ${book.chapterWordCount} words per chapter.
+
+Produce these sections:
+
+=== SECTION: story_bible ===
+Use structured level-two headings for world rules, protagonist (identity, special ability, personality, behavioral boundaries), factions and supporting characters (each with name, identity, motive, relationship, and independent goal), geography and environments, and title/blurb strategy.
+
+=== SECTION: volume_outline ===
+Plan each volume with a title, chapter range, core conflict, key turns, and reward goal. Chapters 1–3 must introduce the core conflict, demonstrate the protagonist's defining advantage, and establish a concrete short-term goal.
+
+=== SECTION: book_rules ===
+Output YAML frontmatter followed by narrative guidance. Include version, protagonist, personalityLock, behavioralConstraints, genreLock, prohibitions, chapterTypesOverride, fatigueWordsOverride, additionalAuditDimensions, enableFullCastTracking, narrative viewpoint, and core conflict.
+
+=== SECTION: current_state ===
+Create the initial chapter-zero state card with current chapter, location, protagonist state, current goal, limitations, allies/enemies, and conflict.
+
+=== SECTION: pending_hooks ===
+Create the initial hook pool as a Markdown table with hook_id, start chapter, type, status, latest progress, expected resolution, and notes.
+
+Requirements: match the ${book.platform} audience and ${gp.name} genre, use the genre's numerical/power/era rules, give the protagonist clear behavioral boundaries, resolve hooks coherently, and give supporting characters independent motives.
+${numericalBlock}\n${powerBlock}\n${eraBlock}`
+      : `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
 
 要求：
 - 平台：${book.platform}
@@ -151,9 +176,8 @@ ${eraBlock}
 4. 伏笔前后呼应，不留悬空线
 5. 配角有独立动机，不是工具人`;
 
-    const resolvedLanguage = book.language ?? gp.language;
     const langPrefix = resolvedLanguage === "en"
-      ? `【LANGUAGE OVERRIDE】ALL output (story_bible, volume_outline, book_rules, current_state, pending_hooks) MUST be written in English. Character names, place names, and all prose must be in English. The === SECTION: === tags remain unchanged.\n\n`
+      ? `LANGUAGE OVERRIDE: ALL output (story_bible, volume_outline, book_rules, current_state, pending_hooks) MUST be written in English. Character names, place names, and prose must be in English. The === SECTION: === tags remain unchanged.\n\n`
       : "";
     const userMessage = resolvedLanguage === "en"
       ? `Generate the complete foundation for a ${gp.name} novel titled "${book.title}". Write everything in English.`
@@ -171,6 +195,7 @@ ${eraBlock}
     bookDir: string,
     output: ArchitectOutput,
     numericalSystem: boolean = true,
+    language: "zh" | "en" = "zh",
   ): Promise<void> {
     const storyDir = join(bookDir, "story");
     await mkdir(storyDir, { recursive: true });
@@ -187,7 +212,9 @@ ${eraBlock}
       writes.push(
         writeFile(
           join(storyDir, "particle_ledger.md"),
-          "# 资源账本\n\n| 章节 | 期初值 | 来源 | 完整度 | 增量 | 期末值 | 依据 |\n|------|--------|------|--------|------|--------|------|\n| 0 | 0 | 初始化 | - | 0 | 0 | 开书初始 |\n",
+          language === "en"
+            ? "# Resource Ledger\n\n| Chapter | Opening | Source | Completeness | Delta | Closing | Basis |\n|---|---|---|---|---|---|---|\n| 0 | 0 | Initialization | - | 0 | 0 | Book opening |\n"
+            : "# 资源账本\n\n| 章节 | 期初值 | 来源 | 完整度 | 增量 | 期末值 | 依据 |\n|------|--------|------|--------|------|--------|------|\n| 0 | 0 | 初始化 | - | 0 | 0 | 开书初始 |\n",
           "utf-8",
         ),
       );
@@ -197,17 +224,23 @@ ${eraBlock}
     writes.push(
       writeFile(
         join(storyDir, "subplot_board.md"),
-        "# 支线进度板\n\n| 支线ID | 支线名 | 相关角色 | 起始章 | 最近活跃章 | 距今章数 | 状态 | 进度概述 | 回收ETA |\n|--------|--------|----------|--------|------------|----------|------|----------|---------|\n",
+        language === "en"
+          ? "# Subplot Board\n\n| Subplot ID | Name | Characters | Start | Last active | Chapters since | Status | Progress | Resolution ETA |\n|---|---|---|---|---|---|---|---|---|\n"
+          : "# 支线进度板\n\n| 支线ID | 支线名 | 相关角色 | 起始章 | 最近活跃章 | 距今章数 | 状态 | 进度概述 | 回收ETA |\n|--------|--------|----------|--------|------------|----------|------|----------|---------|\n",
         "utf-8",
       ),
       writeFile(
         join(storyDir, "emotional_arcs.md"),
-        "# 情感弧线\n\n| 角色 | 章节 | 情绪状态 | 触发事件 | 强度(1-10) | 弧线方向 |\n|------|------|----------|----------|------------|----------|\n",
+        language === "en"
+          ? "# Emotional Arcs\n\n| Character | Chapter | Emotional state | Trigger | Intensity (1-10) | Arc direction |\n|---|---|---|---|---|---|\n"
+          : "# 情感弧线\n\n| 角色 | 章节 | 情绪状态 | 触发事件 | 强度(1-10) | 弧线方向 |\n|------|------|----------|----------|------------|----------|\n",
         "utf-8",
       ),
       writeFile(
         join(storyDir, "character_matrix.md"),
-        "# 角色交互矩阵\n\n### 角色档案\n| 角色 | 核心标签 | 反差细节 | 说话风格 | 性格底色 | 与主角关系 | 核心动机 | 当前目标 |\n|------|----------|----------|----------|----------|------------|----------|----------|\n\n### 相遇记录\n| 角色A | 角色B | 首次相遇章 | 最近交互章 | 关系性质 | 关系变化 |\n|-------|-------|------------|------------|----------|----------|\n\n### 信息边界\n| 角色 | 已知信息 | 未知信息 | 信息来源章 |\n|------|----------|----------|------------|\n",
+        language === "en"
+          ? "# Character Interaction Matrix\n\n### Character Profiles\n| Character | Core tags | Contrast detail | Voice | Baseline | Relationship | Core motive | Current goal |\n|---|---|---|---|---|---|---|---|\n\n### Encounter Log\n| Character A | Character B | First encounter | Latest interaction | Relationship | Change |\n|---|---|---|---|---|---|\n\n### Information Boundaries\n| Character | Known information | Unknown information | Source chapter |\n|---|---|---|---|\n"
+          : "# 角色交互矩阵\n\n### 角色档案\n| 角色 | 核心标签 | 反差细节 | 说话风格 | 性格底色 | 与主角关系 | 核心动机 | 当前目标 |\n|------|----------|----------|----------|----------|------------|----------|----------|\n\n### 相遇记录\n| 角色A | 角色B | 首次相遇章 | 最近交互章 | 关系性质 | 关系变化 |\n|-------|-------|------------|------------|----------|----------|\n\n### 信息边界\n| 角色 | 已知信息 | 未知信息 | 信息来源章 |\n|------|----------|----------|------------|\n",
         "utf-8",
       ),
     );

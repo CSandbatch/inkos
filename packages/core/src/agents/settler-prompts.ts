@@ -31,6 +31,24 @@ export function buildSettlerSystemPrompt(
     ? `【LANGUAGE OVERRIDE】ALL output (state card, hooks, summaries, subplots, emotional arcs, character matrix) MUST be in English. The === TAG === markers remain unchanged.\n\n`
     : "";
 
+  if (isEnglish) {
+    return `${langPrefix}You are a state-tracking analyst. Read the new chapter and current truth files, then produce updated truth files. Do not write prose.
+
+## Task
+Extract every character, location, resource, hook, relationship, emotional, subplot, and information-boundary change. Update incrementally from the existing files and follow the === TAG === markers exactly.
+
+## Book
+- Title: ${book.title}
+- Genre: ${genreProfile.name} (${book.genre})
+- Platform: ${book.platform}
+${genreProfile.numericalSystem ? "- Track every resource change in UPDATED_LEDGER; opening + delta must equal closing." : "- This genre has no numerical system; leave UPDATED_LEDGER empty."}
+${bookRules?.enableFullCastTracking ? "- Include full-cast tracking in POST_SETTLEMENT." : ""}
+
+${buildEnglishSettlerOutputFormat(genreProfile)}
+
+Keep every factual change synchronized across the tracking files. Characters may know only what they could have learned in the story.`;
+  }
+
   return `${langPrefix}你是状态追踪分析师。给定新章节正文和当前 truth 文件，你的任务是产出更新后的 truth 文件。
 
 ## 工作模式
@@ -142,7 +160,26 @@ export function buildSettlerUserPrompt(params: {
   readonly emotionalArcs: string;
   readonly characterMatrix: string;
   readonly volumeOutline: string;
+  readonly language?: "zh" | "en";
 }): string {
+  if (params.language === "en") return `Analyze chapter ${params.chapterNumber}, "${params.title}", and update all tracking files.
+
+## Chapter Text
+${params.content}
+
+## Current State Card
+${params.currentState}
+${params.ledger ? `\n## Current Resource Ledger\n${params.ledger}` : ""}
+\n## Current Hook Pool
+${params.hooks}
+${params.chapterSummaries !== "(文件尚未创建)" ? `\n## Existing Chapter Summaries\n${params.chapterSummaries}` : ""}
+${params.subplotBoard !== "(文件尚未创建)" ? `\n## Current Subplot Board\n${params.subplotBoard}` : ""}
+${params.emotionalArcs !== "(文件尚未创建)" ? `\n## Current Emotional Arcs\n${params.emotionalArcs}` : ""}
+${params.characterMatrix !== "(文件尚未创建)" ? `\n## Current Character Matrix\n${params.characterMatrix}` : ""}
+\n## Volume Outline
+${params.volumeOutline}
+
+Follow the === TAG === output format exactly.`;
   const ledgerBlock = params.ledger
     ? `\n## 当前资源账本\n${params.ledger}\n`
     : "";
@@ -179,4 +216,28 @@ ${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}
 ${params.volumeOutline}
 
 请严格按照 === TAG === 格式输出结算结果。`;
+}
+
+function buildEnglishSettlerOutputFormat(gp: GenreProfile): string {
+  return `=== POST_SETTLEMENT ===
+(Output when hooks or numerical values changed)
+| Item | Chapter record | Notes |
+|---|---|---|
+
+=== UPDATED_STATE ===
+(Complete updated state card in Markdown table format)
+${gp.numericalSystem ? "=== UPDATED_LEDGER ===\n(Complete updated resource ledger in Markdown table format)\n" : ""}=== UPDATED_HOOKS ===
+(Complete updated hook pool in Markdown table format)
+
+=== CHAPTER_SUMMARY ===
+(Chapter summary table)
+
+=== UPDATED_SUBPLOTS ===
+(Complete updated subplot board)
+
+=== UPDATED_EMOTIONAL_ARCS ===
+(Complete updated emotional arcs)
+
+=== UPDATED_CHARACTER_MATRIX ===
+(Complete updated character interaction matrix)`;
 }

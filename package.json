@@ -6,19 +6,23 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos"
+    "url": "https://github.com/CSandbatch/inkos"
   },
+  "homepage": "https://csandbatch.github.io/inkos/",
+  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r dev",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "verify:publish-manifests": "node scripts/verify-no-workspace-protocol.mjs packages/core packages/cli",
-    "release": "pnpm build && pnpm test"
+    "verify:publish-manifests": "node scripts/verify-no-workspace-protocol.mjs packages/core packages/studio packages/cli",
+    "release": "pnpm build && pnpm test",
+    "site:dev": "pnpm --filter @actalk/inkos-site dev",
+    "site:build": "pnpm --filter @actalk/inkos-site build"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=22.13.0",
     "pnpm": ">=9.0.0"
   }
 }

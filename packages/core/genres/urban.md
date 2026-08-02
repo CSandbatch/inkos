@@ -1,53 +1,53 @@
 ---
-name: 都市
+name: Urban
 id: urban
-chapterTypes: ["商战章", "社交章", "布局章", "过渡章", "回收章"]
-fatigueWords: ["冷笑", "不可思议", "震惊", "难以置信", "深吸一口气", "眼中闪过一丝", "仿佛", "不禁", "宛如", "竟然", "核心动机", "信息边界"]
+chapterTypes: ["Business Conflict", "Social", "Setup", "Transition", "Payoff"]
+fatigueWords: ["sneer", "incredible", "shocked", "unbelievable", "take a deep breath", "a flicker crossed his eyes", "as if", "couldn't help but", "like", "surprisingly", "core motivation", "information boundary"]
 numericalSystem: false
 powerScaling: false
 eraResearch: true
-pacingRule: "每2-3章一个小回报：商业收益、人脉拓展、对手受挫、信息优势"
-satisfactionTypes: ["商战碾压", "身份揭示", "人脉兑现", "对手打脸", "资源收割", "地位跃升"]
+pacingRule: "Every 2–3 chapters should contain a small payoff: business gain, network expansion, opponent setback, or information advantage"
+satisfactionTypes: ["Business victory", "Identity revealed", "Network payoff", "Opponent humbled", "Resources secured", "Status rise"]
 auditDimensions: [1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,25,26]
 ---
 
-## 题材禁忌
+## Genre Prohibitions
 
-- 无逻辑的商业奇迹（没有铺垫的暴富）
-- 反派降智配合主角表演
-- 无视现实法律和商业规则
-- 用"一个电话搞定"跳过具体操作过程
-- 女性角色沦为花瓶或奖励
-- 混入玄幻/仙侠战力体系
+- Illogical business miracles (sudden wealth without setup)
+- Make villains stupid so they can perform for the protagonist
+- Ignore real-world laws and business rules
+- Skip concrete operations with "one phone call solves it"
+- Reduce women characters to decorations or rewards
+- Mix in xuanhuan/xianxia power systems
 
-## 年代与现实约束
+## Period and Real-World Constraints
 
-- 涉及法律、政策、商业规则必须符合设定年代
-- 金融操作、公司运营必须有基本可信度
-- 人物身份、职位、权限不能超出现实合理范围
-- 地名、机构名、行业术语必须准确
-- 物价、收入、生活水平符合时代设定
+- Laws, policies, and business rules must fit the established period
+- Financial operations and company management must have basic credibility
+- Character identities, positions, and authority must remain within realistic bounds
+- Place names, institution names, and industry terminology must be accurate
+- Prices, income, and living standards must fit the period
 
-## 语言铁律
+## Language Rules
 
-- 人物内心独白必须口语化、直觉化，禁止商业分析/博弈论术语渗入叙事
-- ✗"他迅速分析了当前的债务状况" → ✓"他把那叠皱巴巴的白条翻了三遍"
-- ✗"信息落差就在这儿" → ✓"他们不知道的，他知道"
-- ✗"以这种人的性格，这时候不会撕破脸" → ✓直接写对方的行为反应
-- 法律/商业术语必须匹配设定年代的真实语感：2003年民间借条不会写"逾期处置授权"，而是"到期没还，房子归乙方处理"
-- 主角的判断通过行动和对话体现，不通过上帝视角的分析段落
+- Inner monologue must be colloquial and intuitive; do not let business analysis or game-theory terminology enter the narrative
+- ✗ "He quickly analyzed the current debt situation" → ✓ "He went through that crumpled stack of IOUs three times"
+- ✗ "The information gap is right here" → ✓ "They don't know. He does"
+- ✗ "With a personality like that, he won't burn the bridge now" → ✓ Write the other person's behavioral response directly
+- Legal and business terms must match the authentic speech of the period: a 2003 private IOU would not say "authorization for overdue disposition"; it would say "If you don't pay by the due date, the house goes to the other party"
+- Show the protagonist's judgments through actions and dialogue, not omniscient analytical paragraphs
 
-## 叙事指导
+## Narrative Guidance
 
-以商战、社交博弈和信息差驱动剧情。
-权力来自人脉、资本、信息和制度位置，不来自武力。
-冲突解决靠谈判、交易、威慑、法律手段和利益交换。
+Drive the plot through business conflict, social maneuvering, and information asymmetry.
+Power comes from networks, capital, information, and institutional position, not force.
+Resolve conflict through negotiation, transactions, leverage, legal means, and exchanges of interest.
 
-钱权必须落地，通过物、势、地位变化和小人物反应兑现爽点。
-人物关系网是核心资产，每次社交互动都应有利益计算。
-主角需要保留非功能性时刻：思考、犹豫、社交润滑。
-主角不是全知全能，必须在前5章内至少出现一次判断失误或信息偏差。
+Money and power must land in concrete changes: objects, leverage, status, and the reactions of ordinary people.
+The character network is the core asset; every social interaction should involve a calculation of interests.
+The protagonist needs non-functional moments: thought, hesitation, and social lubrication.
+The protagonist is not omniscient or omnipotent; within the first five chapters, include at least one mistaken judgment or information gap.
 
-时代厚重感、人情债与制度摩擦是都市文的灵魂。
-用场面、气味、动作、交易、压迫感切入，不要历史课件式开头。
-嵌入1-2个时代锚点（物价、新闻事件、流行用语）增强年代沉浸感。
+The weight of the era, favors owed, and institutional friction are the soul of urban fiction.
+Enter through scenes, smells, actions, transactions, and pressure—not like the opening of a history textbook.
+Embed one or two period anchors (prices, news events, or popular expressions) to deepen immersion.

@@ -1,0 +1,25 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const stages = ["Research", "Outline", "Scene plan", "Draft", "Validate", "Graph update", "Audit", "Reader panel", "Revise", "Approval"];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
+  <meta name="description" content="InkOS is a local agent production OS for fiction: plan, draft, audit, and close a novel through an inspectable workflow."/>
+  <meta property="og:title" content="InkOS — An agent production OS for fiction"/><meta property="og:description" content="Inspect every draft, state transition, review, cost, and gate. Your manuscript stays local."/><meta property="og:image" content={`${base}/assets/signal-grid-hero.png`}/>
+  <title>InkOS — Agent production OS for fiction</title><link rel="stylesheet" href={`${base}/landing.css`}/>
+</head>
+<body>
+  <header class="site-nav"><a class="logo" href={`${base}/`}><span>I/O</span><b>InkOS</b><small>ALPHA</small></a><nav><a href="#system">System</a><a href={`${base}/docs/getting-started/`}>Docs</a><a href={`${base}/demo/`}>Demo</a><a href="https://github.com/CSandbatch/inkos">GitHub ↗</a></nav></header>
+  <main>
+    <section class="hero"><div class="hero-copy"><p class="eyebrow">LOCAL AGENT PRODUCTION OS / FICTION</p><h1>Finish the story.<br/><em>Inspect the system.</em></h1><p class="lede">Plan, draft, audit, and close a novel through a supervised agent DAG. Every canon change, clue, cost, and review remains visible—and your manuscript stays on your machine.</p><div class="actions"><a class="primary" href={`${base}/docs/getting-started/`}>INSTALL INKOS <span>→</span></a><a href={`${base}/demo/`}>EXPLORE THE DEMO</a></div><div class="command"><code>npx @actalk/inkos studio</code><button data-copy="npx @actalk/inkos studio" aria-label="Copy install command">COPY</button></div></div><div class="hero-art"><img src={`${base}/assets/signal-grid-hero.png`} alt="A manuscript connected to a precise network of story-state and workflow nodes."/><div class="scan-label"><span>FIG 01</span> CAUSAL MANUSCRIPT GRAPH</div></div></section>
+    <section class="proof"><div><strong>SQLITE</strong><span>Transactional source of truth</span></div><div><strong>LOCAL</strong><span>No manuscript cloud dependency</span></div><div><strong>VISIBLE</strong><span>Attributable revisions and gates</span></div><div><strong>HARD STOP</strong><span>Budget and publication controls</span></div></section>
+    <section id="system" class="system"><div class="section-copy"><p class="eyebrow">THE PRODUCTION LINE</p><h2>Agents do not disappear behind a prompt box.</h2><p>InkOS turns novel production into a durable, resumable graph. Deterministic checks and author approvals surround generative work.</p></div><ol class="pipeline">{stages.map((stage, index) => <li><span>{String(index + 1).padStart(2,"0")}</span><b>{stage}</b><i>{index < stages.length - 1 ? "→" : "■"}</i></li>)}</ol></section>
+    <section class="features"><article><span class="index">01</span><h3>STORY STATE THAT CAN TESTIFY</h3><p>Characters, knowledge boundaries, relationships, obligations, clues, and chronology live in a typed graph with attributable events.</p></article><article><span class="index">02</span><h3>MYSTERIES THAT PLAY FAIR</h3><p>Lock culprit, motive, means, opportunity, and evidence before the reveal. Retroactive clue planting requires an explicit retcon.</p></article><article><span class="index">03</span><h3>REVISION WITHOUT AMNESIA</h3><p>Immutable snapshots, visible diffs, approval queues, and rollback preserve the reason behind every creative change.</p></article><article><span class="index">04</span><h3>A HARD DEFINITION OF DONE</h3><p>Publishing remains blocked until hard promises are resolved, deliberately deferred, or waived by the author with rationale.</p></article></section>
+    <section class="privacy"><div><p class="eyebrow">PRIVATE BY ARCHITECTURE</p><h2>The cloud is optional.<br/>Your authorship is not.</h2></div><div class="privacy-grid"><p><b>MANUSCRIPT</b><span>Stored in your local SQLite workspace.</span></p><p><b>CREDENTIALS</b><span>Used by the local process, never the demo.</span></p><p><b>RESEARCH</b><span>Untrusted until explicitly admitted to canon.</span></p><p><b>TELEMETRY</b><span>Opt-in, allowlisted, and content-free.</span></p></div></section>
+    <section class="cta"><p class="eyebrow">START WITH A CLOSED LOOP</p><h2>One command. One sample mystery.<br/>Every decision visible.</h2><div class="actions"><a class="primary" href={`${base}/docs/getting-started/`}>RUN THE FIRST WORKFLOW →</a><a href="https://github.com/CSandbatch/inkos">VIEW SOURCE ↗</a></div></section>
+  </main>
+  <footer><span>INKOS / OPEN SOURCE / MIT</span><span>BUILT FOR TECHNICALLY ADVENTUROUS AUTHORS</span><a href={`${base}/docs/operations/privacy/`}>PRIVACY</a></footer>
+  <script is:inline>document.querySelectorAll('[data-copy]').forEach((button)=>button.addEventListener('click',async()=>{await navigator.clipboard.writeText(button.dataset.copy);button.textContent='COPIED'}));</script>
+</body></html>

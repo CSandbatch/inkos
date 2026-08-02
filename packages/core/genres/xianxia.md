@@ -1,46 +1,46 @@
 ---
-name: 仙侠
+name: Xianxia
 id: xianxia
-chapterTypes: ["战斗章", "悟道章", "布局章", "过渡章", "回收章"]
-fatigueWords: ["冷笑", "蝼蚁", "倒吸凉气", "瞳孔骤缩", "天道", "大道", "因果", "气运", "仿佛", "不禁", "宛如", "竟然"]
+chapterTypes: ["Combat", "Insight", "Setup", "Transition", "Payoff"]
+fatigueWords: ["sneer", "insect", "sharp inhale", "pupils contracted", "Heaven's Way", "the Great Way", "karma", "fortune", "as if", "couldn't help but", "like", "surprisingly"]
 numericalSystem: true
 powerScaling: true
 eraResearch: false
-pacingRule: "修炼/悟道与战斗交替，每3-5章一次小突破或关键收获"
-satisfactionTypes: ["悟道突破", "斗法碾压", "法宝收获", "身份揭示", "天劫渡过", "因果了结"]
+pacingRule: "Alternate cultivation/insight with combat; include a minor breakthrough or key gain every 3–5 chapters"
+satisfactionTypes: ["Insight breakthrough", "Spell victory", "Treasure gained", "Identity revealed", "Tribulation survived", "Karma resolved"]
 auditDimensions: [1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,24,25,26]
 ---
 
-## 题材禁忌
+## Genre Prohibitions
 
-- 主角为推剧情突然仁慈、犯蠢
-- 修为无铺垫跳跃式突破
-- 法宝凭空出现解决危机
-- 天道规则前后矛盾
-- 用"大道无形""天道感应"跳过具体修炼过程
-- 同质资源不写衰减默认全额结算
-- 风格混入都市腔、游戏系统播报腔
+- Have the protagonist suddenly become merciful, foolish, or preach martial virtue to advance the plot
+- Make cultivation breakthroughs without accumulated groundwork
+- Introduce a treasure from nowhere to solve a crisis
+- Contradict the rules of Heaven's Way
+- Skip concrete cultivation with phrases such as "the Great Way is formless" or "Heaven's Way responds"
+- Assume full returns when repeated same-type resources have no stated diminishing returns
+- Mix in urban-fiction diction or game-system announcement diction
 
-## 修炼规则
+## Cultivation Rules
 
-- 境界突破必须有积累过程：悟道、丹药、战斗领悟、机缘
-- 同质资源重复炼化必须写明衰减
-- 法宝体系分品级，使用有代价（灵力、寿元、因果）
-- 金手指/功法四维约束：
-  - 能力上限：有明确的境界/品阶天花板
-  - 附加代价：修炼/使用伴随代价（寿元、因果、心魔）
-  - 触发条件：突破/觉醒需要特定条件（悟道、机缘、天劫）
-  - 成长路径：功法随修为递进，不可跳阶获得
-- 天道规则一旦设定不可违反，除非有明确的特殊机制
-- 期初修为/资源从账本取，增量逐笔列出
-- 跨大境界突破需要天劫或特殊条件
+- A realm breakthrough requires accumulation: insight, pills, combat realization, or opportunity
+- Repeated refinement of the same type of resource must state its diminishing return
+- Treasures have grades and a cost: spiritual power, lifespan, or karma
+- Cheat abilities and cultivation methods have four constraints:
+  - Capacity ceiling: define a clear realm or grade limit
+  - Added cost: cultivation/use carries a cost such as lifespan, karma, or heart demons
+  - Trigger condition: breakthrough/awakening requires a specific condition such as insight, opportunity, or tribulation
+  - Growth path: the method advances with cultivation and cannot skip grades
+- Once established, Heaven's Way rules cannot be violated without an explicit special mechanism
+- Take starting cultivation/resources from the ledger and list each increment separately
+- Crossing a major realm requires a tribulation or special condition
 
-## 叙事指导
+## Narrative Guidance
 
-修炼与悟道是叙事核心，但必须融入剧情而非独立说教。
-悟道场景用五感描写，不用抽象哲理灌输。
-仙侠世界的规则感要强：因果、天劫、气运都是叙事工具。
+Cultivation and insight are the narrative core, but must be integrated into the plot rather than delivered as lectures.
+Use sensory detail in insight scenes instead of abstract philosophical exposition.
+The xianxia world must have strong rules: karma, tribulation, and fortune are narrative tools.
 
-人情债与道义约束是仙侠特有的驱动力。
-门派政治、宗门博弈是重要的布局手段。
-战斗以法术、法宝、阵法为核心，注重空间感和规模感。
+Debts of gratitude and moral obligations are distinctive sources of motivation.
+Sect politics and faction maneuvering are important setup tools.
+Center combat on spells, treasures, and formations, with attention to space and scale.

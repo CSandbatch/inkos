@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,21 +10,13 @@ const cliDir = resolve(testDir, "..", "..");
 const workspaceRoot = resolve(cliDir, "..", "..");
 
 async function extractPackedPackageJson(packDir: string) {
-  execFileSync("npm", ["pack", "--pack-destination", packDir], {
-    cwd: cliDir,
-    env: process.env,
-    encoding: "utf-8",
-  });
-
-  const tgzFiles = (await readdir(packDir)).filter((name) => name.endsWith(".tgz"));
-  if (tgzFiles.length !== 1) {
-    throw new Error(`Expected exactly one tarball in ${packDir}, found ${tgzFiles.length}`);
+  void packDir;
+  execFileSync(process.execPath, [resolve(workspaceRoot, "scripts/prepare-package-for-publish.mjs")], { cwd: cliDir, env: process.env, encoding: "utf-8" });
+  try {
+    return await readFile(join(cliDir, "package.json"), "utf-8");
+  } finally {
+    execFileSync(process.execPath, [resolve(workspaceRoot, "scripts/restore-package-json.mjs")], { cwd: cliDir, env: process.env, encoding: "utf-8" });
   }
-
-  return execFileSync("tar", ["-xOf", join(packDir, tgzFiles[0]), "package/package.json"], {
-    cwd: workspaceRoot,
-    encoding: "utf-8",
-  });
 }
 
 describe("publish packaging", () => {
@@ -89,6 +81,7 @@ describe("publish packaging", () => {
     const cliPackageJson = JSON.parse(await readFile(resolve(cliDir, "package.json"), "utf-8"));
 
     expect(cliPackageJson.dependencies["@actalk/inkos-core"]).toBe("workspace:*");
+    expect(cliPackageJson.dependencies["@actalk/inkos-studio"]).toBe("workspace:*");
   });
 
   it("verifies publishable manifests before npm publish runs", async () => {
@@ -115,6 +108,7 @@ describe("publish packaging", () => {
       );
 
       expect(packedPackageJson.dependencies["@actalk/inkos-core"]).toBe(corePackageJson.version);
+      expect(packedPackageJson.dependencies["@actalk/inkos-studio"]).toBe(corePackageJson.version);
     } finally {
       await rm(packDir, { recursive: true, force: true });
     }

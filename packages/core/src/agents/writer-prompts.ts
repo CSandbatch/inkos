@@ -30,8 +30,8 @@ export function buildWriterSystemPrompt(
   const isEnglish = (languageOverride ?? genreProfile.language) === "en";
 
   const outputSection = mode === "creative"
-    ? buildCreativeOutputFormat(book, genreProfile)
-    : buildOutputFormat(book, genreProfile);
+    ? (isEnglish ? buildEnglishCreativeOutputFormat(book, genreProfile) : buildCreativeOutputFormat(book, genreProfile))
+    : (isEnglish ? buildEnglishOutputFormat(book, genreProfile) : buildOutputFormat(book, genreProfile));
 
   const sections = isEnglish
     ? [
@@ -39,14 +39,14 @@ export function buildWriterSystemPrompt(
         buildEnglishCoreRules(book),
         buildEnglishAntiAIRules(),
         buildEnglishCharacterMethod(),
-        buildGenreRules(genreProfile, genreBody),
-        buildProtagonistRules(bookRules),
-        buildBookRulesBody(bookRulesBody),
-        buildStyleGuide(styleGuide),
-        buildStyleFingerprint(styleFingerprint),
-        fanficContext ? buildFanficCanonSection(fanficContext.fanficCanon, fanficContext.fanficMode) : "",
-        fanficContext ? buildCharacterVoiceProfiles(fanficContext.fanficCanon) : "",
-        fanficContext ? buildFanficModeInstructions(fanficContext.fanficMode, fanficContext.allowedDeviations) : "",
+        buildEnglishGenreRules(genreProfile, genreBody),
+        buildEnglishProtagonistRules(bookRules),
+        buildEnglishBookRulesBody(bookRulesBody),
+        buildEnglishStyleGuide(styleGuide),
+        buildEnglishStyleFingerprint(styleFingerprint),
+        fanficContext ? buildFanficCanonSection(fanficContext.fanficCanon, fanficContext.fanficMode, "en") : "",
+        fanficContext ? buildCharacterVoiceProfiles(fanficContext.fanficCanon, "en") : "",
+        fanficContext ? buildFanficModeInstructions(fanficContext.fanficMode, fanficContext.allowedDeviations, "en") : "",
         buildEnglishPreWriteChecklist(book, genreProfile),
         outputSection,
       ]
@@ -74,6 +74,30 @@ export function buildWriterSystemPrompt(
       ];
 
   return sections.filter(Boolean).join("\n\n");
+}
+
+function buildEnglishGenreRules(gp: GenreProfile, genreBody: string): string {
+  const fatigue = gp.fatigueWords.length ? `- Use each high-fatigue word (${gp.fatigueWords.join(", ")}) no more than once per chapter` : "";
+  const types = gp.chapterTypes.length ? `Before writing, identify the chapter type:\n${gp.chapterTypes.map((t) => `- ${t}`).join("\n")}` : "";
+  return [`## Genre Rules (${gp.name})`, gp.pacingRule ? `- Pacing rule: ${gp.pacingRule}` : "", fatigue, types, genreBody].filter(Boolean).join("\n\n");
+}
+
+function buildEnglishProtagonistRules(rules: BookRules | null): string {
+  if (!rules?.protagonist) return "";
+  const p = rules.protagonist;
+  return [`## Protagonist Rules (${p.name})`, p.personalityLock.length ? `Personality lock: ${p.personalityLock.join(", ")}` : "", p.behavioralConstraints.length ? `Behavioral constraints:\n${p.behavioralConstraints.map((c) => `- ${c}`).join("\n")}` : "", rules.prohibitions.length ? `Book prohibitions:\n${rules.prohibitions.map((x) => `- ${x}`).join("\n")}` : ""].filter(Boolean).join("\n\n");
+}
+
+function buildEnglishBookRulesBody(body: string): string { return body ? `## Book-Specific Rules\n\n${body}` : ""; }
+function buildEnglishStyleGuide(guide: string): string { return guide && guide !== "(文件尚未创建)" ? `## Style Guide\n\n${guide}` : ""; }
+function buildEnglishStyleFingerprint(fingerprint?: string): string { return fingerprint ? `## Style Fingerprint\n\nMatch these extracted writing characteristics:\n\n${fingerprint}` : ""; }
+
+function buildEnglishCreativeOutputFormat(book: BookConfig, gp: GenreProfile): string {
+  return `## Output Format (Strict)\n\n=== PRE_WRITE_CHECK ===\n(Markdown table: outline anchor, context range, current anchor, hooks to resolve, chapter conflict, chapter type, and risk scan)\n\n=== CHAPTER_TITLE ===\n(Chapter title, without "Chapter X")\n\n=== CHAPTER_CONTENT ===\n(Chapter body, approximately ${book.chapterWordCount} words)\n\nOutput only PRE_WRITE_CHECK, CHAPTER_TITLE, and CHAPTER_CONTENT.`;
+}
+
+function buildEnglishOutputFormat(book: BookConfig, gp: GenreProfile): string {
+  return `${buildEnglishCreativeOutputFormat(book, gp)}\n\n=== POST_SETTLEMENT ===\n(Output when hooks or numerical values changed)\n\n=== UPDATED_STATE ===\n(Complete updated state card)\n\n=== UPDATED_HOOKS ===\n(Complete updated hook pool)\n\n=== CHAPTER_SUMMARY ===\n(Chapter summary table)\n\n=== UPDATED_SUBPLOTS ===\n(Complete updated subplot board)\n\n=== UPDATED_EMOTIONAL_ARCS ===\n(Complete updated emotional arcs)\n\n=== UPDATED_CHARACTER_MATRIX ===\n(Complete updated character interaction matrix)`;
 }
 
 // ---------------------------------------------------------------------------
