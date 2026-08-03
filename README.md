@@ -39,19 +39,22 @@ Creative assertions are proposals. Only the author approval service can promote 
 
 ## Run the local Studio
 
-NovelGraph requires Node.js 22.13 or newer.
+NovelGraph requires Node.js 22.13 or newer. The `0.5.0` npm records are awaiting owner authentication, so the public alpha currently runs from source:
 
 ```bash
-npx @actalk/novelgraph studio
+git clone https://github.com/CSandbatch/novelgraph.git
+cd novelgraph
+corepack pnpm install --frozen-lockfile
+corepack pnpm -r build
+node packages/cli/dist/index.js studio
 ```
 
 Studio binds to `127.0.0.1` by default, creates `.novelgraph/studio.sqlite` inside the selected project, and opens the browser. Manuscripts, credentials, model responses, revisions, and graph state remain on the local machine. Listening on a LAN address requires an explicit option and warning.
 
-Until the 0.5.0 npm packages are published, contributors can run the same application from this checkout:
+After the exact `0.5.0` artifacts pass canary verification and move to `latest`, the shorter command will be:
 
 ```bash
-corepack pnpm install
-corepack pnpm --filter @actalk/novelgraph-studio dev
+npx @actalk/novelgraph studio
 ```
 
 The [public demo](https://csandbatch.github.io/novelgraph/demo/) uses an immutable mystery fixture. It asks for no credentials, performs no model calls, and never receives a real manuscript.

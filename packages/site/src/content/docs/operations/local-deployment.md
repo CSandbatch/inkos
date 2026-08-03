@@ -51,7 +51,7 @@ node .\packages\studio\dist\server\server.js
 
 The server also accepts `NOVELGRAPH_STUDIO_PORT` and `NOVELGRAPH_STUDIO_HOST`. A host other than `127.0.0.1`, `localhost`, or `::1` prints a warning because the API is unauthenticated and has no cross-origin access control.
 
-If the published package is available, the equivalent is:
+The npm equivalent is not available yet. After the first registry release passes canary verification, it will be:
 
 ```bash
 npx @actalk/novelgraph studio --no-open

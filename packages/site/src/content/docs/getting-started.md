@@ -6,15 +6,21 @@ slug: docs/getting-started
 
 NovelGraph requires Node.js 22.13 or newer. This is the first Node 22 release where the built-in SQLite module is enabled without an experimental flag. Manuscripts, credentials, revisions, and story state remain in the project directory on your machine.
 
-## Launch Studio
+## Launch the public alpha
 
-From the directory that should contain the novel workspace:
+The `0.5.0` npm records have not been published. Run the verified source build until the release gate clears:
 
 ```bash
-npx @actalk/novelgraph studio
+git clone https://github.com/CSandbatch/novelgraph.git
+cd novelgraph
+corepack pnpm install --frozen-lockfile
+corepack pnpm -r build
+node packages/cli/dist/index.js studio
 ```
 
 Studio binds to `127.0.0.1`, creates `.novelgraph/studio.sqlite`, and opens the local workbench. Use `--no-open` when running without a desktop browser. Binding to another host is an explicit, security-sensitive choice.
+
+Once npm canary verification and promotion are complete, `npx @actalk/novelgraph studio` will replace the source-build sequence. The documentation will not mark that command available before the registry does.
 
 ## Complete the first loop
 
