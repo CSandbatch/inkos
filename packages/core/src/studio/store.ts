@@ -13,7 +13,7 @@ function atomic(db: DatabaseSync, work: () => void): void {
   try { work(); db.exec("COMMIT"); } catch (error) { db.exec("ROLLBACK"); throw error; }
 }
 
-/** Transactional source of truth for a local InkOS Studio workspace. */
+/** Transactional source of truth for a local NovelGraph Studio workspace. */
 export class StudioStore {
   readonly db: DatabaseSync;
 
@@ -104,6 +104,85 @@ export class StudioStore {
         }
         if (options.failMigrationVersion === 2) throw new Error("Injected fair-play migration failure");
         this.db.prepare("INSERT INTO schema_migrations VALUES (2, 'fair-play-detective-2026', ?)").run(now());
+      });
+    }
+    const discoveryMigration = this.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 3").get();
+    if (!discoveryMigration) {
+      if (hadProjectSchema) this.backupBeforeMigration(3);
+      atomic(this.db, () => {
+        this.db.exec(`
+          CREATE TABLE IF NOT EXISTS knowledge_bases (
+            id TEXT PRIMARY KEY, scope TEXT NOT NULL, owner_id TEXT, title TEXT NOT NULL,
+            version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+            UNIQUE(scope, owner_id)
+          );
+          CREATE TABLE IF NOT EXISTS knowledge_claims (
+            id TEXT PRIMARY KEY, knowledge_base_id TEXT NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
+            subject TEXT NOT NULL, predicate TEXT NOT NULL, value_json TEXT NOT NULL, provenance TEXT NOT NULL,
+            status TEXT NOT NULL, source_refs_json TEXT NOT NULL, approval_id TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS knowledge_links (
+            id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            target_knowledge_base_id TEXT NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
+            relation TEXT NOT NULL, created_at TEXT NOT NULL, UNIQUE(book_id, target_knowledge_base_id, relation)
+          );
+          CREATE TABLE IF NOT EXISTS discovery_sessions (
+            id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            status TEXT NOT NULL, current_question TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS discovery_turns (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES discovery_sessions(id) ON DELETE CASCADE,
+            ordinal INTEGER NOT NULL, role TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL,
+            UNIQUE(session_id, ordinal)
+          );
+          CREATE TABLE IF NOT EXISTS discovery_observations (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES discovery_sessions(id) ON DELETE CASCADE,
+            turn_id TEXT REFERENCES discovery_turns(id) ON DELETE SET NULL, key TEXT NOT NULL, value_json TEXT NOT NULL,
+            provenance TEXT NOT NULL, confidence REAL, status TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS story_thrust_candidates (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES discovery_sessions(id) ON DELETE CASCADE,
+            kind TEXT NOT NULL, content_json TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'proposed', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS story_charters (
+            id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            version INTEGER NOT NULL, content_json TEXT NOT NULL, status TEXT NOT NULL,
+            approval_id TEXT, created_at TEXT NOT NULL, approved_at TEXT, UNIQUE(book_id, version)
+          );
+          CREATE TABLE IF NOT EXISTS scratchpad_entries (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES discovery_sessions(id) ON DELETE CASCADE,
+            agent_role TEXT NOT NULL, kind TEXT NOT NULL, content TEXT NOT NULL, confidence REAL,
+            source_refs_json TEXT NOT NULL, created_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS context_dossiers (
+            id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            session_id TEXT REFERENCES discovery_sessions(id) ON DELETE SET NULL, agent_role TEXT NOT NULL,
+            content_json TEXT NOT NULL, created_at TEXT NOT NULL
+          );
+          CREATE INDEX IF NOT EXISTS idx_claims_kb_status ON knowledge_claims(knowledge_base_id, status);
+          CREATE INDEX IF NOT EXISTS idx_discovery_book ON discovery_sessions(book_id, updated_at);
+          CREATE INDEX IF NOT EXISTS idx_scratchpad_session ON scratchpad_entries(session_id, created_at);
+        `);
+        const literaryId = randomUUID(); const createdAt = now();
+        this.db.prepare("INSERT OR IGNORE INTO knowledge_bases VALUES (?, 'literary', NULL, 'NovelGraph Literary Library', 1, ?, ?)").run(literaryId, createdAt, createdAt);
+        const tableColumns = (table: string) => new Set((this.db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>).map((column) => column.name));
+        const seriesColumns = tableColumns("series"); const bookColumns = tableColumns("books");
+        const seriesTitle = seriesColumns.has("title") ? "title" : "id";
+        const bookTitle = bookColumns.has("title") ? "title" : "id";
+        const bookSeries = bookColumns.has("series_id") ? "series_id" : "NULL AS series_id";
+        const seriesRows = this.db.prepare(`SELECT id, ${seriesTitle} AS title FROM series`).all() as Array<{ id: string; title: string }>;
+        const bookRows = this.db.prepare(`SELECT id, ${bookTitle} AS title, ${bookSeries} FROM books`).all() as Array<{ id: string; title: string; series_id: string | null }>;
+        const insertBase = this.db.prepare("INSERT OR IGNORE INTO knowledge_bases VALUES (?, ?, ?, ?, 1, ?, ?)");
+        const insertLink = this.db.prepare("INSERT OR IGNORE INTO knowledge_links VALUES (?, ?, ?, ?, ?)");
+        const seriesBases = new Map<string, string>();
+        for (const series of seriesRows) { const id = randomUUID(); insertBase.run(id, "series", series.id, `${series.title} series canon`, createdAt, createdAt); seriesBases.set(series.id, id); }
+        for (const book of bookRows) {
+          insertBase.run(randomUUID(), "book", book.id, `${book.title} book canon`, createdAt, createdAt);
+          const seriesBase = book.series_id ? seriesBases.get(book.series_id) : undefined; if (seriesBase) insertLink.run(randomUUID(), book.id, seriesBase, "series-canon", createdAt);
+          insertLink.run(randomUUID(), book.id, literaryId, "literary-guidance", createdAt);
+        }
+        if (options.failMigrationVersion === 3) throw new Error("Injected discovery migration failure");
+        this.db.prepare("INSERT INTO schema_migrations VALUES (3, 'novelgraph-discovery-knowledge', ?)").run(now());
       });
     }
     // FTS5 is optional in SQLite builds shipped by some supported Node runtimes.
@@ -304,7 +383,7 @@ export class StudioStore {
 }
 
 export function openStudioStore(workspaceDirectory: string): StudioStore {
-  const filename = join(workspaceDirectory, ".inkos", "studio.sqlite");
+  const filename = join(workspaceDirectory, ".novelgraph", "studio.sqlite");
   mkdirSync(dirname(filename), { recursive: true });
   return new StudioStore(filename);
 }

@@ -10,9 +10,9 @@ const CURATED_CRAFT: ReadonlyArray<{ title: string; topics: string[]; content: s
 ];
 
 export function seedCuratedKnowledge(store: StudioStore): void {
-  const existing = store.db.prepare("SELECT id FROM knowledge_sources WHERE origin = 'inkos-curated' LIMIT 1").get() as { id: string } | undefined;
+  const existing = store.db.prepare("SELECT id FROM knowledge_sources WHERE origin = 'novelgraph-curated' LIMIT 1").get() as { id: string } | undefined;
   if (existing) return;
   const knowledge = new KnowledgeBase(store);
-  const sourceId = knowledge.addSource({ title: "InkOS Curated Literary Craft Library", origin: "inkos-curated", licenseNote: "Original InkOS editorial guidance", version: "1.0.0" });
+  const sourceId = knowledge.addSource({ title: "NovelGraph Curated Literary Craft Library", origin: "novelgraph-curated", licenseNote: "Original NovelGraph editorial guidance", version: "1.0.0" });
   for (const item of CURATED_CRAFT) knowledge.addChunk(sourceId, { content: item.content, topics: item.topics, applicability: ["general"], citation: item.title });
 }

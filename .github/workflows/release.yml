@@ -1,4 +1,4 @@
-name: Release
+name: Stage npm release
 
 on:
   push:
@@ -6,123 +6,105 @@ on:
       - "v*"
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
-  test:
+  verify-and-pack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.13
+          node-version: 22.14
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm --filter @actalk/inkos-core typecheck
-      - run: pnpm --filter @actalk/inkos typecheck
+      - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm docs:check
+      - run: pnpm diagrams:check
+      - run: pnpm copy:lint
 
-  smoke-test:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-
-      - name: Smoke test — CLI help and version
-        run: |
-          node packages/cli/dist/index.js --help
-          node packages/cli/dist/index.js --version
-
-      - name: Smoke test — core import
-        run: node -e "import('./packages/core/dist/index.js').then(m => { if (!m.PipelineRunner) throw new Error('missing PipelineRunner'); console.log('core import OK') })"
-
-      - name: Smoke test — verify no workspace:* in tarballs
+      - name: Verify tag and package versions
+        shell: bash
         run: |
           set -euo pipefail
-          for pkg in packages/core packages/studio packages/cli; do
-            echo "--- Checking $pkg ---"
-            cd "$pkg"
-            PACKDIR=$(mktemp -d)
-            npm pack --pack-destination "$PACKDIR" 2>/dev/null
-            TGZ=$(ls "$PACKDIR"/*.tgz)
-            PACKED_PKG=$(tar -xOf "$TGZ" package/package.json)
-            if echo "$PACKED_PKG" | grep -q '"workspace:'; then
-              echo "FAIL: $pkg tarball still contains workspace: protocol"
-              echo "$PACKED_PKG" | grep 'workspace:'
+          VERSION="${GITHUB_REF_NAME#v}"
+          node scripts/set-package-versions.mjs "$VERSION" --root .
+          pnpm verify:publish-manifests
+          test "$(node -p "require('./packages/core/package.json').version")" = "$VERSION"
+          test "$(node -p "require('./packages/studio/package.json').version")" = "$VERSION"
+          test "$(node -p "require('./packages/cli/package.json').version")" = "$VERSION"
+
+      - name: Pack immutable release tarballs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir release-tarballs
+          npm pack ./packages/core --pack-destination release-tarballs
+          npm pack ./packages/studio --pack-destination release-tarballs
+          npm pack ./packages/cli --pack-destination release-tarballs
+          sha256sum release-tarballs/*.tgz > release-tarballs/SHA256SUMS
+          for archive in release-tarballs/*.tgz; do
+            if tar -xOf "$archive" package/package.json | grep -q '"workspace:'; then
+              echo "FATAL: $archive contains a workspace protocol"
               exit 1
             fi
-            echo "OK: $pkg tarball is clean"
-            rm -rf "$PACKDIR"
-            cd - >/dev/null
           done
+
+      - name: Smoke test the exact CLI tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEST_DIR=$(mktemp -d)
+          npm init --yes --prefix "$TEST_DIR"
+          npm install --prefix "$TEST_DIR" "$GITHUB_WORKSPACE"/release-tarballs/actalk-novelgraph-core-*.tgz
+          npm install --prefix "$TEST_DIR" "$GITHUB_WORKSPACE"/release-tarballs/actalk-novelgraph-studio-*.tgz
+          npm install --prefix "$TEST_DIR" "$GITHUB_WORKSPACE"/release-tarballs/actalk-novelgraph-0*.tgz
+          "$TEST_DIR/node_modules/.bin/novelgraph" --version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-${{ github.ref_name }}
+          path: release-tarballs
+          if-no-files-found: error
+          retention-days: 30
 
   publish-canary:
     runs-on: ubuntu-latest
-    needs: smoke-test
-    outputs:
-      release_version: ${{ steps.versions.outputs.release_version }}
-      canary_version: ${{ steps.versions.outputs.canary_version }}
+    needs: verify-and-pack
+    environment: npm-release
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+      - uses: actions/download-artifact@v4
         with:
-          version: 9
+          name: npm-release-${{ github.ref_name }}
+          path: release-tarballs
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: 22.14
           registry-url: https://registry.npmjs.org
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: npm install --global npm@11
+      - run: npm install --global npm@11.18.0
+      - run: sha256sum --check release-tarballs/SHA256SUMS
 
-      - name: Derive release versions
-        id: versions
+      # Publish one immutable version under canary. Promoting these exact versions
+      # to latest is an interactive dist-tag operation because npm OIDC deliberately
+      # does not authorize dist-tag changes.
+      - name: Publish exact artifacts under canary
+        shell: bash
         run: |
-          RELEASE_VERSION="${GITHUB_REF_NAME#v}"
-          CANARY_VERSION="${RELEASE_VERSION}-canary.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
-          echo "release_version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
-          echo "canary_version=$CANARY_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Rewrite package versions for canary publish
-        run: |
-          node scripts/set-package-versions.mjs "${{ steps.versions.outputs.canary_version }}" --root .
-          pnpm verify:publish-manifests
-
-      - name: Publish core canary
-        working-directory: packages/core
-        run: pnpm publish --tag canary --access public --no-git-checks
-
-      - name: Publish Studio canary
-        working-directory: packages/studio
-        run: pnpm publish --tag canary --access public --no-git-checks
-
-      - name: Publish CLI canary
-        working-directory: packages/cli
-        run: pnpm publish --tag canary --access public --no-git-checks
+          set -euo pipefail
+          npm publish release-tarballs/actalk-novelgraph-core-*.tgz --tag canary --access public
+          npm publish release-tarballs/actalk-novelgraph-studio-*.tgz --tag canary --access public
+          npm publish release-tarballs/actalk-novelgraph-0*.tgz --tag canary --access public
 
   verify-canary:
     runs-on: ubuntu-latest
@@ -130,157 +112,39 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.14
           registry-url: https://registry.npmjs.org
 
-      - name: Verify canary dist-tag and installation
+      - name: Verify registry artifacts and clean installation
+        shell: bash
         run: |
           set -euo pipefail
-          EXPECTED_CANARY="${{ needs.publish-canary.outputs.canary_version }}"
-
-          ACTUAL_CANARY=""
-          for _ in 1 2 3 4 5 6; do
-            ACTUAL_CANARY=$(npm view @actalk/inkos@canary version 2>/dev/null || true)
-            if [ "$ACTUAL_CANARY" = "$EXPECTED_CANARY" ]; then
-              break
-            fi
-            sleep 10
+          VERSION="${GITHUB_REF_NAME#v}"
+          for PACKAGE in @actalk/novelgraph-core @actalk/novelgraph-studio @actalk/novelgraph; do
+            ACTUAL=""
+            for _ in 1 2 3 4 5 6; do
+              ACTUAL=$(npm view "$PACKAGE@canary" version 2>/dev/null || true)
+              [ "$ACTUAL" = "$VERSION" ] && break
+              sleep 10
+            done
+            test "$ACTUAL" = "$VERSION"
           done
+          TEST_DIR=$(mktemp -d)
+          npm init --yes --prefix "$TEST_DIR"
+          npm install --prefix "$TEST_DIR" "@actalk/novelgraph@$VERSION"
+          "$TEST_DIR/node_modules/.bin/novelgraph" --version
 
-          if [ "$ACTUAL_CANARY" != "$EXPECTED_CANARY" ]; then
-            echo "FATAL: canary dist-tag mismatch: expected $EXPECTED_CANARY got ${ACTUAL_CANARY:-<empty>}"
-            exit 1
-          fi
-
-          TMPDIR=$(mktemp -d)
-          cd "$TMPDIR"
-          npm init -y
-          npm install "@actalk/inkos@$EXPECTED_CANARY"
-
-          if grep -q '"workspace:' node_modules/@actalk/inkos/package.json; then
-            echo "FATAL: canary CLI package still contains workspace: protocol"
-            cat node_modules/@actalk/inkos/package.json | grep workspace
-            exit 1
-          fi
-
-          if grep -q '"workspace:' node_modules/@actalk/inkos-core/package.json; then
-            echo "FATAL: canary core package still contains workspace: protocol"
-            cat node_modules/@actalk/inkos-core/package.json | grep workspace
-            exit 1
-          fi
-
-          npx inkos --version
-          echo "Canary verification passed"
-          rm -rf "$TMPDIR"
-
-  publish-release:
-    runs-on: ubuntu-latest
-    needs: [publish-canary, verify-canary]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: npm install --global npm@11
-
-      - name: Rewrite package versions for final publish
+      - name: Promotion instructions
         run: |
-          node scripts/set-package-versions.mjs "${{ needs.publish-canary.outputs.release_version }}" --root .
-          pnpm verify:publish-manifests
-
-      - name: Publish core latest
-        working-directory: packages/core
-        run: pnpm publish --access public --no-git-checks
-
-      - name: Publish Studio latest
-        working-directory: packages/studio
-        run: pnpm publish --access public --no-git-checks
-
-      - name: Publish CLI latest
-        working-directory: packages/cli
-        run: pnpm publish --access public --no-git-checks
-
-  verify-release:
-    runs-on: ubuntu-latest
-    needs: [publish-canary, publish-release]
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-
-      - name: Verify latest dist-tag and installation
-        run: |
-          set -euo pipefail
-          EXPECTED_RELEASE="${{ needs.publish-canary.outputs.release_version }}"
-
-          ACTUAL_LATEST=""
-          for _ in 1 2 3 4 5 6; do
-            ACTUAL_LATEST=$(npm view @actalk/inkos@latest version 2>/dev/null || true)
-            if [ "$ACTUAL_LATEST" = "$EXPECTED_RELEASE" ]; then
-              break
-            fi
-            sleep 10
-          done
-
-          if [ "$ACTUAL_LATEST" != "$EXPECTED_RELEASE" ]; then
-            echo "FATAL: latest dist-tag mismatch: expected $EXPECTED_RELEASE got ${ACTUAL_LATEST:-<empty>}"
-            exit 1
-          fi
-
-          TMPDIR=$(mktemp -d)
-          cd "$TMPDIR"
-          npm init -y
-          npm install "@actalk/inkos@$EXPECTED_RELEASE"
-
-          if grep -q '"workspace:' node_modules/@actalk/inkos/package.json; then
-            echo "FATAL: released CLI package still contains workspace: protocol"
-            cat node_modules/@actalk/inkos/package.json | grep workspace
-            exit 1
-          fi
-
-          if grep -q '"workspace:' node_modules/@actalk/inkos-core/package.json; then
-            echo "FATAL: released core package still contains workspace: protocol"
-            cat node_modules/@actalk/inkos-core/package.json | grep workspace
-            exit 1
-          fi
-
-          npx inkos --version
-          echo "Release verification passed"
-          rm -rf "$TMPDIR"
-
-  github-release:
-    runs-on: ubuntu-latest
-    needs: verify-release
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate release notes
-        id: notes
-        run: |
-          PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p' || echo "")
-          if [ -n "$PREV_TAG" ]; then
-            echo "notes<<EOF" >> "$GITHUB_OUTPUT"
-            git log --pretty=format:"- %s (%h)" "$PREV_TAG"..HEAD >> "$GITHUB_OUTPUT"
-            echo "" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
-          else
-            echo "notes=Initial release" >> "$GITHUB_OUTPUT"
-          fi
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          body: ${{ steps.notes.outputs.notes }}
-          generate_release_notes: true
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo "## Canary verified"
+            echo "The exact $VERSION artifacts passed registry installation."
+            echo "An authenticated maintainer must now run:"
+            echo '```bash'
+            echo "npm dist-tag add @actalk/novelgraph-core@$VERSION latest"
+            echo "npm dist-tag add @actalk/novelgraph-studio@$VERSION latest"
+            echo "npm dist-tag add @actalk/novelgraph@$VERSION latest"
+            echo '```'
+            echo "Then run the Promote npm release workflow for $VERSION."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -39,7 +39,7 @@ const PHRASE_GROUPS: ReadonlyArray<{ category: string; phrases: ReadonlyArray<st
 export function analyzeEnglishProsePatterns(content: string): ReadonlyArray<ProsePatternFinding> {
   const findings: ProsePatternFinding[] = [];
   for (const group of PHRASE_GROUPS) for (const phrase of group.phrases) {
-    const expression = new RegExp(escapeRegex(phrase), "giu"); let match: RegExpExecArray | null;
+    const expression = new RegExp(`\\b${escapeRegex(phrase)}\\b`, "giu"); let match: RegExpExecArray | null;
     while ((match = expression.exec(content))) findings.push(toFinding(content, match.index, match[0], group.category, group.suggestion));
   }
   findings.push(...structuralFindings(content));

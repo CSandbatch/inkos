@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 permissions:
   contents: read
@@ -15,8 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22.13
@@ -24,8 +22,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm docs:check
+      - run: pnpm diagrams:check
+      - run: pnpm copy:lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm site:build
       - name: Verify publishable tarballs
         shell: bash
         run: |
@@ -42,7 +43,7 @@ jobs:
       - name: Scan public product text
         shell: bash
         run: |
-          if rg -n 'Narcooo|[\p{Han}]|â€”|Â·|ä¸' README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SUPPORT.md PRIVACY.md packages/site packages/studio/src/client .github/ISSUE_TEMPLATE; then
-            echo "Stale ownership, CJK text, or mojibake found in a public surface"
+          if rg -n 'Narcooo|InkOS|inkos|INKOS|[\p{Han}]|â€”|Â·|ä¸' README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SUPPORT.md PRIVACY.md packages/site packages/studio/src/client .github/ISSUE_TEMPLATE; then
+            echo "Former identity, stale ownership, CJK text, or mojibake found in a public surface"
             exit 1
           fi

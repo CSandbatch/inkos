@@ -16,7 +16,7 @@ body:
       label: Steps to reproduce
       description: Minimal steps to reproduce the issue.
       placeholder: |
-        1. npx @actalk/inkos studio --no-open
+        1. npx @actalk/novelgraph studio --no-open
         2. Create a local project
         3. Open Manuscript or DAG control
         4. See error: ...
@@ -34,8 +34,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: InkOS version
-      description: Output of `inkos --version`
+      label: NovelGraph version
+      description: Output of `novelgraph --version`
       placeholder: "0.4.9"
     validations:
       required: true

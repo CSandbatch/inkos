@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BrowserRouter, MemoryRouter, NavLink, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -10,38 +9,53 @@ import type { BookRecord, GraphData, MysteryMode, StudioDataSource } from "../sh
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 2_000, retry: 1 } } });
 const nav = [
-  ["/", "Overview", "01"], ["/setup", "New project", "02"], ["/editor", "Manuscript", "03"],
-  ["/graph", "Story graph", "04"], ["/mystery", "Mystery", "05"], ["/workflow", "DAG control", "06"], ["/reviews", "Review center", "07"], ["/exports", "Exports", "08"],
+  ["/", "Overview", "01"], ["/setup", "New book", "02"], ["/discovery", "Discovery", "03"], ["/editor", "Manuscript", "04"],
+  ["/graph", "Story graph", "05"], ["/mystery", "Mystery", "06"], ["/workflow", "DAG control", "07"], ["/reviews", "Review center", "08"], ["/exports", "Exports", "09"],
 ] as const;
+
+const RouterContext = createContext<{ path: string; navigate: (path: string, replace?: boolean) => void } | null>(null);
+function useRouter() { const value = useContext(RouterContext); if (!value) throw new Error("Router is unavailable"); return value; }
+function RouterHost({ embedded, children }: { embedded: boolean; children: React.ReactNode }) {
+  const [path, setPath] = useState(embedded ? "/" : window.location.pathname);
+  useEffect(() => { if (embedded) return; const update = () => setPath(window.location.pathname); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, [embedded]);
+  const navigate = (next: string, replace = false) => { if (!embedded) window.history[replace ? "replaceState" : "pushState"]({}, "", next); setPath(next); };
+  return <RouterContext.Provider value={{ path, navigate }}>{children}</RouterContext.Provider>;
+}
+function NavLink({ to, end = false, className = "", children }: { to: string; end?: boolean; className?: string; children: React.ReactNode }) {
+  const { path, navigate } = useRouter(); const active = end ? path === to : path === to || (to !== "/" && path.startsWith(`${to}/`));
+  return <a className={`${className}${active ? " active" : ""}`.trim()} href={to} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); navigate(to); } }}>{children}</a>;
+}
 
 function Icon({ name }: { name: string }) { return <span className="icon" aria-hidden="true">{name}</span>; }
 
 function Frame({ source }: { source: StudioDataSource }) {
+  const { path, navigate } = useRouter();
   const dashboard = useQuery({ queryKey: ["dashboard"], queryFn: () => source.dashboard() });
   const firstBook = dashboard.data?.books[0];
   const [palette, setPalette] = useState(false);
   useEffect(() => { const key = (event: KeyboardEvent) => { if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setPalette((value) => !value); } }; window.addEventListener("keydown", key); return () => window.removeEventListener("keydown", key); }, []);
+  useEffect(() => { if (dashboard.isSuccess && path === "/editor") navigate(firstBook ? `/editor/${firstBook.id}` : "/setup", true); }, [dashboard.isSuccess, firstBook?.id, path]);
+  const page = path === "/" ? <Dashboard source={source} />
+    : path === "/setup" ? <Setup source={source} />
+    : path === "/discovery" ? (firstBook ? <DiscoveryRoom source={source} book={firstBook} /> : <Empty />)
+    : path.startsWith("/editor/") ? <Editor source={source} bookId={path.slice("/editor/".length)} />
+    : path === "/graph" ? (firstBook ? <GraphView source={source} book={firstBook} /> : <Empty />)
+    : path === "/mystery" ? (firstBook ? <MysteryWorkbench source={source} book={firstBook} /> : <Empty />)
+    : path === "/workflow" ? (firstBook ? <Workflow source={source} book={firstBook} /> : <Empty />)
+    : path === "/reviews" ? (firstBook ? <Reviews source={source} book={firstBook} /> : <Empty />)
+    : path === "/exports" ? (firstBook ? <Exports source={source} book={firstBook} /> : <Empty />)
+    : <Empty />;
   return <div className="studio-shell">
     <aside className="rail">
-      <a className="brand" href="/"><span className="brand-mark">I/O</span><span><b>InkOS</b><small>STUDIO / ALPHA</small></span></a>
+      <a className="brand" href="/"><span className="brand-mark">N/G</span><span><b>NovelGraph</b><small>STUDIO / ALPHA</small></span></a>
       <nav aria-label="Studio navigation">{nav.map(([to, label, number]) => <NavLink key={to} end={to === "/"} to={to}><span>{number}</span>{label}</NavLink>)}</nav>
       <div className="rail-status"><span className="signal verified" />LOCAL ONLY<small>{source.mode === "demo" ? "Fixture mode" : "SQLite connected"}</small></div>
     </aside>
     <main className="workspace">
-      <header className="topbar"><div className="breadcrumbs"><span>INKOS</span><i>/</i><b>{firstBook?.title ?? "UNCONFIGURED"}</b></div><button className="command" onClick={() => setPalette(true)}>Search or command <kbd>⌘ K</kbd></button><span className="privacy"><span className="signal verified" /> PRIVATE WORKSPACE</span></header>
-      <Routes>
-        <Route path="/" element={<Dashboard source={source} />} />
-        <Route path="/setup" element={<Setup source={source} />} />
-        <Route path="/editor" element={firstBook ? <Navigate to={`/editor/${firstBook.id}`} replace /> : <Navigate to="/setup" replace />} />
-        <Route path="/editor/:bookId" element={<Editor source={source} />} />
-        <Route path="/graph" element={firstBook ? <GraphView source={source} book={firstBook} /> : <Empty />} />
-        <Route path="/mystery" element={firstBook ? <MysteryWorkbench source={source} book={firstBook} /> : <Empty />} />
-        <Route path="/workflow" element={firstBook ? <Workflow source={source} book={firstBook} /> : <Empty />} />
-        <Route path="/reviews" element={firstBook ? <Reviews source={source} book={firstBook} /> : <Empty />} />
-        <Route path="/exports" element={firstBook ? <Exports source={source} book={firstBook} /> : <Empty />} />
-      </Routes>
+      <header className="topbar"><div className="breadcrumbs"><span>NOVELGRAPH</span><i>/</i><b>{firstBook?.title ?? "UNCONFIGURED"}</b></div><button className="command" onClick={() => setPalette(true)}>Search or command <kbd>⌘ K</kbd></button><span className="privacy"><span className="signal verified" /> PRIVATE WORKSPACE</span></header>
+      {page}
     </main>
-    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={`#${to}`} key={to}>{label}<span>↵</span></a>)}</div></div>}
+    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={to} onClick={(event) => { event.preventDefault(); navigate(to); setPalette(false); }} key={to}>{label}<span>↵</span></a>)}</div></div>}
   </div>;
 }
 
@@ -65,9 +79,46 @@ function Metric({ label, value, note, tone }: { label: string; value: string; no
 function PanelTitle({ index, title }: { index: string; title: string }) { return <h2 className="panel-title"><span>{index}</span>{title}</h2>; }
 
 function Setup({ source }: { source: StudioDataSource }) {
-  const navigate = useNavigate(); const qc = useQueryClient(); const [telemetry, setTelemetry] = useState(false);
-  const mutation = useMutation({ mutationFn: (form: FormData) => source.createProject({ seriesTitle: String(form.get("seriesTitle")), bookTitle: String(form.get("bookTitle")), premise: String(form.get("premise")), genrePack: String(form.get("genrePack")), seedMystery: form.get("seedMystery") === "on", mysteryMode: String(form.get("mysteryMode")) as MysteryMode }), onSuccess: async ({ bookId }) => { await qc.invalidateQueries({ queryKey: ["dashboard"] }); navigate(`/editor/${bookId}`); } });
-  return <section className="page narrow"><PageHeader eyebrow="PROJECT INITIALIZATION" title="Establish production boundaries" detail="InkOS records these choices as the first attributable canon event."/><form className="setup-grid" onSubmit={(event) => { event.preventDefault(); mutation.mutate(new FormData(event.currentTarget)); }}><label>SERIES TITLE<input name="seriesTitle" required defaultValue="The Calder House Files"/></label><label>BOOK TITLE<input name="bookTitle" required defaultValue="A Clock Without Hands"/></label><label className="wide">PREMISE<textarea name="premise" required defaultValue="A detective discovers that the most reliable witness in a locked-room death is the one thing that made no sound."/></label><label>GENRE PACK<select name="genrePack" defaultValue="mystery"><option value="mystery">Mystery</option><option value="general">General fiction</option><option value="science-fiction">Science fiction</option><option value="romantasy">Romantasy</option></select></label><label>FAIR-PLAY MODE<select name="mysteryMode" defaultValue="contemporary"><option value="strict-golden-age">Strict Golden Age</option><option value="contemporary">Contemporary Fair-Play</option><option value="hybrid">Hybrid</option><option value="rule-breaking">Rule-Breaking</option></select></label><label className="toggle wide"><input name="seedMystery" type="checkbox" defaultChecked/><span>Seed the mystery fairness ledger and require a locked solution before drafting</span></label><label className="toggle wide"><input type="checkbox" checked={telemetry} onChange={(e) => setTelemetry(e.target.checked)}/><span>Share anonymous diagnostics. Never includes manuscript text, prompts, paths, or credentials. <a href="https://csandbatch.github.io/inkos/docs/operations/privacy/">Preview fields.</a></span></label><div className="form-actions wide"><button className="button primary" disabled={mutation.isPending}>{mutation.isPending ? "CREATING…" : "CREATE LOCAL PROJECT"}</button>{mutation.error && <span className="error">{mutation.error.message}</span>}</div></form></section>;
+  const { navigate } = useRouter(); const qc = useQueryClient(); const [telemetry, setTelemetry] = useState(false);
+  const mutation = useMutation({ mutationFn: (form: FormData) => source.createProject({ seriesTitle: String(form.get("seriesTitle")), bookTitle: String(form.get("bookTitle")), premise: String(form.get("premise")), genrePack: String(form.get("genrePack")), seedMystery: form.get("seedMystery") === "on", mysteryMode: String(form.get("mysteryMode")) as MysteryMode }), onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["dashboard"] }); navigate("/discovery"); } });
+  return <section className="page narrow"><PageHeader eyebrow="PROJECT INITIALIZATION" title="Establish production boundaries" detail="NovelGraph records these choices as the first attributable canon event."/><form className="setup-grid" onSubmit={(event) => { event.preventDefault(); mutation.mutate(new FormData(event.currentTarget)); }}><label>SERIES TITLE<input name="seriesTitle" required defaultValue="The Calder House Files"/></label><label>BOOK TITLE<input name="bookTitle" required defaultValue="A Clock Without Hands"/></label><label className="wide">PREMISE<textarea name="premise" required defaultValue="A detective discovers that the most reliable witness in a locked-room death is the one thing that made no sound."/></label><label>GENRE PACK<select name="genrePack" defaultValue="mystery"><option value="mystery">Mystery</option><option value="general">General fiction</option><option value="science-fiction">Science fiction</option><option value="romantasy">Romantasy</option></select></label><label>FAIR-PLAY MODE<select name="mysteryMode" defaultValue="contemporary"><option value="strict-golden-age">Strict Golden Age</option><option value="contemporary">Contemporary Fair-Play</option><option value="hybrid">Hybrid</option><option value="rule-breaking">Rule-Breaking</option></select></label><label className="toggle wide"><input name="seedMystery" type="checkbox" defaultChecked/><span>Seed the mystery fairness ledger and require a locked solution before drafting</span></label><label className="toggle wide"><input type="checkbox" checked={telemetry} onChange={(e) => setTelemetry(e.target.checked)}/><span>Share anonymous diagnostics. Never includes manuscript text, prompts, paths, or credentials. <a href="https://csandbatch.github.io/novelgraph/docs/operations/privacy/">Preview fields.</a></span></label><div className="form-actions wide"><button className="button primary" disabled={mutation.isPending}>{mutation.isPending ? "CREATING…" : "CREATE LOCAL PROJECT"}</button>{mutation.error && <span className="error">{mutation.error.message}</span>}</div></form></section>;
+}
+
+const discoveryQuestions = [
+  "What experience should remain with the reader after the final page?",
+  "Which promise must this genre keep, even if the book breaks other conventions?",
+  "What does the protagonist want, and what private contradiction makes that pursuit costly?",
+  "Which pressure can keep producing scenes after the premise stops being new?",
+  "What should the ending settle, and what may remain productively unresolved?",
+];
+
+function DiscoveryRoom({ source, book }: { source: StudioDataSource; book: BookRecord }) {
+  const qc = useQueryClient();
+  const data = useQuery({ queryKey: ["discovery", book.id], queryFn: () => source.discovery(book.id) });
+  const [reply, setReply] = useState(""); const [selected, setSelected] = useState<Record<string, unknown>>(); const [dossier, setDossier] = useState<Record<string, unknown>>();
+  const send = useMutation({ mutationFn: async () => {
+    if (!data.data?.session || !reply.trim()) return;
+    const sessionId = data.data.session.id; const turnNumber = data.data.turns.length;
+    await source.addDiscoveryTurn(sessionId, { role: "author", content: reply, observations: [{ key: `author-response-${turnNumber}`, value: reply, provenance: "author-stated", confidence: 1, status: "working" }] });
+    await source.addScratchpad(sessionId, { agentRole: "luna-worker", kind: "observation", content: `Extracted author commitment: ${reply}`, confidence: 0.8, sourceRefs: [`turn:${turnNumber + 1}`] });
+    await source.addDiscoveryTurn(sessionId, { role: "sol", content: discoveryQuestions[Math.min(Math.floor(turnNumber / 2) + 1, discoveryQuestions.length - 1)]! });
+  }, onSuccess: async () => { setReply(""); await qc.invalidateQueries({ queryKey: ["discovery", book.id] }); } });
+  const approve = useMutation({ mutationFn: async () => {
+    if (!selected) throw new Error("Select a story thrust first");
+    const proposed = await source.proposeCharter(book.id, { mainThrust: String(selected.mainThrust), readerPromise: selected.readerPromise ?? ["A legible causal resolution"], protagonist: { engine: selected.characterEngine ?? "Unresolved" }, centralConflict: String(selected.centralConflict), genreContract: selected.genreObligations ?? [], thematicQuestions: selected.thematicPressure ? [String(selected.thematicPressure)] : [], narrativeForm: {}, endingHorizon: String(selected.endingShape ?? ""), constraints: [], productiveUnknowns: [], rejectedDirections: [] });
+    await source.resolveCharter(proposed.id, true, "Author selected and approved this Story Charter in Discovery");
+  }, onSuccess: () => qc.invalidateQueries({ queryKey: ["discovery", book.id] }) });
+  const inspect = useMutation({ mutationFn: () => source.dossier(book.id, "sol-orchestrator"), onSuccess: setDossier });
+  if (!data.data?.session) return <section className="page"><p className="eyebrow">OPENING DISCOVERY</p></section>;
+  const approved = data.data.charters.some((charter) => charter.status === "approved");
+  return <section className="page"><PageHeader eyebrow="SOL / CONVERSATIONAL DISCOVERY" title="Find the book before producing it" detail="The conversation remains working material. Only an approved Story Charter governs downstream agents." action={approved ? <NavLink className="button primary" to={`/editor/${book.id}`}>OPEN MANUSCRIPT</NavLink> : undefined}/>
+    <div className="discovery-layout"><article className="panel discovery-thread"><PanelTitle index="01" title="AUTHOR + SOL"/>{data.data.turns.map((turn) => <div className={`discovery-turn ${turn.role}`} key={turn.id}><b>{turn.role === "author" ? "AUTHOR" : "SOL"}</b><p>{turn.content}</p></div>)}<form onSubmit={(event) => { event.preventDefault(); send.mutate(); }}><label htmlFor="discovery-reply">YOUR RESPONSE</label><textarea id="discovery-reply" value={reply} onChange={(event) => setReply(event.target.value)} placeholder="Answer, object, redirect, or preserve an uncertainty."/><button className="button primary" disabled={!reply.trim() || send.isPending}>SEND TO SOL</button></form></article>
+    <aside className="discovery-side"><article className="panel"><PanelTitle index="02" title="CURRENT UNDERSTANDING"/>{data.data.observations.map((item, index) => <div className="knowledge-row" key={String(item.id ?? index)}><b>{String(item.key)}</b><span>{String(item.provenance)} / {String(item.status)}</span><p>{String(item.value_json)}</p></div>)}</article><article className="panel"><PanelTitle index="03" title="KNOWLEDGE BOUNDARIES"/>{data.data.knowledgeBases.map((base) => <div className="knowledge-row" key={base.id}><b>{base.scope.toUpperCase()}</b><p>{base.title}</p><span>{base.relation ?? "authoritative"}</span></div>)}</article></aside></div>
+    <PageHeader eyebrow="TERRA / STORY SYNTHESIS" title="Candidate thrusts" detail="Core follows the stated direction. Stretch intensifies a pressure. Wild tests the edge of the book's identity."/>
+    <div className="thrust-grid">{data.data.candidates.map((candidate) => { const content = candidate.content_json; return <button className={`thrust-card ${selected === content ? "selected" : ""}`} onClick={() => setSelected(content)} key={candidate.id}><code>{candidate.kind.toUpperCase()}</code><h2>{String(content.title)}</h2><p>{String(content.mainThrust)}</p><small>{String(content.centralConflict)}</small></button>; })}</div>
+    <div className="discovery-actions"><button className="button" onClick={() => inspect.mutate()}>INSPECT SOL HANDOFF</button><button className="button primary" disabled={!selected || approve.isPending} onClick={() => approve.mutate()}>APPROVE STORY CHARTER</button></div>{(send.error || approve.error) && <div className="notice blocked">{(send.error ?? approve.error)?.message}</div>}{dossier && <pre className="panel data-preview">{JSON.stringify(dossier, null, 2)}</pre>}
+    <article className="panel"><PanelTitle index="04" title="AGENT SCRATCHPAD"/>{data.data.scratchpad.map((entry, index) => <div className="knowledge-row" key={String(entry.id ?? index)}><b>{String(entry.agent_role)} / {String(entry.kind)}</b><p>{String(entry.content)}</p><span>Noncanonical working memory</span></div>)}</article>
+  </section>;
 }
 
 function MysteryWorkbench({ source, book }: { source: StudioDataSource; book: BookRecord }) {
@@ -95,15 +146,15 @@ function MysteryWorkbench({ source, book }: { source: StudioDataSource; book: Bo
   </section>;
 }
 
-function Editor({ source }: { source: StudioDataSource }) {
-  const { bookId = "" } = useParams(); const qc = useQueryClient(); const data = useQuery({ queryKey: ["book", bookId], queryFn: () => source.book(bookId), enabled: Boolean(bookId) }); const [selected, setSelected] = useState(0); const chapter = data.data?.chapters[selected]; const [saveState, setSaveState] = useState("SAVED");
+function Editor({ source, bookId }: { source: StudioDataSource; bookId: string }) {
+  const qc = useQueryClient(); const data = useQuery({ queryKey: ["book", bookId], queryFn: () => source.book(bookId), enabled: Boolean(bookId) }); const [selected, setSelected] = useState(0); const chapter = data.data?.chapters[selected]; const [saveState, setSaveState] = useState("SAVED");
   const prose = useMutation({ mutationFn: (content: string) => source.analyzeProse(content) });
   const editor = useEditor({ extensions: [StarterKit, Placeholder.configure({ placeholder: "Begin the scene…" })], content: chapter?.content_markdown ?? "", onUpdate: () => setSaveState("UNSAVED") }, [chapter?.id]);
   useEffect(() => { if (editor && chapter && editor.getText() !== chapter.content_markdown) editor.commands.setContent(chapter.content_markdown); }, [editor, chapter]);
   const save = async () => { if (!chapter || !editor) return; setSaveState("SAVING"); await source.saveChapter(chapter.id, { contentMarkdown: editor.getText(), reason: "Studio autosave" }); setSaveState("SAVED"); await qc.invalidateQueries({ queryKey: ["book", bookId] }); };
   useEffect(() => { if (saveState !== "UNSAVED") return; const timer = setTimeout(() => void save(), 1200); return () => clearTimeout(timer); }, [saveState]);
   if (!data.data) return <section className="page"><p className="eyebrow">LOADING MANUSCRIPT…</p></section>;
-  return <section className="editor-layout"><aside className="chapter-list"><p className="eyebrow">MANUSCRIPT</p><h2>{data.data.book.title}</h2>{data.data.chapters.map((item, index) => <button className={index === selected ? "selected" : ""} onClick={() => setSelected(index)} key={item.id}><span>{String(item.number).padStart(2,"0")}</span><b>{item.title}</b><small>{item.status}</small></button>)}</aside><article className="manuscript"><div className="editor-toolbar"><button onClick={() => editor?.chain().focus().toggleBold().run()}><b>B</b></button><button onClick={() => editor?.chain().focus().toggleItalic().run()}><i>I</i></button><button onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button><span/><code className={saveState.toLowerCase()}>{saveState}</code><button className="button" onClick={() => prose.mutate(editor?.getText() ?? "")}>INSPECT PROSE</button><button className="button" onClick={() => void save()}>SAVE REVISION</button></div><div className="chapter-heading"><p>CHAPTER {chapter?.number}</p><input aria-label="Chapter title" value={chapter?.title ?? ""} readOnly/></div><EditorContent editor={editor}/></article><aside className="diagnostics"><PanelTitle index="D" title="DIAGNOSTICS"/><div className="diagnostic blocked"><b>CAUSAL CONTRADICTION</b><p>A witness reports hearing a clock documented as stopped.</p><a href="https://csandbatch.github.io/inkos/docs/guides/review/">Understand this gate →</a></div>{prose.data?.findings.slice(0,8).map((finding, index) => <div className="diagnostic" key={`${finding.line}-${finding.column}-${index}`}><b>ADVISORY / {finding.category}</b><p>Line {finding.line}: “{finding.pattern}”</p><small>{finding.suggestion}</small></div>)}<PanelTitle index="R" title="REVISIONS"/>{data.data.revisions.slice(0,6).map((revision) => <div className="revision" key={revision.id}><b>{revision.reason}</b><small>{revision.applied_by} · {new Date(revision.created_at).toLocaleTimeString()}</small></div>)}</aside></section>;
+  return <section className="editor-layout"><aside className="chapter-list"><p className="eyebrow">MANUSCRIPT</p><h2>{data.data.book.title}</h2>{data.data.chapters.map((item, index) => <button className={index === selected ? "selected" : ""} onClick={() => setSelected(index)} key={item.id}><span>{String(item.number).padStart(2,"0")}</span><b>{item.title}</b><small>{item.status}</small></button>)}</aside><article className="manuscript"><div className="editor-toolbar"><button onClick={() => editor?.chain().focus().toggleBold().run()}><b>B</b></button><button onClick={() => editor?.chain().focus().toggleItalic().run()}><i>I</i></button><button onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button><span/><code className={saveState.toLowerCase()}>{saveState}</code><button className="button" onClick={() => prose.mutate(editor?.getText() ?? "")}>INSPECT PROSE</button><button className="button" onClick={() => void save()}>SAVE REVISION</button></div><div className="chapter-heading"><p>CHAPTER {chapter?.number}</p><input aria-label="Chapter title" value={chapter?.title ?? ""} readOnly/></div><EditorContent editor={editor}/></article><aside className="diagnostics"><PanelTitle index="D" title="DIAGNOSTICS"/><div className="diagnostic blocked"><b>CAUSAL CONTRADICTION</b><p>A witness reports hearing a clock documented as stopped.</p><a href="https://csandbatch.github.io/novelgraph/docs/guides/review/">Understand this gate →</a></div>{prose.data?.findings.slice(0,8).map((finding, index) => <div className="diagnostic" key={`${finding.line}-${finding.column}-${index}`}><b>ADVISORY / {finding.category}</b><p>Line {finding.line}: “{finding.pattern}”</p><small>{finding.suggestion}</small></div>)}<PanelTitle index="R" title="REVISIONS"/>{data.data.revisions.slice(0,6).map((revision) => <div className="revision" key={revision.id}><b>{revision.reason}</b><small>{revision.applied_by} · {new Date(revision.created_at).toLocaleTimeString()}</small></div>)}</aside></section>;
 }
 
 function GraphCanvas({ graph }: { graph: GraphData }) { const ref = useRef<HTMLDivElement>(null); useEffect(() => { if (!ref.current) return; const instance = cytoscape({ container: ref.current, elements: [...graph.entities.map((entity) => ({ data: { id: entity.id, label: entity.name, type: entity.type } })), ...graph.edges.map((edge) => ({ data: { id: edge.id, source: edge.from_id, target: edge.to_id, label: edge.type } }))], style: [{ selector: "node", style: { "background-color": "#0d1014", "border-color": "#42d9ef", "border-width": 2, color: "#f3f4ef", label: "data(label)", "font-size": 11, width: 58, height: 58, "text-valign": "bottom", "text-margin-y": 10 } }, { selector: "edge", style: { width: 1, "line-color": "#53616b", "target-arrow-color": "#42d9ef", "target-arrow-shape": "triangle", label: "data(label)", color: "#8d9aa3", "font-size": 8, "curve-style": "bezier" } }], layout: { name: "circle" } }); return () => instance.destroy(); }, [graph]); return <div className="graph-canvas" ref={ref}/>; }
@@ -114,4 +165,4 @@ function Workflow({ source, book }: { source: StudioDataSource; book: BookRecord
 function Reviews({ source, book }: { source: StudioDataSource; book: BookRecord }) { const data = useQuery({ queryKey: ["reviews", book.id], queryFn: () => source.reviews(book.id) }); return <section className="page"><PageHeader eyebrow="AUTHOR DECISION QUEUE" title="Review center" detail="Agent findings are proposals. Canon-changing work remains yours to approve."/><div className="review-grid">{data.data?.map((review) => <article className={`review-card ${review.severity}`} key={review.id}><div><code>{review.source.toUpperCase()}</code><span className={`status ${review.status}`}>{review.status}</span></div><h2>{review.title}</h2><p>{review.detail}</p><footer><button className="button">REJECT</button><button className="button primary">APPROVE WITH RATIONALE</button></footer></article>)}{data.data?.length === 0 && <p>No pending reviews.</p>}</div></section>; }
 function Exports({ source, book }: { source: StudioDataSource; book: BookRecord }) { const closure = useQuery({ queryKey: ["closure", book.id], queryFn: () => source.closure(book.id) }); const run = useMutation({ mutationFn: () => source.exportBook(book.id) }); return <section className="page"><PageHeader eyebrow="PUBLISHING READINESS" title="Export center" detail="Generate portable manuscript files with an auditable closure and citation record."/><div className="export-grid"><article className={`closure ${closure.data?.publishable ? "verified" : "blocked"}`}><span className="seal">{closure.data?.publishable ? "✓" : "!"}</span><div><p>PUBLICATION GATE</p><h2>{closure.data?.publishable ? "READY" : "BLOCKED"}</h2><small>{closure.data?.findings.length ?? 0} active finding(s)</small></div></article><article className="panel"><PanelTitle index="F" title="EXPORT BUNDLE"/><ul><li>manuscript.md</li><li>closure-report.json</li><li>book.json</li></ul><button className="button primary" disabled={!closure.data?.publishable || run.isPending} onClick={() => run.mutate()}>GENERATE EXPORT</button>{!closure.data?.publishable && <p className="error">Resolve critical findings before export.</p>}{run.data && <code>{run.data.outputDirectory}</code>}</article></div><div className="finding-list">{closure.data?.findings.map((finding) => <article key={finding.code + finding.entityId}><code>{finding.code}</code><p>{finding.message}</p><span>{finding.severity}</span></article>)}</div></section>; }
 
-export function StudioApp({ dataSource, embedded = false }: { dataSource: StudioDataSource; embedded?: boolean }) { const Router = embedded ? MemoryRouter : BrowserRouter; return <QueryClientProvider client={queryClient}><Router><Frame source={dataSource}/></Router></QueryClientProvider>; }
+export function StudioApp({ dataSource, embedded = false }: { dataSource: StudioDataSource; embedded?: boolean }) { return <QueryClientProvider client={queryClient}><RouterHost embedded={embedded}><Frame source={dataSource}/></RouterHost></QueryClientProvider>; }

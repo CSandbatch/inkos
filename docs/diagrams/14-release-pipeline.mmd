@@ -1,0 +1,20 @@
+flowchart LR
+    branch[/Feature branch/]
+    checks{Checks pass?}
+    pr[Draft pull request]
+    merge[Merge to main]
+    rename[Rename repository]
+    pages[Deploy Pages]
+    pack[Pack and checksum once]
+    canary[Publish exact version under canary]
+    smoke{Clean install passes?}
+    promote[Maintainer promotes dist-tags]
+    latest{Latest equals canary?}
+    release[GitHub release]
+    branch --> checks
+    checks -->|"No"| branch
+    checks -->|"Yes"| pr --> merge --> rename --> pages --> pack --> canary --> smoke
+    smoke -->|"No"| branch
+    smoke -->|"Yes"| promote --> latest
+    latest -->|"No"| promote
+    latest -->|"Yes"| release

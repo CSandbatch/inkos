@@ -24,11 +24,11 @@ Studio serves JSON beneath `/api/v1` on the loopback address. Important resource
 | `/books/:id/research`, `/books/:id/research/:researchId/approve` | Capture untrusted research and explicitly admit a cited claim |
 | `/books/:id/jobs` | Start a budgeted workflow |
 | `/jobs/:id`, `/jobs/:id/ready` | Read nodes, durable events, and capability-filtered ready work |
-| `/jobs/:id/nodes/:nodeId/{begin,complete,fail}` | Drive a node through the local worker contract with `x-inkos-capabilities` |
+| `/jobs/:id/nodes/:nodeId/{begin,complete,fail}` | Drive a node through the local worker contract with `x-novelgraph-capabilities` |
 | `/books/:id/reviews` | Read persona feedback and approvals |
 | `/books/:id/closure` | Evaluate publication readiness |
 | `/books/:id/export` | Write the portable export bundle |
 
-The solution endpoint requires `solution:read` for `GET` and `solution:write` for `PUT` in `x-inkos-capability`; write permission never implies read permission. Ordinary book, graph, workbench, and reader-projection routes never return sealed solution content.
+The solution endpoint requires `solution:read` for `GET` and `solution:write` for `PUT` in `x-novelgraph-capability`; write permission never implies read permission. Ordinary book, graph, workbench, and reader-projection routes never return sealed solution content.
 
-The API is local and currently unauthenticated, so it binds to loopback by default and does not enable cross-origin browser access. Do not expose it to an untrusted network.
+The API is local and currently unauthenticated, so it binds to loopback by default and refuses cross-origin browser access. Do not expose it to an untrusted network.

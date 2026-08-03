@@ -20,7 +20,7 @@ export class ResearchService {
     if (url.username || url.password || url.hostname === "localhost") throw new Error("Local research targets are not allowed");
     const address = isIP(url.hostname) ? url.hostname : (await lookup(url.hostname)).address;
     if (privateAddress(address)) throw new Error("Private-network research targets are not allowed");
-    const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000), headers: { "User-Agent": "InkOS-Research/1.0" } });
+    const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000), headers: { "User-Agent": "NovelGraph-Research/1.0" } });
     if (!response.ok) throw new Error(`Research fetch failed: HTTP ${response.status}`);
     const snapshot = (await response.text()).slice(0, 100_000);
     const title = snapshot.match(/<title[^>]*>([^<]{1,240})<\/title>/i)?.[1]?.trim() ?? url.hostname;

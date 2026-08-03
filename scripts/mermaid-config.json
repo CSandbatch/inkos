@@ -1,0 +1,17 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "background": "#070809",
+    "primaryColor": "#0d1014",
+    "primaryTextColor": "#f1f3ef",
+    "primaryBorderColor": "#42d9ef",
+    "lineColor": "#68757d",
+    "secondaryColor": "#11161b",
+    "tertiaryColor": "#0b0e11",
+    "noteBkgColor": "#11161b",
+    "noteTextColor": "#f1f3ef",
+    "fontFamily": "IBM Plex Mono, ui-monospace, monospace"
+  },
+  "flowchart": { "curve": "linear", "htmlLabels": false },
+  "securityLevel": "strict"
+}

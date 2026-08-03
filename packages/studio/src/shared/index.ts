@@ -20,6 +20,8 @@ export interface MysteryFindingRecord { id?: string; ruleCode: string; suite: st
 export interface MysteryWorkbenchData { policy: MysteryPolicyRecord | null; suspects: Array<Record<string, unknown>>; evidence: Array<Record<string, unknown>>; timeline: Array<Record<string, unknown>>; access: Array<Record<string, unknown>>; knowledge: Array<Record<string, unknown>>; hypotheses: Array<Record<string, unknown>>; deductions: Array<Record<string, unknown>>; findings: MysteryFindingRecord[]; }
 export interface ReaderProjectionData { policy: Omit<MysteryPolicyRecord, "bookId">; suspects: Array<Record<string, unknown>>; evidence: Array<Record<string, unknown>>; timeline: Array<Record<string, unknown>>; knowledge: Array<Record<string, unknown>>; }
 export interface ProsePatternRecord { category: string; pattern: string; line: number; column: number; context: string; excerpt: string; suggestion: string; severity: "advisory"; }
+export type AgentRole = "sol-orchestrator" | "terra-specialist" | "luna-worker";
+export interface DiscoveryData { session: null | { id: string; book_id: string; status: string; current_question: string | null }; turns: Array<{ id: string; ordinal: number; role: "author" | "sol"; content: string; created_at: string }>; observations: Array<Record<string, unknown>>; candidates: Array<{ id: string; kind: "core" | "stretch" | "wild"; content_json: Record<string, unknown>; status: string }>; scratchpad: Array<Record<string, unknown>>; charters: Array<{ id: string; version: number; status: string; content_json: Record<string, unknown> }>; knowledgeBases: Array<{ id: string; scope: "literary" | "series" | "book" | "run"; title: string; relation?: string }> }
 
 export interface StudioDataSource {
   readonly mode: "local" | "demo";
@@ -43,6 +45,13 @@ export interface StudioDataSource {
   validateMystery(bookId: string): Promise<{ runId: string; passed: boolean; findings: MysteryFindingRecord[] }>;
   waiveMysteryFinding(bookId: string, findingId: string, rationale: string): Promise<{ id: string }>;
   analyzeProse(content: string): Promise<{ findings: ProsePatternRecord[] }>;
+  discovery(bookId: string): Promise<DiscoveryData>;
+  addDiscoveryTurn(sessionId: string, input: { role: "author" | "sol"; content: string; observations?: Array<Record<string, unknown>> }): Promise<{ id: string }>;
+  addScratchpad(sessionId: string, input: { agentRole: AgentRole; kind: string; content: string; confidence?: number; sourceRefs?: string[] }): Promise<{ id: string }>;
+  proposeThrust(sessionId: string, input: Record<string, unknown>): Promise<{ id: string }>;
+  proposeCharter(bookId: string, input: Record<string, unknown>): Promise<{ id: string; version: number; approvalId: string }>;
+  resolveCharter(charterId: string, approved: boolean, rationale: string): Promise<void>;
+  dossier(bookId: string, role: AgentRole): Promise<Record<string, unknown>>;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -67,13 +76,20 @@ export class LocalStudioDataSource implements StudioDataSource {
   exportBook = (bookId: string) => request<{ outputDirectory: string; files: string[] }>(`/books/${bookId}/export`, { method: "POST" });
   mysteryWorkbench = (bookId: string) => request<MysteryWorkbenchData>(`/books/${bookId}/mystery/workbench`);
   configureMystery = async (input: MysteryPolicyRecord) => { await request(`/books/${input.bookId}/mystery/policy`, { method: "PUT", body: JSON.stringify(input) }); };
-  saveMysterySolution = async (bookId: string, input: Record<string, unknown>) => { await request(`/books/${bookId}/mystery/solution`, { method: "PUT", headers: { "x-inkos-capability": "solution:write" }, body: JSON.stringify(input) }); };
-  revealMysterySolution = (bookId: string) => request<{ solution: Record<string, unknown> | null }>(`/books/${bookId}/mystery/solution`, { headers: { "x-inkos-capability": "solution:read" } });
+  saveMysterySolution = async (bookId: string, input: Record<string, unknown>) => { await request(`/books/${bookId}/mystery/solution`, { method: "PUT", headers: { "x-novelgraph-capability": "solution:write" }, body: JSON.stringify(input) }); };
+  revealMysterySolution = (bookId: string) => request<{ solution: Record<string, unknown> | null }>(`/books/${bookId}/mystery/solution`, { headers: { "x-novelgraph-capability": "solution:read" } });
   addMysteryRecord = (bookId: string, resource: "suspects" | "evidence" | "timeline" | "access" | "knowledge" | "hypotheses" | "deductions", input: Record<string, unknown>) => request<{ id: string }>(`/books/${bookId}/mystery/${resource}`, { method: "POST", body: JSON.stringify(input) });
   readerProjection = (bookId: string, throughChapter = 999999) => request<ReaderProjectionData>(`/books/${bookId}/mystery/reader-projection?throughChapter=${throughChapter}`);
   validateMystery = (bookId: string) => request<{ runId: string; passed: boolean; findings: MysteryFindingRecord[] }>(`/books/${bookId}/mystery/validate`, { method: "POST" });
   waiveMysteryFinding = (bookId: string, findingId: string, rationale: string) => request<{ id: string }>(`/books/${bookId}/mystery/findings/${findingId}/waive`, { method: "POST", body: JSON.stringify({ rationale }) });
   analyzeProse = (content: string) => request<{ findings: ProsePatternRecord[] }>("/prose-patterns/analyze", { method: "POST", body: JSON.stringify({ content }) });
+  discovery = (bookId: string) => request<DiscoveryData>(`/books/${bookId}/discovery`);
+  addDiscoveryTurn = (sessionId: string, input: { role: "author" | "sol"; content: string; observations?: Array<Record<string, unknown>> }) => request<{ id: string }>(`/discovery/${sessionId}/turns`, { method: "POST", body: JSON.stringify(input) });
+  addScratchpad = (sessionId: string, input: { agentRole: AgentRole; kind: string; content: string; confidence?: number; sourceRefs?: string[] }) => request<{ id: string }>(`/discovery/${sessionId}/scratchpad`, { method: "POST", body: JSON.stringify(input) });
+  proposeThrust = (sessionId: string, input: Record<string, unknown>) => request<{ id: string }>(`/discovery/${sessionId}/thrusts`, { method: "POST", body: JSON.stringify(input) });
+  proposeCharter = (bookId: string, input: Record<string, unknown>) => request<{ id: string; version: number; approvalId: string }>(`/books/${bookId}/charters`, { method: "POST", body: JSON.stringify(input) });
+  resolveCharter = async (charterId: string, approved: boolean, rationale: string) => { await request(`/charters/${charterId}/resolve`, { method: "POST", body: JSON.stringify({ approved, rationale }) }); };
+  dossier = (bookId: string, role: AgentRole) => request<Record<string, unknown>>(`/books/${bookId}/dossiers/${role}`);
 }
 
 const chapterText = `The clock in Calder House had stopped at 11:43. Mara found the brass key beneath the victim's untouched teacup, where anyone entering from the hall could have seen it.\n\nElias claimed he heard the clock strike midnight from the garden. Mara wrote the statement down twice. A stopped clock could not testify, but a liar often volunteered a witness.`;
@@ -113,4 +129,26 @@ export class FixtureStudioDataSource implements StudioDataSource {
   validateMystery = async (_bookId?: string) => ({ runId: "demo-validation", passed: false, findings: demoFindings });
   waiveMysteryFinding = async (_bookId: string, _findingId: string, _rationale: string) => ({ id: "demo-waiver" });
   analyzeProse = async (content: string) => ({ findings: content.toLowerCase().includes("at its core") ? [{ category: "significance-claim", pattern: "At its core", line: 1, column: 1, context: "narration", excerpt: content, suggestion: "Name the concrete consequence.", severity: "advisory" as const }] : [] });
+  discovery = async (_bookId?: string): Promise<DiscoveryData> => ({
+    session: { id: "demo-discovery", book_id: demoBook.id, status: "charter-proposed", current_question: "What must the final explanation force Mara to admit about her own method?" },
+    turns: [
+      { id: "turn-1", ordinal: 1, role: "sol", content: "What experience should remain after the final explanation?", created_at: new Date().toISOString() },
+      { id: "turn-2", ordinal: 2, role: "author", content: "Recognition: the reader should realize the silent clock testified before anyone did.", created_at: new Date().toISOString() },
+    ],
+    observations: [{ key: "reader-effect", value_json: "retrospective recognition", provenance: "author-stated", confidence: 1, status: "working" }],
+    candidates: [
+      { id: "thrust-core", kind: "core", status: "proposed", content_json: { title: "The impossible witness", mainThrust: "A detective treats a stopped clock as the only witness that cannot revise its testimony.", readerPromise: ["Every decisive fact appears before the reveal"], characterEngine: "Mara trusts systems more than people until both fail differently.", centralConflict: "A polished family story conflicts with physical chronology." } },
+      { id: "thrust-stretch", kind: "stretch", status: "proposed", content_json: { title: "The honest machine", mainThrust: "Every person lies about time while an unreliable device preserves one bounded truth.", readerPromise: ["Technology is evidence, never an oracle"], characterEngine: "Mara must distinguish error from deception.", centralConflict: "Human motive and technical uncertainty reinforce each other." } },
+      { id: "thrust-wild", kind: "wild", status: "proposed", content_json: { title: "A house rehearses midnight", mainThrust: "The household coordinates a false midnight without sharing the same reason.", readerPromise: ["The collective deception still terminates in one traceable killer"], characterEngine: "Mara reconstructs private loyalties from incompatible lies.", centralConflict: "A shared alibi conceals separate betrayals." } },
+    ],
+    scratchpad: [{ agent_role: "terra-specialist", kind: "contradiction", content: "The clock must be fallible as a device but decisive as a limit on what Elias could hear.", confidence: 0.92 }],
+    charters: [],
+    knowledgeBases: [{ id: "kb-literary", scope: "literary", title: "NovelGraph Literary Library", relation: "literary-guidance" }, { id: "kb-series", scope: "series", title: "Calder House series canon", relation: "series-canon" }, { id: "kb-book", scope: "book", title: "A Clock Without Hands book canon" }],
+  });
+  addDiscoveryTurn = async () => ({ id: "demo-turn" });
+  addScratchpad = async () => ({ id: "demo-scratchpad" });
+  proposeThrust = async () => ({ id: "demo-thrust" });
+  proposeCharter = async () => ({ id: "demo-charter", version: 1, approvalId: "demo-charter-approval" });
+  resolveCharter = async () => undefined;
+  dossier = async (_bookId: string, role: AgentRole) => ({ agentRole: role, charter: null, knowledgeBases: ["literary", "series", "book"], scratchpad: ["The stopped clock constrains the testimony."], unresolved: ["Mara's personal cost"], capabilities: role === "sol-orchestrator" ? ["charter:propose", "approval:request"] : ["scratchpad:write"] });
 }

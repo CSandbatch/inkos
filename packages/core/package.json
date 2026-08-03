@@ -1,25 +1,27 @@
 {
-  "name": "@actalk/inkos-core",
-  "version": "0.4.9",
-  "description": "InkOS core: models, agents, pipeline, LLM integration",
+  "name": "@actalk/novelgraph-core",
+  "version": "0.5.0",
+  "description": "NovelGraph transactional story state, discovery, workflow, mystery, and validation core",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/studio/index.js",
+  "types": "dist/studio/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/studio/index.d.ts",
+      "import": "./dist/studio/index.js"
+    },
+    "./studio": {
+      "types": "./dist/studio/index.d.ts",
+      "import": "./dist/studio/index.js"
     }
   },
   "files": [
-    "dist",
-    "!dist/__tests__",
-    "genres"
+    "dist/studio"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CSandbatch/inkos.git",
+    "url": "https://github.com/CSandbatch/novelgraph.git",
     "directory": "packages/core"
   },
   "scripts": {
@@ -32,17 +34,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.78.0",
-    "dotenv": "^16.4.0",
-    "js-yaml": "^4.1.1",
-    "openai": "^4.80.0",
     "zod": "^3.24.0"
   },
-  "homepage": "https://csandbatch.github.io/inkos/",
-  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
+  "homepage": "https://csandbatch.github.io/novelgraph/",
+  "bugs": { "url": "https://github.com/CSandbatch/novelgraph/issues" },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@types/js-yaml": "^4.0.9",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"
   }

@@ -1,0 +1,32 @@
+flowchart LR
+    subgraph client ["Local clients"]
+        browser[Studio browser]
+        cli[NovelGraph CLI]
+    end
+    subgraph gateway ["Loopback API"]
+        hono[Hono API v1]
+    end
+    subgraph service ["NovelGraph services"]
+        discovery[Discovery engine]
+        harness[DAG harness]
+        validation[Validation services]
+    end
+    subgraph datastore ["Local state"]
+        sqlite[SQLite project store]
+        exports[Markdown and reports]
+    end
+    subgraph external ["Optional providers"]
+        models[Model provider]
+        research[Research sources]
+    end
+    browser -->|"HTTPS loopback"| hono
+    cli -->|"Starts and calls"| hono
+    hono -->|"Discovery routes"| discovery
+    hono -->|"Job routes"| harness
+    hono -->|"Audit routes"| validation
+    discovery -->|"Reads and writes"| sqlite
+    harness -->|"Persists events"| sqlite
+    validation -->|"Stores findings"| sqlite
+    validation -->|"Writes"| exports
+    harness -.->|"Harness: Model calls"| models
+    harness -.->|"Research: Cited requests"| research

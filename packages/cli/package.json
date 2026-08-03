@@ -1,23 +1,28 @@
 {
-  "name": "@actalk/inkos",
-  "version": "0.4.9",
-  "description": "InkOS CLI — local agent production OS for fiction",
+  "name": "@actalk/novelgraph",
+  "version": "0.5.0",
+  "description": "NovelGraph CLI — local agent production OS for fiction",
   "type": "module",
   "bin": {
-    "inkos": "dist/index.js"
+    "novelgraph": "dist/index.js"
   },
   "files": [
-    "dist",
-    "!dist/__tests__"
+    "dist/index.*",
+    "dist/runtime.*",
+    "dist/commands/init.*",
+    "dist/commands/config.*",
+    "dist/commands/doctor.*",
+    "dist/commands/inspect-prose.*",
+    "dist/commands/studio.*"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CSandbatch/inkos.git",
+    "url": "https://github.com/CSandbatch/novelgraph.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://csandbatch.github.io/inkos/",
-  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
+  "homepage": "https://csandbatch.github.io/novelgraph/",
+  "bugs": { "url": "https://github.com/CSandbatch/novelgraph/issues" },
   "scripts": {
     "prepack": "node ../../scripts/prepare-package-for-publish.mjs",
     "postpack": "node ../../scripts/restore-package-json.mjs",
@@ -28,12 +33,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@actalk/inkos-core": "workspace:*",
-    "@actalk/inkos-studio": "workspace:*",
-    "commander": "^13.0.0",
-    "dotenv": "^16.4.0",
-    "epub-gen-memory": "^1.0.10",
-    "marked": "^15.0.0"
+    "@actalk/novelgraph-core": "workspace:*",
+    "@actalk/novelgraph-studio": "workspace:*",
+    "commander": "^13.0.0"
   },
   "devDependencies": {
     "typescript": "^5.8.0",

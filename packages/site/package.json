@@ -1,6 +1,6 @@
 {
-  "name": "@actalk/inkos-site",
-  "version": "0.4.9",
+  "name": "@actalk/novelgraph-site",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "@astrojs/react": "^4.3.0",
     "@astrojs/starlight": "^0.35.0",
-    "@actalk/inkos-studio": "workspace:*",
+    "@actalk/novelgraph-studio": "workspace:*",
     "@xyflow/react": "^12.6.0",
     "astro": "^5.13.0",
     "react": "^19.0.0",

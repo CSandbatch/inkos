@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant Author
+    participant Studio
+    participant Canon
+    participant Audits
+    participant Workflow
+    Author->>Studio: Propose material change
+    Studio->>Canon: Calculate affected records
+    Canon-->>Studio: Impact set
+    Studio-->>Author: Diff and consequences
+    Author->>Studio: Approve with rationale
+    Studio->>Canon: Append new version
+    Studio->>Audits: Invalidate dependent runs
+    Studio->>Workflow: Block downstream nodes
+    Workflow-->>Author: Re-audit required

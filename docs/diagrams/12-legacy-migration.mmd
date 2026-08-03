@@ -1,0 +1,14 @@
+flowchart LR
+    detect[Detect legacy v0 store]
+    both{Both stores exist?}
+    checkpoint[Checkpoint WAL]
+    backup[(Timestamped backup)]
+    migrate[Transactional migration]
+    validate{Validation passes?}
+    novelgraph[(NovelGraph store)]
+    original[(Preserved original)]
+    detect --> both
+    both -->|"Yes"| original
+    both -->|"No"| checkpoint --> backup --> migrate --> validate
+    validate -->|"Yes"| novelgraph
+    validate -->|"No"| original

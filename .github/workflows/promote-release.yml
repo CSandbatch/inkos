@@ -1,0 +1,51 @@
+name: Promote npm release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact canary version already promoted to latest on npm
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-release:
+    runs-on: ubuntu-latest
+    environment: npm-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: v${{ inputs.version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify all latest tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ inputs.version }}"
+          for PACKAGE in @actalk/novelgraph-core @actalk/novelgraph-studio @actalk/novelgraph; do
+            test "$(npm view "$PACKAGE@latest" version)" = "$VERSION"
+            test "$(npm view "$PACKAGE@canary" version)" = "$VERSION"
+          done
+
+      - name: Verify a clean installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEST_DIR=$(mktemp -d)
+          npm init --yes --prefix "$TEST_DIR"
+          npm install --prefix "$TEST_DIR" "@actalk/novelgraph@${{ inputs.version }}"
+          "$TEST_DIR/node_modules/.bin/novelgraph" --version
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v${{ inputs.version }}" --verify-tag --generate-notes --title "NovelGraph v${{ inputs.version }}"

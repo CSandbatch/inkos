@@ -1,0 +1,13 @@
+flowchart LR
+    literary[(Literary library)]
+    series[(Optional series canon)]
+    book[(Book canon)]
+    run[(Run scratchpad)]
+    charter[Story Charter]
+    surface[/Narrative surfaces/]
+    literary -.->|"Cited guidance"| run
+    series -->|"Selected inheritance"| book
+    run -->|"Proposal"| charter
+    charter -->|"Approved rule"| book
+    book -->|"Projection"| surface
+    surface -.->|"Reconciliation proposal"| book

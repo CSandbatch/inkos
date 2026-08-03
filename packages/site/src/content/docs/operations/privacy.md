@@ -9,7 +9,7 @@ Manuscripts, prompts, model responses, graph data, credentials, paths, project n
 Optional anonymous diagnostics may include only:
 
 - random installation identifier;
-- InkOS, Node.js, and operating-system versions;
+- NovelGraph, Node.js, and operating-system versions;
 - command or workflow name;
 - duration bucket and success/failure category;
 - coarse, documented error code.

@@ -1,0 +1,12 @@
+flowchart LR
+    series[(Series canon)]
+    selected[Selected records]
+    book[(Self-contained book canon)]
+    proposal[Book claim]
+    conflict{Series conflict?}
+    local[Book-local approval]
+    impact[Series impact review]
+    series --> selected --> book
+    proposal --> conflict
+    conflict -->|"No"| local --> book
+    conflict -->|"Yes"| impact --> series

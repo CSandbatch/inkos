@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title">
-  <title id="title">InkOS</title><rect width="520" height="120" fill="#070809"/>
-  <text x="20" y="78" fill="#f1f3ef" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="-4">InkOS</text>
-  <path d="M258 30h233M258 59h233M258 88h233" stroke="#273139"/>
-  <path d="M284 88 337 59l44 10 47-39 62 29" fill="none" stroke="#42d9ef" stroke-width="3"/>
-  <g fill="#070809" stroke="#42d9ef" stroke-width="3"><circle cx="284" cy="88" r="6"/><circle cx="337" cy="59" r="6"/><circle cx="381" cy="69" r="6"/><circle cx="428" cy="30" r="6"/></g><circle cx="490" cy="59" r="6" fill="#f0b64d"/>
-</svg>

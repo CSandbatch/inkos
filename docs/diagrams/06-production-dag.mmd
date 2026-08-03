@@ -1,0 +1,19 @@
+flowchart LR
+    discovery[Discovery]
+    charter{Charter approved?}
+    policy[Genre policy]
+    research[Research]
+    outline[Outline]
+    draft[Draft]
+    validate[Validate]
+    graphUpdate[Graph proposal]
+    audit[Continuity audit]
+    readers[Reader panel]
+    revise[Revise]
+    approval{Author approval?}
+    closure[Closure report]
+    discovery --> charter
+    charter -->|"No"| discovery
+    charter -->|"Yes"| policy --> research --> outline --> draft --> validate --> graphUpdate --> audit --> readers --> revise --> approval
+    approval -->|"Revise"| revise
+    approval -->|"Approve"| closure
