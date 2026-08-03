@@ -36,11 +36,5 @@
     "node": ">=22.13.0",
     "pnpm": ">=9.0.0"
   },
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "keywords": [],
-  "author": "",
-  "type": "commonjs"
+  "packageManager": "pnpm@9.15.9"
 }
