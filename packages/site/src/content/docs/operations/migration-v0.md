@@ -6,6 +6,8 @@ slug: docs/operations/migration-v0
 
 This procedure covers an earlier alpha SQLite Studio store at `<project-root>/.novelgraph/studio.sqlite`. It does not convert a file-first project containing only `novelgraph.json`, `books/`, and Markdown into the Studio schema. The accepted local-first boundary keeps SQLite authoritative for Studio and leaves compatibility files under their existing commands.
 
+The npm packages are not currently available. All three intended package records returned npm `E404` on 2026-08-03, so use the checkout build in this page until the release gate clears.
+
 ## What opens and migrates
 
 Studio runs migrations in `packages/core/src/studio/store.ts` when `openStudioStore()` opens the database. There is no standalone `novelgraph migrate` command.
@@ -36,24 +38,32 @@ Confirm that the source contains `.novelgraph/studio.sqlite` and that the backup
 
 ## Run the migration
 
-Open the project with the checkout build from the project root:
+Build the checkout and open the project from its intended project root:
 
 ```bash
-node /absolute/path/to/novelgraph/packages/cli/dist/index.js studio --no-open
+corepack pnpm install --frozen-lockfile
+corepack pnpm -r build
+node /absolute/path/to/novelgraph/packages/cli/dist/index.js studio --port 4567 --no-open
 ```
 
-After the first package release passes registry verification, the equivalent will be:
+On Windows PowerShell from the repository root:
 
-```bash
-npx @actalk/novelgraph studio --no-open
+```powershell
+corepack pnpm install --frozen-lockfile
+corepack pnpm -r build
+node .\packages\cli\dist\index.js studio --port 4567 --no-open
 ```
 
-The first successful open creates or updates `.novelgraph/studio.sqlite` and leaves migration records in `schema_migrations`. Confirm the process and store before using the workbench:
+The CLI uses its current working directory as the project root. The direct compiled server can instead use `NOVELGRAPH_PROJECT_ROOT`, `NOVELGRAPH_STUDIO_PORT`, and `NOVELGRAPH_STUDIO_HOST`; those variables are not read by the CLI launcher. The CLI has no fixed default port when `--port` is omitted, so use `--port 4567` for the checks below.
+
+Confirm the process and store before using the workbench:
 
 ```bash
 curl http://127.0.0.1:4567/api/v1/health
 curl http://127.0.0.1:4567/api/v1/bootstrap
 ```
+
+The first response must contain `{"ok":true}`. The second reports whether a project exists and includes the selected local workspace path. The API has no account authentication; keep Studio on loopback.
 
 For a migrated mystery book, inspect the workbench and closure report. Legacy cases become a contemporary policy and a solution that is not locked and requires review. Legacy clues become typed evidence; reader-visible clues remain reader-visible, while other clues become solution-authorized.
 
@@ -69,7 +79,7 @@ If opening Studio fails during migration:
 
 Do not delete `schema_migrations`, remove newly created tables by hand, or edit a sealed solution directly in SQLite. A failed version 2 migration must not leave `schema_migrations.version = 2` or `mystery_policies`; the repository tests assert that behavior. Version 3 follows the same transaction and backup pattern.
 
-The migration is intentionally conservative: it maps old fields, marks the imported solution unresolved, and leaves the original backup available. A successful migration is not approval of the migrated canon.
+The migration is intentionally conservative: it maps old fields, marks the imported solution unresolved, and leaves the original backup available. A successful migration is not approval of the migrated canon and does not add provider-backed agent execution.
 
 ## File-first v0 boundary
 

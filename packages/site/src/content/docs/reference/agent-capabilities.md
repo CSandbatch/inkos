@@ -1,10 +1,12 @@
 ---
 title: Agent capabilities
-description: Capability strings, artifact visibility, and authority boundaries in the durable workflow.
+description: Capability strings, artifact visibility, and authority boundaries in the durable source-alpha workflow.
 slug: docs/reference/agent-capabilities
 ---
 
-Capabilities are checked at the workflow boundary. A node declares one required capability; the caller supplies a set in `x-novelgraph-capabilities`. The harness filters ready nodes, checks `begin`, `complete`, and `fail`, and records denied access as an error. Capabilities are permissions, not evidence that a proposed result is canon.
+Capabilities are checked at the workflow boundary. A node declares one required capability; a caller supplies a set in `x-novelgraph-capabilities`. The harness filters ready nodes and checks `begin`, `complete`, and `fail`. Capabilities are permissions supplied with a request, not authenticated identities and not evidence that a proposed result is canon.
+
+The current source alpha has no automatic provider-backed agent executor. `WorkflowHarness` persists durable node state; a caller or future worker must perform the work and then submit the result.
 
 ## Capability registry
 
@@ -38,21 +40,21 @@ The broader `research`, `write`, `canon`, and `publish` values remain in the gen
 
 ## Role dossiers
 
-`DiscoveryEngine.dossier()` exposes these role-specific sets:
+`DiscoveryEngine.dossier()` describes role-specific working boundaries:
 
-| Role | Granted capabilities | Explicitly not granted |
+| Role | Granted working context | Explicitly not granted by the dossier |
 | --- | --- | --- |
-| `sol-orchestrator` | Discovery read/write, scratchpad read, literary/series/book read, charter and canon proposal, approval request | `solution:read`, `solution:write`, `publish:export` unless separately supplied to a job |
+| `sol-orchestrator` | Discovery read/write, scratchpad read, literary/series/book read, charter and canon proposal, approval request | `solution:read`, `solution:write`, and `publish:export` unless separately supplied to a job |
 | `terra-specialist` | Discovery read, scratchpad read/write, literary/series/book read, charter proposal | Discovery write and canon approval |
 | `luna-worker` | Discovery read, scratchpad read/write, literary/book read | Series read, charter proposal, canon proposal, approval request |
 
-The role name does not bypass the header or the harness. The caller must still provide the capability required by the node.
+The role name does not bypass the request header or the harness. The caller must still provide the capability required by the node. The dossier is context selection; it is not an authentication token.
 
 ## Mystery workflow boundaries
 
-The current `MYSTERY_WORKFLOW` assigns capabilities in this order:
+The current `MYSTERY_WORKFLOW` assigns capabilities and artifact visibility as follows:
 
-| Nodes | Required capability | Artifact visibility |
+| Node | Required capability | Artifact visibility |
 | --- | --- | --- |
 | Policy setup | `canon:propose` | Author-only |
 | Research | `research:web` | Author-only |
@@ -71,11 +73,13 @@ The current `MYSTERY_WORKFLOW` assigns capabilities in this order:
 | Re-audit | `solution:read` | Author-only |
 | Closure approval | `publish:export` | Author-only |
 
+An approved Story Charter is required before a production job starts. Node order, idempotency, budgets, cancellation, failure, and resume are durable; the source alpha does not automatically invoke a model for any node.
+
 Artifact reads are separate from node execution. `reader-visible` can be read with `reader-view:read`, `story:read`, or `solution:read`; `solution-authorized` requires `solution:read`; `author-only` artifacts are not returned to agent nodes by `WorkflowHarness.readArtifacts()`.
 
 ## API examples and failure states
 
-A worker asks what it can run:
+Use an explicit port when following these examples:
 
 ```bash
 curl http://127.0.0.1:4567/api/v1/jobs/<job-id>/ready \
@@ -92,6 +96,8 @@ curl -X POST http://127.0.0.1:4567/api/v1/jobs/<job-id>/nodes/<node-id>/begin \
 ```
 
 An absent header, an unknown capability, or a capability that does not match the node produces a request error such as `Capability denied: solution:read`. A cancelled job rejects further node work. A completed job cannot be driven as running work. A budget overrun is rejected inside the transaction.
+
+The local Studio job-creation route currently supplies the broad set of capabilities needed by the configured local workflow. The worker headers still control which ready node can be begun, completed, or failed. Because Studio has no account authentication, these headers must not be treated as a security boundary when the server is exposed beyond loopback.
 
 The solution routes use a separate singular header, `x-novelgraph-capability`, and require exactly `solution:read` for `GET` or `solution:write` for `PUT`. Write permission does not imply read permission. Ordinary book, graph, workbench, and reader-projection routes must not expose the sealed solution.
 

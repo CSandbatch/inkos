@@ -6,7 +6,7 @@ slug: docs/guides/literary-library
 
 The literary library supplies advice and sources to a book’s discovery work. It is not a store of fictional truth. A craft passage can support a decision about scene causality, a genre rule can warn about reader trust, and admitted research can inform a mechanism; none becomes a fact about a character or event merely because it was retrieved.
 
-The canonical [knowledge-layers diagram](/diagrams/03-knowledge-layers.svg) places the literary library upstream of the run scratchpad as cited guidance rather than in the canon path.
+The canonical [knowledge-layers diagram](/novelgraph/diagrams/03-knowledge-layers.svg) places the literary library upstream of the run scratchpad as cited guidance rather than in the canon path.
 
 Textual equivalent:
 

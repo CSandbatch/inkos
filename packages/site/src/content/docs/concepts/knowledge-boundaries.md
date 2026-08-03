@@ -6,7 +6,7 @@ slug: docs/concepts/knowledge-boundaries
 
 NovelGraph does not treat all information about a book as equally authoritative or equally visible. A craft note, a series fact, an unapproved hypothesis, the sealed explanation of a mystery, and a sentence on the page may all concern the same event. They must not therefore travel together or acquire the same permissions.
 
-The canonical [knowledge-layers diagram](/diagrams/03-knowledge-layers.svg) gives the broad shape. The [agent-boundaries diagram](/diagrams/02-agent-boundaries.svg) and [reader-projection diagram](/diagrams/08-reader-projection.svg) show the corresponding context and visibility boundaries.
+The canonical [knowledge-layers diagram](/novelgraph/diagrams/03-knowledge-layers.svg) gives the broad shape. The [agent-boundaries diagram](/novelgraph/diagrams/02-agent-boundaries.svg) and [reader-projection diagram](/novelgraph/diagrams/08-reader-projection.svg) show the corresponding context and visibility boundaries.
 
 | Layer | What it holds | Authority | How it reaches a book |
 | --- | --- | --- | --- |
@@ -37,6 +37,12 @@ The discovery roles do not receive the same capabilities.
 Capabilities are not a claim that a role is wiser or less creative. They define which system action a role may take. In particular, Terra can produce a charter proposal but not a canon-promotion action; Luna’s current capability set omits both `series:read` and `charter:propose`. Sol can request approval, but an approval remains a separate author decision.
 
 NovelGraph persists the assembled context dossier with its session, book, agent role, content, and creation time. That stored record is useful when a proposal needs review: it makes the supplied charter, approved claims, scratchpad entries, unresolved observations, and capabilities inspectable rather than reconstructing them from an unrecorded prompt.
+
+## Implementation boundary
+
+The role capabilities described above are assembled into discovery dossiers; the current discovery and knowledge HTTP routes do not enforce them as authorization checks. They describe the context a caller should supply to a role, not a permission system that prevents every other caller from posting a record. Likewise, the workflow job engine stores caller-supplied transitions and artifacts but does not run provider-backed Sol, Terra, or Luna workers.
+
+Knowledge search is currently exposed as `GET /api/v1/knowledge/search`. It searches the shared knowledge-base store with full-text search when available and a text fallback otherwise, returning a small result set. The endpoint does not yet provide a book-scoped or applicability-aware filter, and the current Studio navigation does not include a separate Knowledge Workbench. A dossier is therefore the stronger boundary for a task-specific handoff; search results should not be treated as approved book context without checking scope, provenance, and status.
 
 ## Mystery boundaries add reader visibility
 

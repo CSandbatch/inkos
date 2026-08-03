@@ -6,7 +6,7 @@ slug: docs/concepts/scratchpads-and-handoffs
 
 A scratchpad is where discovery work can stay provisional. It is not a smaller canon database and not a disposable chat transcript. NovelGraph stores it as a time-ordered record tied to one discovery session, so hypotheses, conflicts, alternatives, and questions can inform the next handoff without silently becoming a decision.
 
-The canonical [agent-boundaries diagram](/diagrams/02-agent-boundaries.svg) describes the route from author input through Sol, Terra, and Luna to a context dossier and author decision.
+The canonical [agent-boundaries diagram](/novelgraph/diagrams/02-agent-boundaries.svg) describes the route from author input through Sol, Terra, and Luna to a context dossier and author decision.
 
 Textual equivalent:
 
@@ -60,7 +60,7 @@ The current implementation gathers approved claims from the bases owned by the b
 
 ## Turning exploration into a decision
 
-The canonical [canon-promotion diagram](/diagrams/04-canon-promotion.svg) shows the intended route from conversation through extraction and synthesis to a typed proposal, author review, and either approved canon or a rejected direction.
+The canonical [canon-promotion diagram](/novelgraph/diagrams/04-canon-promotion.svg) shows the intended route from conversation through extraction and synthesis to a typed proposal, author review, and either approved canon or a rejected direction.
 
 Textual equivalent:
 
@@ -75,6 +75,12 @@ Conversation → extraction → scratchpad → synthesis → typed proposal
 There are two formal decision routes in the discovery core. A proposed Story Charter creates a pending approval and requires a rationale on resolution. A proposed knowledge claim is promoted through `promoteClaim`, which also requires a rationale and records an approval identifier. Neither route turns scratchpad content into canon automatically.
 
 That last rule matters most when an idea is repeated. Repetition may make a hypothesis more interesting; it does not change its provenance or status. A `digest` can make a long investigation readable, but it should link back to the entries it summarizes and preserve rejected alternatives when they explain why the chosen route was preferred.
+
+## Implementation boundary
+
+The scratchpad is persisted by the discovery API at `/api/v1/discovery/:sessionId/scratchpad`; it is not an execution queue. The current Studio room asks a fixed set of questions, records the author reply, and can write a Luna observation directly. No provider-backed Sol, Terra, or Luna worker is invoked by that interaction. The workflow job engine can persist caller-supplied handoff state, but the caller remains responsible for role execution.
+
+The role capability lists are dossier metadata rather than route-level authorization. A caller integrating the API must apply the intended role boundary when reading a dossier or submitting a handoff. Charter approval and claim promotion remain explicit approval routes, so a scratchpad entry or repeated digest does not become canon merely because it has been stored.
 
 ## Practical handoff discipline
 

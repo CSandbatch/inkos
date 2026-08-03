@@ -15,10 +15,11 @@ slug: docs/roadmap
 
 ## Active
 
-- Complete agent execution through every DAG node.
+- Provider-backed Sol, Terra, Luna, and specialist execution through every durable DAG node.
 - Rich diff and rollback controls.
 - Character-state timelines, advanced alibi matrices, and reader-panel configuration.
 - EPUB metadata and publication-quality export validation.
+- Browser acceptance coverage and route-level Studio code splitting.
 
 ## Planned
 
@@ -29,3 +30,5 @@ slug: docs/roadmap
 ## Not in the current roadmap
 
 Accounts, collaboration, cloud manuscript storage, and managed SaaS tenancy are intentionally excluded. NovelGraph remains local-first and single-author.
+
+See [Capability status](/novelgraph/docs/reference/capability-status/) for the evidence required by each public status label and [Shipping readiness](/novelgraph/docs/operations/shipping-readiness/) for the current release gates.

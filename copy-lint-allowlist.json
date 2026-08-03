@@ -448,5 +448,410 @@
     "reviewer": "Codex/Sol",
     "reviewedAt": "2026-08-02",
     "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/review-and-approval.md",
+    "category": "triadic-compulsion",
+    "pattern": "A waiver must include non-empty rationale. The current route does not validate a",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/review-and-approval.md",
+    "category": "triadic-compulsion",
+    "pattern": "The current UI exposes this as **RUN VALIDATION**. It refreshes fair-play findin",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/review-and-approval.md",
+    "category": "triadic-compulsion",
+    "pattern": "The worker then calls the node , , or  routes with a capability header matching ",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/review-and-approval.md",
+    "category": "triadic-compulsion",
+    "pattern": "A complete diff, impact report, or rollback control in the Editor.",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy-and-telemetry.md",
+    "category": "triadic-compulsion",
+    "pattern": "Keep  files local and do not paste keys into issues, review records, or exported",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy-and-telemetry.md",
+    "category": "triadic-compulsion",
+    "pattern": "The current Studio project-creation flow and job-start route do not make provide",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy-and-telemetry.md",
+    "category": "triadic-compulsion",
+    "pattern": "NovelGraph, Node.js, and operating-system versions;",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy-and-telemetry.md",
+    "category": "triadic-compulsion",
+    "pattern": "## Working, manual, and unavailable behavior",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/shipping-readiness.md",
+    "category": "triadic-compulsion",
+    "pattern": "The tag workflow builds and packs one set of tarballs, publishes those exact fil",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/shipping-readiness.md",
+    "category": "triadic-compulsion",
+    "pattern": "Then dispatch **Promote npm release** with . That workflow verifies that  and  r",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/shipping-readiness.md",
+    "category": "triadic-compulsion",
+    "pattern": "Stars, traffic, and generated prose do not satisfy this gate. The operative acce",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/capability-status.md",
+    "category": "triadic-compulsion",
+    "pattern": "Complete conversational question policy, candidate generation, and handoff compa",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/cli.md",
+    "category": "triadic-compulsion",
+    "pattern": "Studio startup errors identify invalid ports, missing production assets, and bin",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/cli.md",
+    "category": "triadic-compulsion",
+    "pattern": "Commands mask known credentials but cannot protect secrets deliberately placed i",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "README.md",
+    "category": "triadic-compulsion",
+    "pattern": "NovelGraph requires Node.js 22.13 or newer. On August 3, 2026, npm returned  for",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/architecture.md",
+    "category": "triadic-compulsion",
+    "pattern": "NovelGraph separates author-approved story state from proposals, operational rec",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/architecture.md",
+    "category": "triadic-compulsion",
+    "pattern": "Book creation first produces a shell. Discovery turns, observations, and candida",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/architecture.md",
+    "category": "triadic-compulsion",
+    "pattern": "Hard obligations block publication until resolved, deliberately deferred, or wai",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "The canonical [agent-boundaries diagram](/novelgraph/diagrams/02-agent-boundarie",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "The canonical [canon-promotion diagram](/novelgraph/diagrams/04-canon-promotion.",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/story-state.md",
+    "category": "triadic-compulsion",
+    "pattern": "Every knowledge claim has a scope, provenance, and status. An author statement i",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/story-state.md",
+    "category": "triadic-compulsion",
+    "pattern": "An open hard obligation blocks closure. Good practice is to give every deferral ",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/workflow.md",
+    "category": "triadic-compulsion",
+    "pattern": "NovelGraph begins with an author interview rather than a generation request. Sol",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/workflow.md",
+    "category": "triadic-compulsion",
+    "pattern": "resolving, deferring, or waiving hard obligations under the selected policy;",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": "This guide describes the current source checkout. It does not describe a complet",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": "Studio binds to , creates , and serves the local workbench. The API is local and",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": "**Manual/external worker:** A separate process must perform the work represented",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": "## Review, closure, and export",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": " and the other exports are portable outputs, not a replacement for SQLite. Back ",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/evidence-and-trust.md",
+    "category": "triadic-compulsion",
+    "pattern": "Research fetched through the book research route is stored as a pending snapshot",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/review.md",
+    "category": "triadic-compulsion",
+    "pattern": "The complete current procedure, including  examples and unavailable controls, is",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/backup-and-recovery.md",
+    "category": "triadic-compulsion",
+    "pattern": "## Working method: stop Studio, then copy the directory",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/backup-and-recovery.md",
+    "category": "triadic-compulsion",
+    "pattern": "Do not copy only  while Studio is running. The repository does not provide a Stu",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/backup-and-recovery.md",
+    "category": "triadic-compulsion",
+    "pattern": "Check , then inspect , , and the affected book's  response.",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/backup-and-recovery.md",
+    "category": "triadic-compulsion",
+    "pattern": "When the store migrator upgrades an existing database, it checkpoints the WAL an",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/local-deployment.md",
+    "category": "triadic-compulsion",
+    "pattern": ", , and  are the local application packages.  is a private static documentation/",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/local-deployment.md",
+    "category": "triadic-compulsion",
+    "pattern": " uses provider values already present in the process environment when it writes ",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy.md",
+    "category": "triadic-compulsion",
+    "pattern": "The local Studio stores project state in  and writes exports beneath . It has no",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy.md",
+    "category": "triadic-compulsion",
+    "pattern": "The public demo uses fixture data in the browser. It accepts no provider key, pe",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy.md",
+    "category": "triadic-compulsion",
+    "pattern": "Read [Privacy and telemetry](/novelgraph/docs/operations/privacy-and-telemetry/)",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "The Pages workflow runs on  for changes under , selected Studio client/shared fi",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "The canary tag points to the final semantic version; it is not a separate prerel",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "Replace  with the exact tag version. Then dispatch  with that version. The workf",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/configuration.md",
+    "category": "triadic-compulsion",
+    "pattern": "The CLI compatibility tree and Studio SQLite store are separate boundaries. SQLi",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/configuration.md",
+    "category": "triadic-compulsion",
+    "pattern": "The legacy  and  commands still expose compatibility agent names such as , , , ,",
+    "rationale": "Editorial review retained this exact domain term, technical sequence, or enumeration because replacing it would reduce API, lifecycle, or release accuracy.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-03",
+    "expires": "2026-09-03"
   }
 ]
