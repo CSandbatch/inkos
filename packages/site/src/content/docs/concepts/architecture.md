@@ -4,7 +4,7 @@ description: How SQLite, the story graph, revisions, and the supervised DAG fit 
 slug: docs/concepts/architecture
 ---
 
-InkOS separates creative proposals from authoritative story state.
+NovelGraph separates creative proposals from authoritative story state.
 
 ```text
 Studio / CLI

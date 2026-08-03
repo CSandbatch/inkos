@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">InkOS signal mark</title><desc id="desc">A geometric ink nib intersected by story graph nodes.</desc>
+  <title id="title">NovelGraph signal mark</title><desc id="desc">A geometric ink nib intersected by story graph nodes.</desc>
   <rect width="512" height="512" rx="72" fill="#070809"/>
   <g stroke="#233038" stroke-width="1" opacity=".75"><path d="M64 128h384M64 192h384M64 256h384M64 320h384M64 384h384M128 64v384M192 64v384M256 64v384M320 64v384M384 64v384"/></g>
   <path d="M256 91 376 211 256 421 136 211Z" fill="#0d1014" stroke="#42d9ef" stroke-width="8"/>

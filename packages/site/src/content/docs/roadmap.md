@@ -28,4 +28,4 @@ slug: docs/roadmap
 
 ## Not in the current roadmap
 
-Accounts, collaboration, cloud manuscript storage, and managed SaaS tenancy are intentionally excluded. InkOS remains local-first and single-author.
+Accounts, collaboration, cloud manuscript storage, and managed SaaS tenancy are intentionally excluded. NovelGraph remains local-first and single-author.

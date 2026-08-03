@@ -1,0 +1,12 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Draft
+    Draft --> Proposed: submit
+    Proposed --> Approved: author approves
+    Proposed --> Draft: request changes
+    Proposed --> Rejected: reject
+    Approved --> ImpactReview: material edit
+    ImpactReview --> Superseded: approve replacement
+    ImpactReview --> Approved: reject edit
+    Superseded --> Draft: new version
+    Rejected --> [*]

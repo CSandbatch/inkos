@@ -1,0 +1,14 @@
+flowchart LR
+    draft[Current manuscript]
+    obligations[(Obligations)]
+    findings[(Audit findings)]
+    waivers[(Author waivers)]
+    gate{Hard items closed?}
+    blocked[/Blocked report/]
+    export[/Export bundle/]
+    draft --> gate
+    obligations --> gate
+    findings --> gate
+    waivers --> gate
+    gate -->|"No"| blocked
+    gate -->|"Yes"| export

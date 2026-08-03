@@ -1,6 +1,6 @@
-# Contributing to InkOS
+# Contributing to NovelGraph
 
-InkOS welcomes focused fixes, documentation, test fixtures, genre-pack rules, and proposals for typed agent nodes.
+NovelGraph welcomes focused fixes, documentation, test fixtures, genre-pack rules, and proposals for typed agent nodes.
 
 ## Local setup
 

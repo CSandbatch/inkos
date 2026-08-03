@@ -1,6 +1,6 @@
 # Changelog
 
-All notable InkOS changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project is still pre-1.0 and may make breaking changes between minor releases.
+All notable NovelGraph changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project is still pre-1.0 and may make breaking changes between minor releases.
 
 ## Unreleased
 
@@ -13,7 +13,7 @@ All notable InkOS changes are documented here. The format follows [Keep a Change
 
 ### Changed
 
-- Repositioned InkOS from an autonomous file-first CLI to a supervised local agent production OS for fiction.
+- Repositioned NovelGraph from an autonomous file-first CLI to a supervised local agent production OS for fiction.
 - Raised the supported runtime to Node.js 22.13 or newer, where the built-in SQLite API is available without an experimental flag.
 - Made English the sole product, documentation, prompt, and generation language.
 - Replaced legacy truth-file claims with SQLite transactions, immutable revisions, and attributable events.

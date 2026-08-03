@@ -1,0 +1,15 @@
+flowchart LR
+    sealed[(Sealed solution)]
+    evidence[(Evidence ledger)]
+    filter[Visibility filter]
+    reader[/Reader projection/]
+    drafting[Drafting agent]
+    solver[Adversarial solver]
+    auditor[Fairness auditor]
+    evidence --> filter --> reader
+    reader --> drafting
+    reader --> solver
+    sealed --> auditor
+    evidence --> auditor
+    solver --> auditor
+    sealed -.->|"Excluded"| filter

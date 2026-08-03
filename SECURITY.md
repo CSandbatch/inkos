@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Do not open a public issue for credential exposure, path traversal, private-network research access, unsafe HTML, database corruption, or arbitrary local execution. Use GitHub's private vulnerability reporting for `CSandbatch/inkos` with reproduction details and affected versions.
+Do not open a public issue for credential exposure, path traversal, private-network research access, unsafe HTML, database corruption, or arbitrary local execution. Use GitHub's private vulnerability reporting for `CSandbatch/novelgraph` with reproduction details and affected versions.
 
 You should receive acknowledgement within three business days. We will coordinate disclosure after a fix is available.
 

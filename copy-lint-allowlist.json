@@ -1,0 +1,452 @@
+[
+  {
+    "path": "packages/site/src/content/docs/concepts/discovery-and-charters.md",
+    "category": "inflated-abstraction",
+    "pattern": "conversation",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/discovery-and-charters.md",
+    "category": "triadic-compulsion",
+    "pattern": "Production has a hard gate here.  checks for an approved charter before it creat",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/narrative-surfaces.md",
+    "category": "triadic-compulsion",
+    "pattern": "The manuscript is a narrative surface: the words and ordering a reader encounter",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/narrative-surfaces.md",
+    "category": "inflated-abstraction",
+    "pattern": "narrative",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/narrative-surfaces.md",
+    "category": "triadic-compulsion",
+    "pattern": "This is a data boundary, not an instruction asking an agent to pretend ignorance",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/narrative-surfaces.md",
+    "category": "triadic-compulsion",
+    "pattern": "Workflow artifacts also declare visibility.  artifacts can be read by an agent w",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/narrative-surfaces.md",
+    "category": "triadic-compulsion",
+    "pattern": "The purpose is not to force prose into database-shaped language. It is to preven",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "The canonical [agent-boundaries diagram](/diagrams/02-agent-boundaries.svg) desc",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "inflated-abstraction",
+    "pattern": "conversation",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "The current implementation gathers approved claims from the bases owned by the b",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "The canonical [canon-promotion diagram](/diagrams/04-canon-promotion.svg) shows ",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/scratchpads-and-handoffs.md",
+    "category": "triadic-compulsion",
+    "pattern": "That last rule matters most when an idea is repeated. Repetition may make a hypo",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/contributing/public-copy.md",
+    "category": "repetitive-sentence-engineering",
+    "pattern": "do not",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/contributing/public-copy.md",
+    "category": "triadic-compulsion",
+    "pattern": "When a diagram is added, include descriptive alt text and a prose or table equiv",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/contributing/public-copy.md",
+    "category": "triadic-compulsion",
+    "pattern": "Use  while exploring findings; it exits successfully even when findings remain. ",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/contributing/public-copy.md",
+    "category": "repetitive-sentence-engineering",
+    "pattern": "for a",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/literary-library.md",
+    "category": "triadic-compulsion",
+    "pattern": "Compare it with author-stated aims, approved series facts, and book constraints.",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/revision-retcon-rollback.md",
+    "category": "inflated-abstraction",
+    "pattern": "narrative",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/revision-retcon-rollback.md",
+    "category": "triadic-compulsion",
+    "pattern": "Agents can propose a change through  or a review finding. They cannot silently p",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/revision-retcon-rollback.md",
+    "category": "triadic-compulsion",
+    "pattern": "The Studio editor sends a  to . The payload accepts an optional , optional , and",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/series-linking.md",
+    "category": "triadic-compulsion",
+    "pattern": "Start discovery for the book. This establishes the literary, series, and book kn",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/migration-v0.md",
+    "category": "triadic-compulsion",
+    "pattern": "Before version 2 or 3 changes an existing database, the store runs  and copies t",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/migration-v0.md",
+    "category": "triadic-compulsion",
+    "pattern": "there is no repository migration that imports those files into the Studio SQLite",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "There are two release surfaces. A push to  can deploy the static site through ; ",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "The Pages workflow runs on  only when a change touches , the selected Studio fix",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "The workflow derives  from  by removing , then creates .  rewrites workspace pac",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/release.md",
+    "category": "triadic-compulsion",
+    "pattern": "A canary/latest dist-tag mismatch means registry propagation or publishing is in",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/agent-capabilities.md",
+    "category": "corporate-verb",
+    "pattern": "harness",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/agent-capabilities.md",
+    "category": "triadic-compulsion",
+    "pattern": "An absent header, an unknown capability, or a capability that does not match the",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+    "category": "triadic-compulsion",
+    "pattern": "Paste any error output, truncated chapter content, or debug logs.",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": ".github/ISSUE_TEMPLATE/documentation.yml",
+    "category": "triadic-compulsion",
+    "pattern": "Report missing, inaccurate, or confusing NovelGraph documentation",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": ".github/pull_request_template.md",
+    "category": "repetitive-sentence-engineering",
+    "pattern": "[ ]",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "README.md",
+    "category": "inflated-abstraction",
+    "pattern": "conversation",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "README.md",
+    "category": "triadic-compulsion",
+    "pattern": "The independent English Prose Patterns 2026 pack identifies phrases and structur",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "README.md",
+    "category": "triadic-compulsion",
+    "pattern": ": Astro/Starlight website, documentation, and static interactive demo.",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "README.md",
+    "category": "triadic-compulsion",
+    "pattern": "Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Security rep",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "SUPPORT.md",
+    "category": "triadic-compulsion",
+    "pattern": "Security vulnerabilities: follow [SECURITY.md](SECURITY.md), never a public issu",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/architecture.md",
+    "category": "triadic-compulsion",
+    "pattern": "A hard obligation must be resolved, deliberately deferred, or waived with ration",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/concepts/workflow.md",
+    "category": "triadic-compulsion",
+    "pattern": "Artifacts are , , or . Capabilities such as , , and  are checked before an artif",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/getting-started.md",
+    "category": "triadic-compulsion",
+    "pattern": "Inspect characters, clues, and obligations in **Story graph**.",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/evidence-and-trust.md",
+    "category": "triadic-compulsion",
+    "pattern": "## Time, location, and cameras",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/guides/mystery.md",
+    "category": "document-regularity",
+    "pattern": "uniform paragraph lengths",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/index.md",
+    "category": "triadic-compulsion",
+    "pattern": "Start with [Getting started](/novelgraph/docs/getting-started/) to launch the lo",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/backup-and-recovery.md",
+    "category": "triadic-compulsion",
+    "pattern": "Back up the complete  directory while Studio is stopped, or use SQLite's online ",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy.md",
+    "category": "triadic-compulsion",
+    "pattern": "NovelGraph, Node.js, and operating-system versions;",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/operations/privacy.md",
+    "category": "triadic-compulsion",
+    "pattern": "Telemetry is off until explicitly enabled, has a persistent off switch, and must",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/reference/fair-play-rules.md",
+    "category": "triadic-compulsion",
+    "pattern": "Blockers prevent progression and publication. Major findings require author revi",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/content/docs/roadmap.md",
+    "category": "triadic-compulsion",
+    "pattern": "Character-state timelines, advanced alibi matrices, and reader-panel configurati",
+    "rationale": "Editorial review confirmed that this exact construction carries necessary technical sequence, enumeration, or document syntax.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/pages/index.astro",
+    "category": "inflated-abstraction",
+    "pattern": "narrative",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  },
+  {
+    "path": "packages/site/src/pages/index.astro",
+    "category": "inflated-abstraction",
+    "pattern": "conversation",
+    "rationale": "Editorial review confirmed that this exact term names a NovelGraph domain concept or code component precisely.",
+    "reviewer": "Codex/Sol",
+    "reviewedAt": "2026-08-02",
+    "permanent": true
+  }
+]

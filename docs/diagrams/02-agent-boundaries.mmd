@@ -1,0 +1,19 @@
+flowchart LR
+    author[/Author input/]
+    sol[Sol coordinator]
+    terra[Terra specialist]
+    luna[Luna worker]
+    dossier[(Context dossier)]
+    approval{Author approval?}
+    canon[(Approved canon)]
+    scratch[(Run scratchpad)]
+    author --> sol
+    sol -->|"Deep analysis"| terra
+    sol -->|"Bounded extraction"| luna
+    terra --> scratch
+    luna --> scratch
+    scratch --> sol
+    sol --> dossier
+    dossier --> approval
+    approval -->|"Yes"| canon
+    approval -->|"Revise"| sol

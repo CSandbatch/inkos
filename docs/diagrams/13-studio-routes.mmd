@@ -1,0 +1,17 @@
+flowchart TD
+    dashboard[Dashboard]
+    setup[Book shell]
+    discovery[Discovery Room]
+    knowledge[Knowledge Workbench]
+    editor[Manuscript editor]
+    mystery[Mystery Workbench]
+    workflow[DAG control]
+    review[Review center]
+    exports[Export center]
+    dashboard --> setup --> discovery
+    discovery --> knowledge
+    discovery --> editor
+    knowledge --> editor
+    editor --> mystery
+    editor --> workflow
+    workflow --> review --> exports

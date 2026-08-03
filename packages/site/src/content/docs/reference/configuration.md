@@ -4,19 +4,19 @@ description: Environment variables, precedence, providers, and budgets.
 slug: docs/reference/configuration
 ---
 
-Project configuration overrides global InkOS configuration. Environment files must remain untracked.
+Project configuration overrides global NovelGraph configuration. Environment files must remain untracked.
 
 | Variable | Meaning |
 | --- | --- |
-| `INKOS_LLM_PROVIDER` | `openai`, `anthropic`, or an OpenAI-compatible custom provider |
-| `INKOS_LLM_BASE_URL` | Provider API base URL |
-| `INKOS_LLM_API_KEY` | Local credential; never telemetry |
-| `INKOS_LLM_MODEL` | Default model identifier |
-| `INKOS_STUDIO_PORT` | Local Studio port; default `4567` |
-| `INKOS_STUDIO_HOST` | Bind host; loopback is the safe default |
-| `INKOS_PROJECT_ROOT` | Workspace containing `.inkos/studio.sqlite` |
+| `NOVELGRAPH_LLM_PROVIDER` | `openai`, `anthropic`, or an OpenAI-compatible custom provider |
+| `NOVELGRAPH_LLM_BASE_URL` | Provider API base URL |
+| `NOVELGRAPH_LLM_API_KEY` | Local credential; never telemetry |
+| `NOVELGRAPH_LLM_MODEL` | Default model identifier |
+| `NOVELGRAPH_STUDIO_PORT` | Local Studio port; default `4567` |
+| `NOVELGRAPH_STUDIO_HOST` | Bind host; loopback is the safe default |
+| `NOVELGRAPH_PROJECT_ROOT` | Workspace containing `.novelgraph/studio.sqlite` |
 
-Per-agent model routing can optimize quality and cost, but run and monthly budget caps are enforced independently of provider configuration.
+Per-agent model routing can trade cost against output quality, but run and monthly budget caps are enforced independently of provider configuration.
 
 Mystery policy is stored in SQLite rather than environment variables. `contemporary` is the default mode; `strict-golden-age`, `hybrid`, and `rule-breaking` are also accepted. A mode change creates an approval request and invalidates dependent audits.
 

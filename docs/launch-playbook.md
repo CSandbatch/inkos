@@ -1,8 +1,8 @@
-# InkOS launch playbook
+# NovelGraph launch playbook
 
 ## Positioning
 
-InkOS is a local agent production OS for fiction: plan, draft, audit, and close a novel through an inspectable workflow you control.
+NovelGraph is a local agent production OS for fiction: plan, draft, audit, and close a novel through an inspectable workflow you control.
 
 The primary audience is technically adventurous authors. Lead with creative outcomes and privacy; use the event store, story graph, and durable DAG as evidence. Never claim that a closure gate guarantees literary quality or commercial success.
 

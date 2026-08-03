@@ -1,110 +1,140 @@
-<p align="center"><img src="assets/logo.svg" width="78" alt="InkOS geometric ink mark"></p>
+<p align="center"><img src="assets/logo.svg" width="78" alt="NovelGraph geometric graph mark"></p>
 
-<h1 align="center">InkOS</h1>
-<p align="center"><strong>A local agent production OS for fiction.</strong></p>
-<p align="center">Plan, draft, audit, and close a novel through an inspectable workflow you control.</p>
+<h1 align="center">NovelGraph</h1>
+<p align="center"><strong>The manuscript is the surface. The story is the system beneath it.</strong></p>
+<p align="center">A local production environment for planning, drafting, auditing, and closing fiction through an inspectable workflow.</p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@actalk/inkos"><img src="https://img.shields.io/npm/v/@actalk/inkos.svg?color=42d9ef" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@actalk/novelgraph"><img src="https://img.shields.io/npm/v/@actalk/novelgraph.svg?color=42d9ef" alt="npm version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-f1f3ef" alt="MIT license"></a>
-  <a href="https://github.com/CSandbatch/inkos/actions/workflows/ci.yml"><img src="https://github.com/CSandbatch/inkos/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/CSandbatch/novelgraph/actions/workflows/ci.yml"><img src="https://github.com/CSandbatch/novelgraph/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <img src="https://img.shields.io/badge/status-alpha-f0b64d" alt="Alpha status">
 </p>
 
 <p align="center">
-  <a href="https://csandbatch.github.io/inkos/">Website</a> ·
-  <a href="https://csandbatch.github.io/inkos/demo/">Interactive demo</a> ·
-  <a href="https://csandbatch.github.io/inkos/docs/getting-started/">Documentation</a> ·
-  <a href="https://csandbatch.github.io/inkos/docs/roadmap/">Roadmap</a>
+  <a href="https://csandbatch.github.io/novelgraph/">Website</a> ·
+  <a href="https://csandbatch.github.io/novelgraph/demo/">Interactive demo</a> ·
+  <a href="https://csandbatch.github.io/novelgraph/docs/getting-started/">Documentation</a> ·
+  <a href="https://csandbatch.github.io/novelgraph/docs/roadmap/">Roadmap</a>
 </p>
 
-![InkOS Signal Grid: a manuscript connected to causal and workflow nodes](packages/site/public/assets/signal-grid-hero.png)
+![NovelGraph Signal Grid: a manuscript surface connected to causal and workflow nodes](packages/site/public/assets/signal-grid-hero.png)
 
-> InkOS is alpha software. The transactional core, Fair-Play Detective 2026 rule pack, and Studio vertical slice are usable, while end-to-end autonomous node execution and advanced graph views remain active development.
+> NovelGraph 0.5 is alpha software. The transactional story core, conversational discovery flow, Fair-Play Detective rule pack, and local Studio vertical slice are available. Some production nodes still use compatibility adapters, and advanced series graph views remain under development.
 
-## Start in one command
+## Start with a conversation
 
-Requires Node.js 22.13 or newer. That is the first Node 22 release where the built-in SQLite module is enabled without an experimental flag.
+NovelGraph does not begin with a blank configuration form or a request to “write a novel.” It opens a Discovery Room. Sol, the user-facing coordinator, asks one consequential question at a time: what experience the book promises, what pressure can sustain its scenes, what the protagonist cannot admit, and what the ending must make newly legible.
 
-```bash
-npx @actalk/inkos studio
-```
+Terra examines genre, structure, character pressure, contradictions, and possible story engines. Luna handles bounded extraction, retrieval, comparison, and validation. Their working notes remain in run-scoped scratchpads. Sol compacts those notes into a handoff dossier without erasing the source entries.
 
-Studio opens on `127.0.0.1`, creates a local `.inkos/studio.sqlite`, and guides you through series, book, genre, budget, and privacy setup. A real npm release containing Studio is required for the `npx` command; contributors can currently run `pnpm --filter @actalk/inkos-studio dev` from this checkout.
-
-Want to inspect the product first? The [seeded mystery demo](https://csandbatch.github.io/inkos/demo/) uses fixture data, makes no model calls, asks for no credentials, and writes no manuscript data.
-
-## The first production loop
+When the record is sufficient, the system presents Core, Stretch, and Wild story-thrust candidates. The author may combine, edit, reject, or approve them. Approval creates a Story Charter. Planning and drafting remain locked until that charter exists.
 
 ```text
-research → outline → scene plan → draft → deterministic validation
-         → story-graph proposal → continuity/mystery audit
-         → reader panel → revise → author approval
+book shell → discovery conversation → candidate thrusts
+           → Story Charter approval → genre policy → production DAG
 ```
 
-1. Create a series and book in Studio.
-2. Draft the opening; every save creates an immutable revision.
-3. Inspect character knowledge, relationships, clues, and obligations.
-4. Start a budgeted, durable workflow.
-5. Review evidence-backed findings and approve canon changes.
-6. Export only when the closure report has no critical finding.
+Creative assertions are proposals. Only the author approval service can promote them into canon.
 
-## Why InkOS is different
+## Run the local Studio
 
-| Capability | What InkOS guarantees |
-| --- | --- |
-| Transactional story state | SQLite—not prompt context or Markdown files—is authoritative. |
-| Inspectable agents | Nodes have typed dependencies, capabilities, costs, events, cancellation, and resume state. |
-| Attributable canon | Every material state change records actor, before/after values, source, and rationale. |
-| Plot closure | Hard setups, clues, promises, and commitments block publication until resolved, deferred, or explicitly waived. |
-| Fair mysteries | Culprit and solution logic are established before the reveal; decisive retroactive clues require a retcon. |
-| Human authority | Major creative changes, research admission, and gate waivers require author approval. |
-| Local privacy | Manuscripts, credentials, graph state, and model responses remain on your machine. |
-
-## Architecture
-
-```text
-React Studio / CLI / fixture demo
-              │
-         Hono API v1
-              │
-      SQLite transaction boundary
-   ┌──────────┼───────────┬──────────────┐
- revisions  story graph  obligations   durable DAG jobs
-   │           │             │              │
- Markdown   continuity    closure gate   artifacts + budgets
- exports      audits       + approvals      + retries
-```
-
-The monorepo contains:
-
-- `packages/core`: domain schemas, SQLite store, story graph, mystery ledger, knowledge retrieval, research provenance, and workflow harness.
-- `fair-play-detective-2026`: four mystery modes, sealed solutions, reader projections, evidence/timeline/access matrices, specialist validation, and auditable waivers.
-- `english-prose-patterns-2026`: aggressive advisory prose-pattern locations without AI-authorship classification or automatic rewriting.
-- `packages/cli`: command-line client and local Studio launcher.
-- `packages/studio`: React authoring/control interface and Hono API.
-- `packages/site`: Astro/Starlight website, documentation, and fixture-backed demo.
-
-## Current boundaries
-
-- English-only, fresh projects, local single-author use.
-- No accounts, collaboration, cloud sync, or managed manuscript hosting.
-- Markdown and JSON are portability exports, not authoritative state.
-- Web research is untrusted until the author approves it into canon.
-- Generated prose still requires human editorial judgment; a passing closure gate is not a quality or sales guarantee.
-
-## Develop
+NovelGraph requires Node.js 22.13 or newer.
 
 ```bash
-pnpm install
-pnpm build
-pnpm test
-pnpm typecheck
-pnpm site:dev
+npx @actalk/novelgraph studio
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and the [development guide](https://csandbatch.github.io/inkos/docs/contributing/development/).
+Studio binds to `127.0.0.1` by default, creates `.novelgraph/studio.sqlite` inside the selected project, and opens the browser. Manuscripts, credentials, model responses, revisions, and graph state remain on the local machine. Listening on a LAN address requires an explicit option and warning.
+
+Until the 0.5.0 npm packages are published, contributors can run the same application from this checkout:
+
+```bash
+corepack pnpm install
+corepack pnpm --filter @actalk/novelgraph-studio dev
+```
+
+The [public demo](https://csandbatch.github.io/novelgraph/demo/) uses an immutable mystery fixture. It asks for no credentials, performs no model calls, and never receives a real manuscript.
+
+## One book, several kinds of knowledge
+
+Each book is self-contained. It can connect to an optional series graph without surrendering its own boundaries.
+
+| Scope | Contents | Authority |
+| --- | --- | --- |
+| Literary | Criticism, theory, craft, genre rules, citations, and provenance | Guidance only |
+| Series | Shared chronology, recurring entities, terminology, world rules, and cross-book obligations | Approved series canon |
+| Book | Story Charter, characters, events, knowledge, clues, obligations, and accepted decisions | Authoritative for one book |
+| Run | Agent hypotheses, contradictions, questions, comparisons, and handoff notes | Noncanonical scratch space |
+| Narrative surface | Outlines, scenes, chapters, synopses, and exports | Revisioned expression of book state |
+
+A book may select records from its series. If a proposed book fact conflicts with those records, NovelGraph opens a series-impact proposal. It does not choose a winner silently. Literary retrieval behaves differently again: a cited critical method can guide an analysis, but repetition across agent prompts cannot turn it into fictional truth.
+
+![Knowledge scopes and their authority boundaries](packages/site/public/diagrams/03-knowledge-layers.svg)
+
+## Production is a supervised graph
+
+After charter approval, work moves through a durable directed graph:
+
+```text
+research → outline and scene plan → draft → deterministic validation
+         → story-graph proposal → continuity or mystery audit
+         → reader panel → revision → re-audit → approval → closure
+```
+
+Every node declares typed inputs, outputs, artifact visibility, capabilities, budget, retry policy, and dependencies. Jobs persist timestamps, costs, logs, artifacts, cancellation state, and resumable errors. A drafting node may write prose without gaining permission to rewrite canon. A reader persona can receive the reader-visible projection without seeing sealed mystery facts. A research node may collect a source without admitting its claims into the book graph.
+
+![The discovery-to-publication production graph](packages/site/public/diagrams/06-production-dag.svg)
+
+## Closure means accounting for the book's debts
+
+NovelGraph records setups, clues, promises, dependencies, deadlines, character commitments, and other story obligations. Publication is blocked while a hard obligation remains unresolved. The author can resolve it, document a deliberate deferral, or approve a waiver with a rationale that remains visible in the closure report.
+
+The Fair-Play Detective 2026 pack adds a sealed solution, evidence ledger, chronology, access matrix, character-knowledge boundaries, hypotheses, false solutions, clue distribution, and adversarial solver. Decisive clues must appear before their deductions. The final explanation must fit the disclosed evidence better than plausible alternatives. Technical evidence carries provenance, custody, reliability, and interpretation instead of functioning as an oracle.
+
+The independent English Prose Patterns 2026 pack identifies phrases and structural tendencies for inspection. It does not infer authorship, label text as machine-generated, or rewrite a passage automatically. Manuscript findings are advisory. NovelGraph applies the same catalog more strictly to its own public copy.
+
+## Studio surfaces
+
+- Discovery Room: conversation, current understanding, confidence, open questions, contradictions, literary citations, scratchpads, and candidate thrusts.
+- Knowledge Workbench: book canon, selected series records, literary retrieval, proposals, lineage, and handoffs.
+- Editor: chapter and scene navigation, autosave, comments, citations, diagnostics, immutable revisions, diffs, rollback, and approval.
+- Story Inspector: characters, relationships, knowledge boundaries, chronology, obligations, clues, suspects, and alibis.
+- DAG Control Room: topology, status, budget, artifacts, logs, cancellation, retry, and resume.
+- Review Center: deterministic findings, reader reactions, proposed revisions, canon impact, approval, rejection, and waiver history.
+- Export Center: manuscript, Markdown, ebook metadata, citation report, closure report, and exact reasons for a blocked release.
+
+Every graph view must have a table or outline alternative. The interface supports keyboard navigation, visible focus, reduced motion, non-color status symbols, and WCAG 2.2 AA contrast. Cyan carries structural meaning; electric blue marks selected paths and active discovery details. Warnings, failures, and completion retain distinct semantic colors and symbols.
+
+## Repository map
+
+- `packages/core`: schemas, SQLite migrations, discovery, knowledge scopes, story graph, mystery rules, provenance, budgets, and workflow engine.
+- `packages/cli`: the `novelgraph` command and packaged Studio launcher.
+- `packages/studio`: Hono API, React application, local data source, and fixture data source.
+- `packages/site`: Astro/Starlight website, documentation, and static interactive demo.
+- `docs/diagrams`: canonical Mermaid sources for architecture, state, sequence, and release diagrams.
+- `scripts`: reference generation, copy review, diagram rendering, package checks, and release support.
+
+## Develop and verify
+
+```bash
+corepack pnpm install
+corepack pnpm -r build
+corepack pnpm -r test
+corepack pnpm -r typecheck
+corepack pnpm copy:lint
+corepack pnpm diagrams:check
+corepack pnpm site:build
+```
+
+Package acceptance also packs all three public artifacts and installs them in clean temporary projects. Browser acceptance covers discovery, charter approval, series attachment, literary retrieval, editing, DAG execution, review, closure, and export.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Security reports belong under the process in [SECURITY.md](SECURITY.md), not in a public issue. The [architecture guide](https://csandbatch.github.io/novelgraph/docs/concepts/architecture/) explains the transaction and permission boundaries.
+
+## Boundaries
+
+NovelGraph is English-only, local-first, single-author software. It has no account system, cloud manuscript sync, or collaborative editing. Markdown and JSON are exports; SQLite is authoritative. Open-web research remains untrusted until the author approves a cited claim. A passing closure gate establishes internal accounting, not literary merit, market fit, or factual truth.
 
 ## License
 
-[MIT](LICENSE). Original InkOS code and explicitly identified project assets are distributed under this license; supplied reference works and research snapshots retain their own rights and are never silently incorporated into the project library.
+[MIT](LICENSE). Original NovelGraph code and identified project assets use this license. Supplied reference works and captured research retain their own rights and are never folded into the literary library without provenance and permission.

@@ -1,0 +1,11 @@
+stateDiagram-v2
+    direction LR
+    [*] --> BookShell
+    BookShell --> Active: open discovery
+    Active --> Active: author answers
+    Active --> CharterProposed: synthesize thrusts
+    CharterProposed --> Active: reject or revise
+    CharterProposed --> Approved: author approves
+    Approved --> Superseded: material change
+    Superseded --> Active: reopen discovery
+    Approved --> [*]

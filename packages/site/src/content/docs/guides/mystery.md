@@ -4,7 +4,7 @@ description: Lock the solution, maintain the clue ledger, and audit solvability.
 slug: docs/guides/mystery
 ---
 
-InkOS ships `fair-play-detective-2026@1` as an executable rule pack. Select Strict Golden Age, Contemporary Fair-Play, Hybrid, or Rule-Breaking before planning. Contemporary is the default. Rule-Breaking is the only mode that permits a blocker waiver, and every waiver requires author rationale.
+NovelGraph ships `fair-play-detective-2026@1` as an executable rule pack. Select Strict Golden Age, Contemporary Fair-Play, Hybrid, or Rule-Breaking before planning. Contemporary is the default. Rule-Breaking is the only mode that permits a blocker waiver, and every waiver requires author rationale.
 
 Before drafting, record the actual event, apparent event, responsible parties, motive layers, method, opportunity, concealment, and reconstruction. Then build suspects, evidence, normalized chronology, access, character knowledge, hypotheses, and deductions. Lock the solution after author approval.
 

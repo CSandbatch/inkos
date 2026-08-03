@@ -1,0 +1,13 @@
+flowchart LR
+    conversation[/Conversation/]
+    extraction[Luna extraction]
+    scratch[(Scratchpad)]
+    synthesis[Terra synthesis]
+    proposal[Typed proposal]
+    review{Author decision}
+    approved[(Approved canon)]
+    rejected[(Rejected direction)]
+    conversation --> extraction --> scratch --> synthesis --> proposal --> review
+    review -->|"Approve"| approved
+    review -->|"Reject"| rejected
+    review -->|"Revise"| synthesis

@@ -1,6 +1,6 @@
 ---
 title: Development
-description: Build, test, and extend InkOS locally.
+description: Build, test, and extend NovelGraph locally.
 slug: docs/contributing/development
 ---
 

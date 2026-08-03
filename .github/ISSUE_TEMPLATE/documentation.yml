@@ -1,12 +1,12 @@
 name: Documentation report
-description: Report missing, inaccurate, or confusing InkOS documentation
+description: Report missing, inaccurate, or confusing NovelGraph documentation
 labels: ["documentation"]
 body:
   - type: input
     id: location
     attributes:
       label: Page or section
-      placeholder: https://csandbatch.github.io/inkos/docs/...
+      placeholder: https://csandbatch.github.io/novelgraph/docs/...
     validations: { required: true }
   - type: textarea
     id: problem
