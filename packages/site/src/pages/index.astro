@@ -1,5 +1,7 @@
 ---
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const canonical = new URL(`${base}/`, Astro.site).toString();
+const socialImage = new URL(`${base}/assets/signal-grid-social.png`, Astro.site).toString();
 const stages = ["Discovery", "Charter", "Genre policy", "Research", "Outline", "Draft", "Validate", "Graph proposal", "Audit", "Reader panel", "Revise", "Approval", "Closure"];
 const diagrams = [
   ["03-knowledge-layers.svg", "Five kinds of story knowledge remain separate", "Literary guidance, optional series canon, book canon, run scratchpads, and manuscript surfaces have different authority."],
@@ -12,7 +14,8 @@ const diagrams = [
 <head>
   <meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
   <meta name="description" content="NovelGraph is a local production system for fiction. Conversation establishes the book; a story knowledge graph governs drafting, review, and closure."/>
-  <meta property="og:title" content="NovelGraph — the story beneath the manuscript"/><meta property="og:description" content="Build a book from a private conversation, an inspectable knowledge graph, and an approval-gated production workflow."/><meta property="og:image" content={`${base}/assets/signal-grid-social.png`}/>
+  <link rel="canonical" href={canonical}/><meta property="og:url" content={canonical}/><meta property="og:type" content="website"/>
+  <meta property="og:title" content="NovelGraph — the story beneath the manuscript"/><meta property="og:description" content="Build a book from a private conversation, an inspectable knowledge graph, and an approval-gated production workflow."/><meta property="og:image" content={socialImage}/><meta name="twitter:card" content="summary_large_image"/>
   <title>NovelGraph — the story beneath the manuscript</title><link rel="stylesheet" href={`${base}/landing.css`}/><link rel="stylesheet" href={`${base}/novelgraph.css`}/>
 </head>
 <body>
