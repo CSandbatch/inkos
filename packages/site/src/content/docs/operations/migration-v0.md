@@ -42,7 +42,7 @@ Open the project with the checkout build from the project root:
 node /absolute/path/to/novelgraph/packages/cli/dist/index.js studio --no-open
 ```
 
-Or, when the package is installed:
+After the first package release passes registry verification, the equivalent will be:
 
 ```bash
 npx @actalk/novelgraph studio --no-open
