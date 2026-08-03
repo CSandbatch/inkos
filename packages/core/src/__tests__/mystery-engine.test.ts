@@ -4,7 +4,7 @@ import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
-  FAIR_PLAY_RULE_PACK, MYSTERY_WORKFLOW, MysteryEngine, MysteryPolicySchema, StudioStore, WorkflowHarness,
+  DiscoveryEngine, FAIR_PLAY_RULE_PACK, MYSTERY_WORKFLOW, MysteryEngine, MysteryPolicySchema, StudioStore, WorkflowHarness,
 } from "../studio/index.js";
 
 const stores: StudioStore[] = []; const temporary: string[] = [];
@@ -65,7 +65,7 @@ describe("fair-play mystery engine", () => {
   });
 
   it("filters durable workflow artifacts by capability", () => {
-    const db = store(); const bookId = book(db); const harness = new WorkflowHarness(db);
+    const db = store(); const bookId = book(db); const discovery = new DiscoveryEngine(db); discovery.start(bookId); const charter = discovery.proposeCharter(bookId, { mainThrust: "Solve the case", readerPromise: ["A fair solution"], protagonist: { name: "Mara" }, centralConflict: "Evidence contradicts testimony", genreContract: [], thematicQuestions: [], narrativeForm: {}, endingHorizon: "The evidence resolves the contradiction", constraints: [], productiveUnknowns: [], rejectedDirections: [] }); discovery.resolveCharter(charter.id, true, "Approved for workflow test"); const harness = new WorkflowHarness(db);
     const jobId = harness.start(bookId, { idempotencyKey: "mystery", budgetCents: 100, capabilities: new Set(["solution:write"]), nodes: MYSTERY_WORKFLOW });
     harness.putArtifact(jobId, undefined, "solution", "solution-authorized", { culprit: "A" }, FAIR_PLAY_RULE_PACK);
     harness.putArtifact(jobId, undefined, "projection", "reader-visible", { clue: "B" }, FAIR_PLAY_RULE_PACK);
@@ -112,7 +112,7 @@ describe("fair-play mystery engine", () => {
   });
 
   it("backs up an existing alpha database before migration", () => {
-    const directory = mkdtempSync(join(tmpdir(), "inkos-migration-")); temporary.push(directory); const filename = join(directory, "studio.sqlite");
+    const directory = mkdtempSync(join(tmpdir(), "novelgraph-migration-")); temporary.push(directory); const filename = join(directory, "studio.sqlite");
     const old = new DatabaseSync(filename); old.exec("CREATE TABLE books (id TEXT PRIMARY KEY, genre_pack TEXT NOT NULL); CREATE TABLE mystery_cases (book_id TEXT PRIMARY KEY, culprit TEXT NOT NULL, motive TEXT NOT NULL, means TEXT NOT NULL, opportunity TEXT NOT NULL, solution_locked INTEGER NOT NULL, approved_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE clues (id TEXT PRIMARY KEY, book_id TEXT NOT NULL, title TEXT NOT NULL, evidence TEXT NOT NULL, discovered_chapter INTEGER, interpretation TEXT NOT NULL DEFAULT '', visibility TEXT NOT NULL DEFAULT 'reader-visible', payoff_chapter INTEGER, red_herring INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
     const legacyBookId = "11111111-1111-4111-8111-111111111111"; old.prepare("INSERT INTO books VALUES (?, 'mystery')").run(legacyBookId); old.prepare("INSERT INTO mystery_cases VALUES (?, 'Elias', 'Exposure', 'Poison', 'Tea service', 1, NULL, 'now', 'now')").run(legacyBookId); old.prepare("INSERT INTO clues VALUES ('22222222-2222-4222-8222-222222222222', ?, 'Stopped clock', 'The clock stopped early', 2, 'The death occurred before midnight', 'reader-visible', 8, 0, 'resolved', 'now', 'now')").run(legacyBookId); old.close();
     const migrated = new StudioStore(filename);
@@ -124,7 +124,7 @@ describe("fair-play mystery engine", () => {
   });
 
   it("rolls back an injected migration failure without losing alpha records", () => {
-    const directory = mkdtempSync(join(tmpdir(), "inkos-migration-failure-")); temporary.push(directory); const filename = join(directory, "studio.sqlite");
+    const directory = mkdtempSync(join(tmpdir(), "novelgraph-migration-failure-")); temporary.push(directory); const filename = join(directory, "studio.sqlite");
     const old = new DatabaseSync(filename); old.exec(`
       CREATE TABLE books (id TEXT PRIMARY KEY, genre_pack TEXT NOT NULL);
       CREATE TABLE mystery_cases (book_id TEXT PRIMARY KEY, culprit TEXT NOT NULL, motive TEXT NOT NULL, means TEXT NOT NULL, opportunity TEXT NOT NULL, solution_locked INTEGER NOT NULL, approved_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);

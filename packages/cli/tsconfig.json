@@ -4,5 +4,15 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src"]
+  "include": [
+    "src/index.ts",
+    "src/runtime.ts",
+    "src/commands/init.ts",
+    "src/commands/config.ts",
+    "src/commands/doctor.ts",
+    "src/commands/inspect-prose.ts",
+    "src/commands/studio.ts",
+    "src/__tests__/cli-integration.test.ts",
+    "src/__tests__/publish-package.test.ts"
+  ]
 }

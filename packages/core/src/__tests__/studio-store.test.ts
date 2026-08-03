@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { StudioStore, KnowledgeBase, MysteryLedger, WorkflowHarness } from "../studio/index.js";
+import { StudioStore, KnowledgeBase, MysteryLedger, WorkflowHarness, DiscoveryEngine } from "../studio/index.js";
 
 const stores: StudioStore[] = [];
 function store(): StudioStore { const value = new StudioStore(":memory:"); stores.push(value); return value; }
@@ -25,9 +25,16 @@ describe("StudioStore", () => {
   it("enforces job budgets and idempotency", () => {
     const db = store(); const seriesId = db.createSeries({ title: "Series", premise: "", publicationTarget: "general" });
     const bookId = db.createBook({ seriesId, title: "Book", premise: "", genrePack: "general", plannedOrder: 1 });
+    const discovery = new DiscoveryEngine(db); discovery.start(bookId); const charter = discovery.proposeCharter(bookId, { mainThrust: "A test story", readerPromise: ["A resolved conflict"], protagonist: { name: "A" }, centralConflict: "A versus B", genreContract: [], thematicQuestions: [], narrativeForm: {}, endingHorizon: "Resolved", constraints: [], productiveUnknowns: [], rejectedDirections: [] }); discovery.resolveCharter(charter.id, true, "Test author approval");
     const harness = new WorkflowHarness(db); const options = { idempotencyKey: "unique-run", budgetCents: 10, capabilities: new Set(["research", "write", "canon", "publish"] as const) };
     const first = harness.start(bookId, options); const second = harness.start(bookId, options);
     expect(first).toBe(second); expect(() => db.chargeJob(first, 11)).toThrow("budget exceeded");
+  });
+
+  it("requires an approved Story Charter before production", () => {
+    const db = store(); const seriesId = db.createSeries({ title: "Series", premise: "", publicationTarget: "general" });
+    const bookId = db.createBook({ seriesId, title: "Book", premise: "", genrePack: "general", plannedOrder: 1 });
+    expect(() => new WorkflowHarness(db).start(bookId, { idempotencyKey: "blocked", budgetCents: 10, capabilities: new Set(["research"] as const) })).toThrow("approved Story Charter");
   });
 
   it("searches literary knowledge when FTS5 is unavailable", () => {

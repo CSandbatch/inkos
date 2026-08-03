@@ -1,7 +1,8 @@
 node_modules/
 dist/
+copy-lint-report.json
 .astro/
-.inkos/
+.novelgraph/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal

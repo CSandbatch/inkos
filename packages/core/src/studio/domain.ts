@@ -50,9 +50,36 @@ export type ReaderFeedback = z.infer<typeof ReaderFeedbackSchema>;
 
 export interface ClosureFinding { readonly code: string; readonly severity: "critical" | "warning"; readonly message: string; readonly entityId?: string; }
 export interface ClosureReport { readonly publishable: boolean; readonly findings: ReadonlyArray<ClosureFinding>; readonly generatedAt: string; }
-export const AgentCapabilitySchema = z.enum(["research", "write", "canon", "publish", "story:read", "reader-view:read", "solution:read", "solution:write", "research:web", "draft:write", "canon:propose", "approval:request", "publish:export"]);
+export const AgentCapabilitySchema = z.enum(["research", "write", "canon", "publish", "story:read", "reader-view:read", "solution:read", "solution:write", "research:web", "draft:write", "canon:propose", "approval:request", "publish:export", "discovery:read", "discovery:write", "scratchpad:read", "scratchpad:write", "literary:read", "series:read", "book:read", "charter:propose"]);
 export type AgentCapability = z.infer<typeof AgentCapabilitySchema>;
 export interface WorkflowNode { readonly id: string; readonly kind: string; readonly dependsOn: ReadonlyArray<string>; readonly capability: AgentCapability; readonly artifactVisibility?: "reader-visible" | "solution-authorized" | "author-only"; }
+
+export const KnowledgeScopeSchema = z.enum(["literary", "series", "book", "run"]);
+export const ClaimStatusSchema = z.enum(["working", "unresolved", "proposed", "rejected", "approved", "superseded"]);
+export const ClaimProvenanceSchema = z.enum(["author-stated", "agent-inferred", "literary-guidance", "agent-proposed"]);
+export const AgentRoleSchema = z.enum(["sol-orchestrator", "terra-specialist", "luna-worker"]);
+export const DiscoveryStatusSchema = z.enum(["active", "charter-proposed", "approved", "superseded"]);
+export const StoryThrustKindSchema = z.enum(["core", "stretch", "wild"]);
+
+export type KnowledgeScope = z.infer<typeof KnowledgeScopeSchema>;
+export type ClaimStatus = z.infer<typeof ClaimStatusSchema>;
+export type ClaimProvenance = z.infer<typeof ClaimProvenanceSchema>;
+export type AgentRole = z.infer<typeof AgentRoleSchema>;
+
+export const DiscoveryTurnInputSchema = z.object({
+  role: z.enum(["author", "sol"]), content: z.string().min(1),
+  observations: z.array(z.object({ key: z.string().min(1), value: z.unknown(), provenance: ClaimProvenanceSchema, confidence: z.number().min(0).max(1).optional(), status: ClaimStatusSchema.default("working") })).default([]),
+});
+export const ScratchpadEntryInputSchema = z.object({ agentRole: AgentRoleSchema, kind: z.enum(["observation", "hypothesis", "question", "contradiction", "alternative", "digest"]), content: z.string().min(1), confidence: z.number().min(0).max(1).optional(), sourceRefs: z.array(z.string()).default([]) });
+export const StoryThrustCandidateInputSchema = z.object({ kind: StoryThrustKindSchema, title: z.string().min(1), mainThrust: z.string().min(1), readerPromise: z.array(z.string()).min(1), characterEngine: z.string().min(1), centralConflict: z.string().min(1), thematicPressure: z.string().default(""), genreObligations: z.array(z.string()).default([]), endingShape: z.string().default(""), risks: z.array(z.string()).default([]), forecloses: z.array(z.string()).default([]) });
+export const StoryCharterInputSchema = z.object({ mainThrust: z.string().min(1), readerPromise: z.array(z.string()).min(1), protagonist: z.record(z.unknown()), centralConflict: z.string().min(1), genreContract: z.array(z.string()).default([]), thematicQuestions: z.array(z.string()).default([]), narrativeForm: z.record(z.unknown()).default({}), endingHorizon: z.string().default(""), constraints: z.array(z.string()).default([]), productiveUnknowns: z.array(z.string()).default([]), rejectedDirections: z.array(z.string()).default([]) });
+export const KnowledgeClaimInputSchema = z.object({ scope: KnowledgeScopeSchema, scopeId: z.string().min(1), subject: z.string().min(1), predicate: z.string().min(1), value: z.unknown(), provenance: ClaimProvenanceSchema, status: ClaimStatusSchema.default("proposed"), sourceRefs: z.array(z.string()).default([]) });
+
+export type DiscoveryTurnInput = z.infer<typeof DiscoveryTurnInputSchema>;
+export type ScratchpadEntryInput = z.infer<typeof ScratchpadEntryInputSchema>;
+export type StoryThrustCandidateInput = z.infer<typeof StoryThrustCandidateInputSchema>;
+export type StoryCharterInput = z.infer<typeof StoryCharterInputSchema>;
+export type KnowledgeClaimInput = z.infer<typeof KnowledgeClaimInputSchema>;
 
 export const BALANCED_READER_PANEL: ReadonlyArray<ReaderPersona> = [
   { id: "genre-fan", name: "Genre Fan", role: "Tests genre promises and delight", weight: 1, blocksApproval: true, prompt: "Evaluate whether the chapter delivers the selected genre's promises." },

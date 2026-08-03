@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const AnonymousDiagnosticSchema = z.object({
   installationId: z.string().uuid(),
-  inkosVersion: z.string().regex(/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/),
+  novelgraphVersion: z.string().regex(/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/),
   osFamily: z.enum(["windows", "macos", "linux", "other"]),
   nodeVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
   operation: z.enum(["studio.start", "project.create", "workflow.run", "workflow.resume", "export.create", "doctor.run"]),

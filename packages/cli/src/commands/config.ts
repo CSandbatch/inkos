@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { findProjectRoot, log, logError, GLOBAL_CONFIG_DIR, GLOBAL_ENV_PATH } from "../utils.js";
+import { findProjectRoot, log, logError, GLOBAL_CONFIG_DIR, GLOBAL_ENV_PATH } from "../runtime.js";
 
 export const configCommand = new Command("config")
   .description("Manage project configuration");
@@ -13,7 +13,7 @@ configCommand
   .argument("<value>", "Config value")
   .action(async (key: string, value: string) => {
     const root = findProjectRoot();
-    const configPath = join(root, "inkos.json");
+    const configPath = join(root, "novelgraph.json");
 
     try {
       const raw = await readFile(configPath, "utf-8");
@@ -24,10 +24,6 @@ configCommand
       const KNOWN_KEYS = new Set([
         "llm.provider", "llm.baseUrl", "llm.model", "llm.temperature",
         "llm.maxTokens", "llm.thinkingBudget", "llm.apiFormat", "llm.stream",
-        "daemon.schedule.radarCron", "daemon.schedule.writeCron",
-        "daemon.maxConcurrentBooks", "daemon.chaptersPerCycle",
-        "daemon.retryDelayMs", "daemon.cooldownAfterChapterMs",
-        "daemon.maxChaptersPerDay",
       ]);
       if (!KNOWN_KEYS.has(key)) {
         // Find closest match by edit distance on the last segment
@@ -84,7 +80,7 @@ configCommand
 
 configCommand
   .command("set-global")
-  .description("Set global LLM config (~/.inkos/.env), shared by all projects")
+  .description("Set global LLM config (~/.novelgraph/.env), shared by all projects")
   .requiredOption("--provider <provider>", "LLM provider (openai / anthropic)")
   .requiredOption("--base-url <url>", "API base URL")
   .requiredOption("--api-key <key>", "API key")
@@ -93,23 +89,24 @@ configCommand
   .option("--max-tokens <n>", "Max output tokens")
   .option("--thinking-budget <n>", "Anthropic thinking budget")
   .option("--api-format <format>", "API format (chat / responses)")
-  .option("--lang <language>", "Default writing language: zh (Chinese) or en (English)")
+  .option("--lang <language>", "Writing language (NovelGraph supports English)")
   .action(async (opts) => {
     try {
+      if (opts.lang && opts.lang !== "en") throw new Error("NovelGraph supports English projects only.");
       await mkdir(GLOBAL_CONFIG_DIR, { recursive: true });
 
       const lines = [
-        "# InkOS Global LLM Configuration",
-        `INKOS_LLM_PROVIDER=${opts.provider}`,
-        `INKOS_LLM_BASE_URL=${opts.baseUrl}`,
-        `INKOS_LLM_API_KEY=${opts.apiKey}`,
-        `INKOS_LLM_MODEL=${opts.model}`,
+        "# NovelGraph Global LLM Configuration",
+        `NOVELGRAPH_LLM_PROVIDER=${opts.provider}`,
+        `NOVELGRAPH_LLM_BASE_URL=${opts.baseUrl}`,
+        `NOVELGRAPH_LLM_API_KEY=${opts.apiKey}`,
+        `NOVELGRAPH_LLM_MODEL=${opts.model}`,
       ];
-      if (opts.temperature) lines.push(`INKOS_LLM_TEMPERATURE=${opts.temperature}`);
-      if (opts.maxTokens) lines.push(`INKOS_LLM_MAX_TOKENS=${opts.maxTokens}`);
-      if (opts.thinkingBudget) lines.push(`INKOS_LLM_THINKING_BUDGET=${opts.thinkingBudget}`);
-      if (opts.apiFormat) lines.push(`INKOS_LLM_API_FORMAT=${opts.apiFormat}`);
-      if (opts.lang) lines.push(`INKOS_DEFAULT_LANGUAGE=${opts.lang}`);
+      if (opts.temperature) lines.push(`NOVELGRAPH_LLM_TEMPERATURE=${opts.temperature}`);
+      if (opts.maxTokens) lines.push(`NOVELGRAPH_LLM_MAX_TOKENS=${opts.maxTokens}`);
+      if (opts.thinkingBudget) lines.push(`NOVELGRAPH_LLM_THINKING_BUDGET=${opts.thinkingBudget}`);
+      if (opts.apiFormat) lines.push(`NOVELGRAPH_LLM_API_FORMAT=${opts.apiFormat}`);
+      if (opts.lang) lines.push("NOVELGRAPH_DEFAULT_LANGUAGE=en");
 
       await writeFile(GLOBAL_ENV_PATH, lines.join("\n") + "\n", "utf-8");
       log(`Global config saved to ${GLOBAL_ENV_PATH}`);
@@ -122,17 +119,17 @@ configCommand
 
 configCommand
   .command("show-global")
-  .description("Show global LLM config (~/.inkos/.env)")
+  .description("Show global LLM config (~/.novelgraph/.env)")
   .action(async () => {
     try {
       const content = await readFile(GLOBAL_ENV_PATH, "utf-8");
       const masked = content.replace(
-        /(INKOS_LLM_API_KEY=)(.{8})(.*)(.{4})/,
+        /(NOVELGRAPH_LLM_API_KEY=)(.{8})(.*)(.{4})/,
         "$1$2...$4",
       );
       log(masked);
     } catch {
-      log("No global config found. Run 'inkos config set-global' to create one.");
+      log("No global config found. Run 'novelgraph config set-global' to create one.");
     }
   });
 
@@ -141,7 +138,7 @@ configCommand
   .description("Show current project configuration")
   .action(async () => {
     const root = findProjectRoot();
-    const configPath = join(root, "inkos.json");
+    const configPath = join(root, "novelgraph.json");
 
     try {
       const raw = await readFile(configPath, "utf-8");
@@ -177,7 +174,7 @@ configCommand
     }
 
     const root = findProjectRoot();
-    const configPath = join(root, "inkos.json");
+    const configPath = join(root, "novelgraph.json");
 
     try {
       const raw = await readFile(configPath, "utf-8");
@@ -210,7 +207,7 @@ configCommand
   .argument("<agent>", "Agent name")
   .action(async (agent: string) => {
     const root = findProjectRoot();
-    const configPath = join(root, "inkos.json");
+    const configPath = join(root, "novelgraph.json");
 
     try {
       const raw = await readFile(configPath, "utf-8");
@@ -236,7 +233,7 @@ configCommand
   .option("--json", "Output JSON")
   .action(async (opts) => {
     const root = findProjectRoot();
-    const configPath = join(root, "inkos.json");
+    const configPath = join(root, "novelgraph.json");
 
     try {
       const raw = await readFile(configPath, "utf-8");

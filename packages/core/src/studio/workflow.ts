@@ -17,6 +17,8 @@ export class WorkflowHarness {
   constructor(private readonly store: StudioStore) {}
 
   start(bookId: string, options: WorkflowRunOptions): string {
+    const approvedCharter = this.store.db.prepare("SELECT id FROM story_charters WHERE book_id = ? AND status = 'approved' ORDER BY version DESC LIMIT 1").get(bookId);
+    if (!approvedCharter) throw new Error("An approved Story Charter is required before production can begin");
     const jobId = this.store.createJob(bookId, options.idempotencyKey, options.budgetCents);
     const nodes = options.nodes ?? STANDARD_WORKFLOW;
     this.store.db.exec("BEGIN IMMEDIATE");

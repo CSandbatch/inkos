@@ -10,3 +10,4 @@ export * from "./prose-patterns.js";
 export * from "./mystery-compat.js";
 export * from "./seed.js";
 export * from "./telemetry.js";
+export * from "./discovery.js";

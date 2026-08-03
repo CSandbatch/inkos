@@ -1,30 +1,46 @@
 {
-  "name": "inkos",
-  "version": "0.4.9",
+  "name": "novelgraph",
+  "version": "0.5.0",
   "private": true,
-  "description": "Multi-agent novel production system",
+  "description": "Local fiction production through an inspectable story graph",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CSandbatch/inkos"
+    "url": "git+https://github.com/CSandbatch/novelgraph.git"
   },
-  "homepage": "https://csandbatch.github.io/inkos/",
-  "bugs": { "url": "https://github.com/CSandbatch/inkos/issues" },
+  "homepage": "https://csandbatch.github.io/novelgraph/",
+  "bugs": {
+    "url": "https://github.com/CSandbatch/novelgraph/issues"
+  },
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r dev",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
+    "build": "corepack pnpm -r build",
+    "dev": "corepack pnpm -r dev",
+    "test": "corepack pnpm -r test",
+    "lint": "corepack pnpm -r lint",
+    "typecheck": "corepack pnpm -r typecheck",
     "verify:publish-manifests": "node scripts/verify-no-workspace-protocol.mjs packages/core packages/studio packages/cli",
-    "release": "pnpm build && pnpm test",
-    "site:dev": "pnpm --filter @actalk/inkos-site dev",
-    "site:build": "pnpm --filter @actalk/inkos-site build",
-    "docs:generate": "corepack pnpm --filter @actalk/inkos-core build && node scripts/generate-fair-play-reference.mjs",
-    "docs:check": "node scripts/generate-fair-play-reference.mjs --check"
+    "copy:lint": "node scripts/lint-public-copy.mjs",
+    "copy:report": "node scripts/lint-public-copy.mjs --report-only",
+    "release": "corepack pnpm build && corepack pnpm test",
+    "site:dev": "corepack pnpm --filter @actalk/novelgraph-site dev",
+    "site:build": "corepack pnpm --filter @actalk/novelgraph-site build",
+    "docs:generate": "corepack pnpm --filter @actalk/novelgraph-core build && node scripts/generate-fair-play-reference.mjs",
+    "docs:check": "node scripts/generate-fair-play-reference.mjs --check",
+    "diagrams:build": "node scripts/render-diagrams.mjs",
+    "diagrams:check": "node scripts/render-diagrams.mjs --check"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.16.0"
   },
   "engines": {
     "node": ">=22.13.0",
     "pnpm": ">=9.0.0"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs"
 }

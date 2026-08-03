@@ -42,49 +42,51 @@ function runStderr(args: string[]): { stdout: string; stderr: string; exitCode: 
 
 describe("CLI integration", () => {
   beforeAll(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), "inkos-cli-test-"));
+    projectDir = await mkdtemp(join(tmpdir(), "novelgraph-cli-test-"));
   });
 
   afterAll(async () => {
     await rm(projectDir, { recursive: true, force: true });
   });
 
-  describe("inkos --version", () => {
+  describe("novelgraph --version", () => {
     it("prints version number", () => {
       const output = run(["--version"]);
       expect(output.trim()).toMatch(/^\d+\.\d+\.\d+$/);
     });
   });
 
-  describe("inkos --help", () => {
+  describe("novelgraph --help", () => {
     it("prints help with command list", () => {
       const output = run(["--help"]);
-      expect(output).toContain("inkos");
+      expect(output).toContain("novelgraph");
       expect(output).toContain("init");
-      expect(output).toContain("book");
-      expect(output).toContain("write");
+      expect(output).toContain("studio");
+      expect(output).toContain("inspect-prose");
+      expect(output).not.toMatch(/\b(agent|radar|detect|up|down)\b/);
     });
   });
 
-  describe("inkos init", () => {
+  describe("novelgraph init", () => {
     it("initializes project in current directory", () => {
       const output = run(["init"]);
       expect(output).toContain("Project initialized");
     });
 
-    it("creates inkos.json with correct structure", async () => {
-      const raw = await readFile(join(projectDir, "inkos.json"), "utf-8");
+    it("creates novelgraph.json with correct structure", async () => {
+      const raw = await readFile(join(projectDir, "novelgraph.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.llm).toBeDefined();
       expect(config.llm.provider).toBe("openai");
       expect(config.llm.model).toBe("gpt-4o");
-      expect(config.daemon).toBeDefined();
+      expect(config.version).toBe("0.5.0");
+      expect(config.daemon).toBeUndefined();
       expect(config.notify).toEqual([]);
     });
 
     it("creates .env file", async () => {
       const envContent = await readFile(join(projectDir, ".env"), "utf-8");
-      expect(envContent).toContain("INKOS_LLM_API_KEY");
+      expect(envContent).toContain("NOVELGRAPH_LLM_API_KEY");
     });
 
     it("creates .gitignore", async () => {
@@ -92,28 +94,27 @@ describe("CLI integration", () => {
       expect(gitignore).toContain(".env");
     });
 
-    it("creates books/ and radar/ directories", async () => {
+    it("creates the books directory without legacy radar state", async () => {
       const booksStat = await stat(join(projectDir, "books"));
       expect(booksStat.isDirectory()).toBe(true);
-      const radarStat = await stat(join(projectDir, "radar"));
-      expect(radarStat.isDirectory()).toBe(true);
+      await expect(stat(join(projectDir, "radar"))).rejects.toThrow();
     });
   });
 
-  describe("inkos init <name>", () => {
+  describe("novelgraph init <name>", () => {
     it("creates project in subdirectory", () => {
       const output = run(["init", "subproject"]);
       expect(output).toContain("Project initialized");
     });
 
-    it("creates inkos.json in subdirectory", async () => {
-      const raw = await readFile(join(projectDir, "subproject", "inkos.json"), "utf-8");
+    it("creates novelgraph.json in subdirectory", async () => {
+      const raw = await readFile(join(projectDir, "subproject", "novelgraph.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.name).toBe("subproject");
     });
   });
 
-  describe("inkos config set", () => {
+  describe("novelgraph config set", () => {
     it("sets a known config value", () => {
       const output = run(["config", "set", "llm.provider", "anthropic"]);
       expect(output).toContain("Set llm.provider = anthropic");
@@ -121,7 +122,7 @@ describe("CLI integration", () => {
 
     it("sets a nested config value", async () => {
       run(["config", "set", "llm.model", "gpt-5"]);
-      const raw = await readFile(join(projectDir, "inkos.json"), "utf-8");
+      const raw = await readFile(join(projectDir, "novelgraph.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.llm.model).toBe("gpt-5");
     });
@@ -133,7 +134,7 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos config show", () => {
+  describe("novelgraph config show", () => {
     it("shows current config as JSON", () => {
       const output = run(["config", "show"]);
       const config = JSON.parse(output);
@@ -141,51 +142,12 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos book list", () => {
-    it("shows no books in empty project", () => {
-      const output = run(["book", "list"]);
-      expect(output).toContain("No books found");
-    });
-
-    it("returns empty array in JSON mode", () => {
-      const output = run(["book", "list", "--json"]);
-      const data = JSON.parse(output);
-      expect(data.books).toEqual([]);
-    });
-  });
-
-  describe("inkos status", () => {
-    it("shows project status with zero books", () => {
-      const output = run(["status"]);
-      expect(output).toContain("Books: 0");
-    });
-
-    it("returns JSON with --json flag", () => {
-      const output = run(["status", "--json"]);
-      const data = JSON.parse(output);
-      expect(data.project).toBeDefined();
-      expect(data.books).toEqual([]);
-    });
-
-    it("errors for nonexistent book", () => {
-      const { exitCode, stderr } = runStderr(["status", "nonexistent"]);
-      expect(exitCode).not.toBe(0);
-    });
-  });
-
-  describe("inkos doctor", () => {
+  describe("novelgraph doctor", () => {
     it("checks environment health", () => {
       const { stdout } = runStderr(["doctor"]);
-      expect(stdout).toContain("InkOS Doctor");
-      expect(stdout).toContain("Node.js >= 20");
-      expect(stdout).toContain("inkos.json");
-    });
-  });
-
-  describe("inkos analytics", () => {
-    it("errors when no book exists", () => {
-      const { exitCode } = runStderr(["analytics"]);
-      expect(exitCode).not.toBe(0);
+      expect(stdout).toContain("NovelGraph Doctor");
+      expect(stdout).toContain("Node.js >= 22");
+      expect(stdout).toContain("novelgraph.json");
     });
   });
 });
