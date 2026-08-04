@@ -6,5 +6,5 @@ export default defineConfig({
   root: "src/client",
   build: { outDir: "../../dist/client", emptyOutDir: true },
   server: { port: 5173, proxy: { "/api": "http://localhost:4567" } },
-  test: { include: ["../shared/**/*.test.ts", "../server.test.ts"] },
+  test: { include: ["../shared/**/*.test.ts", "../server.test.ts", "../auth-routes.test.ts"] },
 });

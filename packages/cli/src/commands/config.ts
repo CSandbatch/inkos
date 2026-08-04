@@ -21,6 +21,24 @@ configCommand
 
       const keys = key.split(".");
 
+      // Credentials are deliberately absent from this list. novelgraph.json is a
+      // project file that gets committed; a key written here leaks to every clone.
+      // Use `novelgraph auth login` instead, which stores tokens in the OS
+      // credential store.
+      const CREDENTIAL_KEYS = new Set(["llm.apiKey", "llm.apikey", "llm.key", "llm.token", "llm.secret"]);
+      if (CREDENTIAL_KEYS.has(key)) {
+        logError(
+          `Refusing to write a credential to novelgraph.json — that file is normally committed to version control.`,
+        );
+        log("");
+        log("Sign in instead:");
+        log("  novelgraph auth login --provider chatgpt");
+        log("");
+        log("Tokens are held in the OS credential store (Windows DPAPI, macOS Keychain,");
+        log("or libsecret). Run 'novelgraph auth status' to see which backend is in use.");
+        process.exit(1);
+      }
+
       const KNOWN_KEYS = new Set([
         "llm.provider", "llm.baseUrl", "llm.model", "llm.temperature",
         "llm.maxTokens", "llm.thinkingBudget", "llm.apiFormat", "llm.stream",
@@ -83,7 +101,7 @@ configCommand
   .description("Set global LLM config (~/.novelgraph/.env), shared by all projects")
   .requiredOption("--provider <provider>", "LLM provider (openai / anthropic)")
   .requiredOption("--base-url <url>", "API base URL")
-  .requiredOption("--api-key <key>", "API key")
+  .option("--api-key <key>", "API key (DEPRECATED — prefer 'novelgraph auth login')")
   .requiredOption("--model <model>", "Model name")
   .option("--temperature <n>", "Temperature")
   .option("--max-tokens <n>", "Max output tokens")
@@ -99,9 +117,11 @@ configCommand
         "# NovelGraph Global LLM Configuration",
         `NOVELGRAPH_LLM_PROVIDER=${opts.provider}`,
         `NOVELGRAPH_LLM_BASE_URL=${opts.baseUrl}`,
-        `NOVELGRAPH_LLM_API_KEY=${opts.apiKey}`,
         `NOVELGRAPH_LLM_MODEL=${opts.model}`,
       ];
+      if (opts.apiKey) {
+        lines.push(`NOVELGRAPH_LLM_API_KEY=${opts.apiKey}`);
+      }
       if (opts.temperature) lines.push(`NOVELGRAPH_LLM_TEMPERATURE=${opts.temperature}`);
       if (opts.maxTokens) lines.push(`NOVELGRAPH_LLM_MAX_TOKENS=${opts.maxTokens}`);
       if (opts.thinkingBudget) lines.push(`NOVELGRAPH_LLM_THINKING_BUDGET=${opts.thinkingBudget}`);
@@ -111,6 +131,12 @@ configCommand
       await writeFile(GLOBAL_ENV_PATH, lines.join("\n") + "\n", "utf-8");
       log(`Global config saved to ${GLOBAL_ENV_PATH}`);
       log("All projects will use this config unless overridden by project .env");
+      if (opts.apiKey) {
+        log("");
+        log("NOTE: --api-key wrote a plaintext key to that file. Prefer:");
+        log("  novelgraph auth login --provider chatgpt");
+        log("which stores tokens in the OS credential store instead.");
+      }
     } catch (e) {
       logError(`Failed to set global config: ${e}`);
       process.exit(1);

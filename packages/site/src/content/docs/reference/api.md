@@ -35,6 +35,12 @@ Studio serves JSON beneath `/api/v1` on the loopback address. Important resource
 | `/books/:id/reviews` | Read persona feedback and approvals |
 | `/books/:id/closure` | Evaluate publication readiness |
 | `/books/:id/export` | Write the portable export bundle |
+| `/auth/status` | Sign-in state per provider and the credential-storage backend in use |
+| `/auth/:providerId/configure` | Record the OAuth client ID, issuer, and endpoints for a provider |
+| `/auth/:providerId/login` | `POST` starts the device flow and returns the user code; `GET` reports progress |
+| `/auth/:providerId/logout` | Revoke where supported, then delete stored tokens |
+
+The authentication routes deliberately return the **user code and verification URI only**. The device code, access token, and refresh token remain in the local server process and the operating system credential store, so a Studio browser tab cannot read or leak a credential. `POST /auth/:providerId/login` returns `409` when no OAuth client ID is configured and `502` when the provider rejects the request.
 
 The solution endpoint requires `solution:read` for `GET` and `solution:write` for `PUT` in `x-novelgraph-capability`; write permission never implies read permission. Ordinary book, graph, workbench, and reader-projection routes never return sealed solution content.
 

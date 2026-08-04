@@ -3,6 +3,7 @@
 import { createRequire } from "node:module";
 import { Command } from "commander";
 import { initCommand } from "./commands/init.js";
+import { authCommand } from "./commands/auth.js";
 import { configCommand } from "./commands/config.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { inspectCommand } from "./commands/inspect-prose.js";
@@ -19,6 +20,7 @@ program
   .version(version);
 
 program.addCommand(initCommand);
+program.addCommand(authCommand);
 program.addCommand(configCommand);
 program.addCommand(doctorCommand);
 program.addCommand(inspectCommand);

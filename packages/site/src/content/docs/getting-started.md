@@ -73,15 +73,34 @@ The current **Review center** reads persona feedback and approval records. Its *
 
 `book.json` and the other exports are portable outputs, not a replacement for SQLite. Back up the complete `.novelgraph` directory before production or migration; follow [Backup and recovery](/novelgraph/docs/operations/backup-and-recovery/).
 
-## Provider configuration
+## Provider sign-in
 
-Set provider credentials in a project `.env` or the existing NovelGraph global configuration only if a provider-backed worker or integration will use them. Never commit `.env` files. The current Studio discovery flow and Studio job-start route do not make provider calls; the public demo uses fixture data and accepts no credentials.
+NovelGraph authenticates to model providers with the OAuth 2.0 device flow (RFC 8628). Tokens are held in the operating system credential store — Windows DPAPI, macOS Keychain, or libsecret — and never in project files.
 
-```dotenv
-NOVELGRAPH_LLM_PROVIDER=openai
-NOVELGRAPH_LLM_BASE_URL=https://api.openai.com/v1
-NOVELGRAPH_LLM_API_KEY=replace-locally
-NOVELGRAPH_LLM_MODEL=your-model
+NovelGraph ships no OAuth client ID. Register a device-flow client with your provider, then:
+
+```bash
+novelgraph auth configure --provider chatgpt --client-id <id> --issuer <url>
+novelgraph auth login --provider chatgpt
+novelgraph auth status
 ```
 
-Run `novelgraph doctor` when CLI configuration setup fails. It checks local configuration and reports errors without printing secrets; it does not make a provider call.
+`login` prints a verification URI and a user code; approve the request in a browser on any device. Studio offers the same flow under **Model access**.
+
+For storage backends and troubleshooting see [Sign in to a model provider](/novelgraph/docs/guides/provider-sign-in/).
+
+Providers with no device flow still use an API key in a project `.env`. Never commit `.env` files.
+
+```dotenv
+NOVELGRAPH_LLM_PROVIDER=chatgpt
+NOVELGRAPH_LLM_BASE_URL=https://api.openai.com/v1
+NOVELGRAPH_LLM_MODEL=your-model
+# Only for providers without a device flow:
+# NOVELGRAPH_LLM_API_KEY=replace-locally
+```
+
+`novelgraph config set llm.apiKey` is refused. It wrote a credential into `novelgraph.json`, which is normally committed.
+
+Signing in does not by itself start any production work. Discovery and the Studio job-start route still make no provider calls in this alpha, and the public demo uses fixture data and accepts no credentials.
+
+Run `novelgraph doctor` when setup fails. It checks local configuration, the credential-storage backend, and sign-in state, and reports errors without printing secrets; it does not make a provider call.

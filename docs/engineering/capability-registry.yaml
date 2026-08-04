@@ -1,0 +1,337 @@
+# Capability registry — the single source of truth for what NovelGraph can do.
+#
+# Public copy is generated from this file. A capability may not be described in
+# the present tense anywhere unless its status here is `shipped` AND every
+# referenced evidence path exists.
+#
+#   status: shipped   Implemented and covered by a referenced test
+#           phase     Designed and scheduled; name the phase
+#           reserved  Deliberately designed for and deliberately not built
+#
+# Run `pnpm capabilities:check` to verify this file against the tree.
+
+version: 1
+
+capabilities:
+
+  # ── Authentication ────────────────────────────────────────────────────────
+  auth.device-flow:
+    title: OAuth 2.0 device-flow sign-in
+    status: shipped
+    owner: packages/core/src/auth
+    summary: >-
+      Authenticate to a model provider with the OAuth 2.0 Device Authorization
+      Grant (RFC 8628), including the full section 3.5 error handling.
+    evidence:
+      tests:
+        - packages/core/src/__tests__/auth-device-flow.test.ts
+        - packages/core/src/__tests__/auth-session.test.ts
+      docs:
+        - packages/site/src/content/docs/guides/provider-sign-in.md
+      adrs: [ "0010" ]
+
+  auth.pkce:
+    title: PKCE on every token exchange
+    status: shipped
+    owner: packages/core/src/auth
+    summary: >-
+      Every device-flow exchange carries an S256 PKCE challenge, binding it to
+      the process that began the flow.
+    evidence:
+      tests: [ packages/core/src/__tests__/auth-device-flow.test.ts ]
+      adrs: [ "0010" ]
+
+  auth.endpoint-discovery:
+    title: OIDC endpoint discovery
+    status: shipped
+    owner: packages/core/src/auth
+    summary: >-
+      Device and token endpoints are read from the issuer's discovery document.
+      No provider URL is hardcoded.
+    evidence:
+      tests: [ packages/core/src/__tests__/auth-device-flow.test.ts ]
+      adrs: [ "0010" ]
+
+  auth.token-refresh:
+    title: Automatic token refresh
+    status: shipped
+    owner: packages/core/src/auth
+    summary: >-
+      Tokens expiring within 60 seconds refresh before use. A refresh token the
+      provider omits on refresh is retained rather than discarded.
+    evidence:
+      tests: [ packages/core/src/__tests__/auth-session.test.ts ]
+
+  auth.os-credential-store:
+    title: Credential storage in the OS credential store
+    status: shipped
+    owner: packages/core/src/auth/secret-store.ts
+    summary: >-
+      Tokens are held by Windows DPAPI, macOS Keychain, or libsecret, with no
+      native dependency. Where none is available an unencrypted file is used and
+      reported as unprotected.
+    evidence:
+      tests: [ packages/core/src/__tests__/auth-session.test.ts ]
+      docs: [ packages/site/src/content/docs/guides/provider-sign-in.md ]
+
+  auth.no-credentials-in-project-files:
+    title: Credentials are refused in project files
+    status: shipped
+    owner: packages/cli/src/commands/config.ts
+    summary: >-
+      `config set llm.apiKey` refuses. A test asserts no token reaches the
+      provider configuration file.
+    evidence:
+      tests: [ packages/core/src/__tests__/auth-session.test.ts ]
+      adrs: [ "0010" ]
+
+  auth.studio-routes:
+    title: Studio sign-in without exposing credentials to the browser
+    status: shipped
+    owner: packages/studio/src/server.ts
+    summary: >-
+      The browser receives only the user code and verification URI. Device code,
+      access token, and refresh token stay in the local server process.
+    evidence:
+      tests: [ packages/studio/src/auth-routes.test.ts ]
+      docs: [ packages/site/src/content/docs/reference/api.md ]
+      adrs: [ "0010" ]
+
+  auth.client-id-bundled:
+    title: A bundled OAuth client ID
+    status: reserved
+    owner: packages/core/src/auth/providers.ts
+    summary: >-
+      NovelGraph registers no OAuth client with any provider. Each installation
+      supplies its own before signing in.
+    reason: >-
+      We are not a registered client of any provider, and shipping a fabricated
+      identifier would fail obscurely against the wrong host.
+
+  # ── Storage and state ─────────────────────────────────────────────────────
+  store.sqlite-transactions:
+    title: Transactional SQLite store
+    status: shipped
+    owner: packages/core/src/studio/store.ts
+    summary: >-
+      Immediate transactions, foreign keys, WAL, numbered migrations, and
+      pre-migration backups.
+    evidence:
+      tests: [ packages/core/src/__tests__/studio-store.test.ts ]
+
+  store.migration-rollback:
+    title: Migration failure rolls back
+    status: shipped
+    owner: packages/core/src/studio/store.ts
+    summary: An injected mid-migration failure leaves the database recoverable.
+    evidence:
+      tests: [ packages/core/src/__tests__/studio-store.test.ts ]
+
+  # ── Packs and validation ──────────────────────────────────────────────────
+  packs.fair-play-mystery:
+    title: Fair-play mystery rule pack
+    status: shipped
+    owner: packages/core/src/studio/mystery-spec.ts
+    summary: >-
+      22 deterministic rules across 10 validation suites, with a sealed-solution
+      capability boundary and a reader projection.
+    evidence:
+      tests: [ packages/core/src/__tests__/mystery-engine.test.ts ]
+      docs: [ packages/site/src/content/docs/reference/fair-play-rules.md ]
+
+  packs.reader-projection:
+    title: Reader projection excludes sealed content
+    status: shipped
+    owner: packages/core/src/studio/mystery-engine.ts
+    summary: >-
+      A reader-facing projection cannot leak culprit identity or true evidence
+      meaning.
+    evidence:
+      tests: [ packages/core/src/__tests__/mystery-engine.test.ts ]
+
+  packs.prose-patterns:
+    title: Advisory English prose-pattern inspection
+    status: shipped
+    owner: packages/core/src/studio/prose-patterns.ts
+    summary: >-
+      Reports phrases and structural tendencies for human review. Never infers
+      authorship and never rewrites prose.
+    evidence:
+      tests: [ packages/core/src/__tests__/prose-patterns.test.ts ]
+
+  packs.advisory-severity-tier:
+    title: Advisory severity tier in the rule catalog
+    status: phase
+    phase: 5
+    owner: packages/core/src/studio/mystery-spec.ts
+    summary: >-
+      The severity schema declares five levels; the catalog uses two. Every rule
+      is blocker or major, so the pack has no advisory tier.
+    blockers: [ pack-api hard-vs-advisory distinction ]
+
+  packs.compiler:
+    title: Pack compiler, registry, and activation snapshots
+    status: phase
+    phase: 5
+    owner: packages/pack-compiler
+    summary: Versioned, pinned, composable packs replacing string constants.
+
+  # ── Workflow ──────────────────────────────────────────────────────────────
+  workflow.durable-topology:
+    title: Durable workflow topology
+    status: shipped
+    owner: packages/core/src/studio/workflow.ts
+    summary: >-
+      Node dependencies, capability requirements, budgets, cancellation, and
+      resumable failures persist. Execution is supplied by the caller.
+    evidence:
+      tests: [ packages/core/src/__tests__/studio-store.test.ts ]
+
+  workflow.node-attempts:
+    title: Node runs separated from attempts
+    status: phase
+    phase: 6
+    owner: packages/workflow-kernel
+    summary: >-
+      One row per logical node currently holds its current execution, so a retry
+      overwrites the failure it should preserve.
+
+  workflow.server-issued-capabilities:
+    title: Server-issued capability grants
+    status: phase
+    phase: 6
+    owner: packages/workflow-kernel
+    summary: >-
+      Capabilities currently arrive in an HTTP header the caller sets for itself.
+      Cooperative metadata, not a grant boundary.
+
+  workflow.context-manifests:
+    title: Context manifests
+    status: phase
+    phase: 6
+    owner: packages/harness-context
+
+  # ── Canonical content ─────────────────────────────────────────────────────
+  tei.immutable-revisions:
+    title: Immutable TEI work revisions
+    status: phase
+    phase: 2
+    owner: packages/tei
+    summary: Manuscript content as content-addressed, schema-validated TEI.
+    blockers: [ "TEI editing UX — plan/05-open-questions.md Q2" ]
+
+  graph.story-revisions:
+    title: Versioned story graph with assertion provenance
+    status: phase
+    phase: 4
+    owner: packages/story-graph
+
+  graph.literary-releases:
+    title: Pinned literary graph releases
+    status: phase
+    phase: 10
+    owner: packages/literary-graph
+    blockers: [ "corpus sourcing and rights — plan/05-open-questions.md Q3" ]
+
+  # ── Execution ─────────────────────────────────────────────────────────────
+  runtime.inference:
+    title: Provider-backed inference
+    status: phase
+    phase: 8
+    owner: packages/runtime-native
+    summary: >-
+      Authentication can obtain a token. Nothing calls a model with it. No
+      production node performs inference.
+
+  gateway.metered:
+    title: Metered hosted gateway
+    status: reserved
+    owner: null
+    summary: Accounts, billing, and a marked-up token gateway.
+    reason: >-
+      BYO-key first (ADR-0008). The seams exist; the economics are unresolved
+      (plan/05-open-questions.md Q8).
+
+  # ── Product surfaces ──────────────────────────────────────────────────────
+  studio.local-server:
+    title: Local Studio server bound to loopback
+    status: shipped
+    owner: packages/studio/src/server.ts
+    evidence:
+      tests: [ packages/studio/src/server.test.ts ]
+
+  studio.fixture-demo:
+    title: Fixture-backed public demonstration
+    status: shipped
+    owner: packages/studio/src/shared/index.ts
+    summary: >-
+      Immutable demo data. Accepts no credentials, makes no model call, and
+      never receives a manuscript.
+    evidence:
+      tests: [ packages/studio/src/shared/fixture.test.ts ]
+
+  studio.review-controls:
+    title: Working approve and reject controls
+    status: phase
+    phase: 9
+    owner: packages/studio/src/client/StudioApp.tsx
+    summary: The review centre displays records; its controls do not change server state.
+
+  cli.commands:
+    title: CLI command surface
+    status: shipped
+    owner: packages/cli/src
+    summary: "init, auth, config, doctor, inspect-prose, studio"
+    evidence:
+      tests: [ packages/cli/src/__tests__/cli-integration.test.ts ]
+      docs: [ packages/site/src/content/docs/reference/cli.md ]
+
+  telemetry.opt-in:
+    title: Opt-in allowlisted diagnostics
+    status: shipped
+    owner: packages/core/src/studio/telemetry.ts
+    summary: >-
+      Off by default. Rejects manuscript text, prompts, responses, project names,
+      paths, and graph content.
+    evidence:
+      tests: [ packages/core/src/__tests__/telemetry.test.ts ]
+
+  dev-agent.task-loop:
+    title: Validated development-agent task loop
+    status: shipped
+    owner: tools/dev-agent
+    summary: >-
+      Scoped task state records the discover, orient, plan, implement, verify,
+      document, review, and handoff loop with validation and evidence fields.
+    evidence:
+      tests: [ tools/dev-agent/task-loop.test.mjs ]
+      docs: [ packages/site/src/content/docs/guides/hermes-agent.md ]
+
+  dev-agent.hermes-doctor:
+    title: Hermes Agent environment diagnostics
+    status: shipped
+    owner: tools/dev-agent/hermes-doctor.mjs
+    summary: >-
+      Reports Hermes availability, version, repository context files, generated
+      task context, memory location, and available sandbox metadata without
+      pretending Hermes executed when it is unavailable.
+    evidence:
+      tests: [ tools/dev-agent/task-loop.test.mjs ]
+      docs: [ packages/site/src/content/docs/guides/hermes-agent.md ]
+
+  runtime.hermes-worker-profiles:
+    title: Per-worker governed Hermes profiles
+    status: phase
+    phase: 6
+    owner: packages/core/src/runtime
+    summary: >-
+      Each executable NovelGraph worker will resolve an immutable Hermes profile
+      with its own provider/model, skills, MCP allowlist, memory mode, sandbox,
+      task contract, budget, and NovelGraph capability policy.
+    reason: >-
+      Hermes is the runtime operator for workers inside NovelGraph; VS Code/Codex
+      remains the development surface. The runtime metadata and grant boundary
+      are designed in ADR-0011 and are not yet implemented.
+    evidence:
+      adr: [ docs/architecture/decisions/0011-hermes-worker-profiles.md ]
+      docs: [ packages/site/src/content/docs/guides/hermes-agent.md ]

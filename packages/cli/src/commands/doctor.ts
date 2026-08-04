@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
+import { describeStorage, statusAll } from "@actalk/novelgraph-core";
 import { findProjectRoot, log, GLOBAL_ENV_PATH } from "../runtime.js";
 
 interface Check { name: string; ok: boolean; detail: string }
@@ -30,6 +31,29 @@ export const doctorCommand = new Command("doctor")
 
     const database = join(root, ".novelgraph", "studio.sqlite");
     checks.push({ name: "Studio database", ok: true, detail: await exists(database) ? database : "Not created yet; launch 'novelgraph studio'" });
+
+    const storage = await describeStorage();
+    const authStatuses = await statusAll();
+    const signedIn = authStatuses.filter((s) => s.state === "authenticated" || s.state === "refreshable");
+
+    // Unprotected storage is only a failure when something is actually stored in
+    // it. A project with no credentials has nothing at risk.
+    const storageAtRisk = !storage.protected && signedIn.length > 0;
+    checks.push({
+      name: "Credential storage",
+      ok: !storageAtRisk,
+      detail: storageAtRisk
+        ? `${storage.description} — tokens are stored unprotected on this machine`
+        : storage.description,
+    });
+
+    checks.push({
+      name: "Provider sign-in",
+      ok: true,
+      detail: signedIn.length
+        ? `${signedIn.map((s) => s.providerId).join(", ")} (run 'novelgraph auth status' for detail)`
+        : "Not signed in; run 'novelgraph auth login'",
+    });
 
     log("\nNovelGraph Doctor\n");
     for (const check of checks) log(`  ${check.ok ? "[OK]" : "[!!]"} ${check.name}: ${check.detail}`);

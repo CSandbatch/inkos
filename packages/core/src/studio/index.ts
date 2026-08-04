@@ -1,3 +1,4 @@
+export * from "../auth/index.js";
 export * from "./domain.js";
 export * from "./store.js";
 export * from "./knowledge.js";
@@ -11,3 +12,6 @@ export * from "./mystery-compat.js";
 export * from "./seed.js";
 export * from "./telemetry.js";
 export * from "./discovery.js";
+export * from "../contracts.js";
+export * from "../tei.js";
+export * from "../workflow-kernel.js";

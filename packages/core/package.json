@@ -13,10 +13,15 @@
     "./studio": {
       "types": "./dist/studio/index.d.ts",
       "import": "./dist/studio/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js"
     }
   },
   "files": [
-    "dist/studio"
+    "dist/studio",
+    "dist/auth"
   ],
   "license": "MIT",
   "repository": {

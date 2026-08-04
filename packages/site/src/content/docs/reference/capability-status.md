@@ -24,7 +24,11 @@ NovelGraph uses four status labels in public documentation.
 - Fair-play mystery policy, sealed solution capability boundary, suspects, evidence, chronology, access, knowledge, hypotheses, deductions, findings, reader projection, waivers, and closure checks.
 - Advisory English prose-pattern inspection without authorship classification.
 - Static Pages site, generated diagrams, documentation search, and fixture-backed Studio demo.
-- CLI commands: `init`, `config`, `doctor`, `inspect-prose`, and `studio`.
+- OAuth 2.0 device-flow sign-in (RFC 8628) with PKCE, OIDC endpoint discovery, automatic token refresh, and best-effort revocation on logout.
+- Credential storage in the operating system credential store — Windows DPAPI, macOS Keychain, or libsecret — with an honestly labelled unencrypted fallback and a `doctor` check.
+- Studio **Model access** route and `/api/v1/auth/*` routes, which keep the device code and tokens in the local server process rather than the browser.
+- CLI commands: `init`, `auth`, `config`, `doctor`, `inspect-prose`, and `studio`.
+- Hermes-aware development task loop and optional `hermes:doctor` environment diagnostics.
 
 ## Fixture demonstration
 
@@ -34,6 +38,8 @@ The demo proves component behavior and information architecture. It does not pro
 
 ## Active implementation
 
+- Provider-backed inference. Sign-in is implemented and tokens are obtainable. **No production node calls a model yet.** Authentication establishes access that nothing yet consumes.
+- A bundled OAuth client ID. NovelGraph registers no client with any provider, so each installation supplies its own before signing in.
 - Automatic provider-backed execution for every Sol, Terra, Luna, and specialist node.
 - Complete conversational question policy, candidate generation, and handoff compaction through configured models.
 - Rich side-by-side revision diffs and one-action rollback in Studio.

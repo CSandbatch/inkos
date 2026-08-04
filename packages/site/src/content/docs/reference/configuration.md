@@ -30,12 +30,32 @@ Studio has no account authentication. Keep the server on loopback. A non-loopbac
 | --- | --- | --- |
 | `NOVELGRAPH_LLM_PROVIDER` | `openai`, `anthropic`, or an OpenAI-compatible custom provider | Used by `novelgraph init` when seeding `novelgraph.json`; no automatic Studio provider call is made |
 | `NOVELGRAPH_LLM_BASE_URL` | Provider API base URL | Stored as project configuration; not loaded by the Studio launcher from `.env` |
-| `NOVELGRAPH_LLM_API_KEY` | Local credential; never telemetry | Written to local configuration only through explicit setup; do not commit or report it |
+| `NOVELGRAPH_LLM_API_KEY` | Local credential; never telemetry | For providers with no device flow. Prefer `novelgraph auth login`; do not commit or report it |
 | `NOVELGRAPH_LLM_MODEL` | Default model identifier | Stored as project configuration; no durable node invokes it automatically |
 | `NOVELGRAPH_LLM_TEMPERATURE` | Optional generation setting | Written by the global-config command when provided; no current provider executor consumes it |
 | `NOVELGRAPH_LLM_MAX_TOKENS` | Optional output budget | Written by the global-config command when provided; no current provider executor consumes it |
 | `NOVELGRAPH_LLM_THINKING_BUDGET` | Optional Anthropic thinking budget | Written by the global-config command when provided; no current provider executor consumes it |
 | `NOVELGRAPH_LLM_API_FORMAT` | `chat` or `responses` setup value | Written by the global-config command when provided; no current provider executor consumes it |
+
+## OAuth provider settings
+
+Device-flow sign-in is configured separately. Settings live in `~/.novelgraph/auth.json` or in matching environment variables. **No secret is stored in either place.** Tokens go to the OS credential store.
+
+| Setting | Environment override | Meaning |
+| --- | --- | --- |
+| `clientId` | `NOVELGRAPH_<PROVIDER>_CLIENT_ID` | OAuth client identifier issued to this installation. NovelGraph ships none. |
+| `clientSecret` | `NOVELGRAPH_<PROVIDER>_CLIENT_SECRET` | Confidential clients only; public clients use PKCE |
+| `issuer` | `NOVELGRAPH_<PROVIDER>_ISSUER` | OIDC issuer; endpoints are read from its discovery document |
+| `deviceAuthorizationEndpoint` | `NOVELGRAPH_<PROVIDER>_DEVICE_AUTHORIZATION_ENDPOINT` | Explicit endpoint, skipping discovery |
+| `tokenEndpoint` | `NOVELGRAPH_<PROVIDER>_TOKEN_ENDPOINT` | Explicit endpoint, skipping discovery |
+| `revocationEndpoint` | `NOVELGRAPH_<PROVIDER>_REVOCATION_ENDPOINT` | Optional; used on logout |
+| `scopes` | `NOVELGRAPH_<PROVIDER>_SCOPES` | Space- or comma-separated |
+
+`<PROVIDER>` is the uppercased provider id — `NOVELGRAPH_CHATGPT_CLIENT_ID`, `NOVELGRAPH_CODEX_ISSUER`. Environment values take precedence over the file.
+
+`NOVELGRAPH_SECRET_BACKEND=file` forces the unencrypted file backend instead of the OS credential store. It exists for testing; it weakens protection at rest.
+
+See [Sign in to a model provider](/novelgraph/docs/guides/provider-sign-in/).
 
 The generated project `.env` and global `~/.novelgraph/.env` are configuration files, not proof that a provider is active. `novelgraph config set` edits `novelgraph.json`; `novelgraph config set-global` writes the global file; `config show` and `config show-global` mask known API keys. The current source alpha has no automatic project-over-global `.env` loading path in Studio.
 

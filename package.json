@@ -16,7 +16,7 @@
     "build": "corepack pnpm --filter @actalk/novelgraph-core build && corepack pnpm --filter @actalk/novelgraph-studio build && corepack pnpm --filter @actalk/novelgraph build && corepack pnpm --filter @actalk/novelgraph-site build",
     "dev": "corepack pnpm --parallel --filter @actalk/novelgraph-core --filter @actalk/novelgraph-studio --filter @actalk/novelgraph --filter @actalk/novelgraph-site dev",
     "test": "corepack pnpm --filter @actalk/novelgraph-core test && corepack pnpm --filter @actalk/novelgraph-studio test && corepack pnpm --filter @actalk/novelgraph test",
-    "lint": "corepack pnpm typecheck && corepack pnpm copy:lint && corepack pnpm docs:check && corepack pnpm diagrams:check",
+  "lint": "corepack pnpm typecheck && corepack pnpm copy:lint && corepack pnpm docs:check && corepack pnpm diagrams:check && corepack pnpm capabilities:check && corepack pnpm provenance:check && corepack pnpm agent:test",
     "typecheck": "corepack pnpm --filter @actalk/novelgraph-core typecheck && corepack pnpm --filter @actalk/novelgraph-studio typecheck && corepack pnpm --filter @actalk/novelgraph typecheck",
     "verify:publish-manifests": "node scripts/verify-no-workspace-protocol.mjs packages/core packages/studio packages/cli",
     "copy:lint": "node scripts/lint-public-copy.mjs",
@@ -28,7 +28,19 @@
     "docs:generate": "corepack pnpm --filter @actalk/novelgraph-core build && node scripts/generate-fair-play-reference.mjs",
     "docs:check": "node scripts/generate-fair-play-reference.mjs --check",
     "diagrams:build": "node scripts/render-diagrams.mjs",
-    "diagrams:check": "node scripts/render-diagrams.mjs --check"
+    "diagrams:check": "node scripts/render-diagrams.mjs --check",
+    "capabilities:generate": "node scripts/generate-capability-docs.mjs",
+    "capabilities:check": "node scripts/generate-capability-docs.mjs --check",
+    "provenance:check": "node scripts/check-provenance.mjs --check",
+    "agent:context": "node tools/dev-agent/build-context.mjs"
+    ,"agent:init": "node tools/dev-agent/task-loop.mjs init"
+    ,"agent:check": "node tools/dev-agent/task-loop.mjs check"
+    ,"agent:checkpoint": "node tools/dev-agent/task-loop.mjs checkpoint"
+    ,"agent:document": "node tools/dev-agent/task-loop.mjs document"
+    ,"agent:verify": "node tools/dev-agent/task-loop.mjs verify"
+    ,"agent:handoff": "node tools/dev-agent/task-loop.mjs handoff"
+    ,"hermes:doctor": "node tools/dev-agent/hermes-doctor.mjs"
+    ,"agent:test": "node --test tools/dev-agent/*.test.mjs"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.16.0"
