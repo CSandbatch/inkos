@@ -4,7 +4,7 @@ description: Canonical links for the NovelGraph repository, website, implementat
 slug: docs/project-hub
 ---
 
-This page gathers the current NovelGraph surfaces in one place. It uses absolute labels instead of relative dates.
+This page gathers the current NovelGraph surfaces in one place. It uses stable branch and pull-request links rather than hard-coded commit hashes.
 
 ## Public surfaces
 
@@ -19,7 +19,6 @@ This page gathers the current NovelGraph surfaces in one place. It uses absolute
 - [Draft pull request #6](https://github.com/CSandbatch/novelgraph/pull/6)
 - [Implementation branch](https://github.com/CSandbatch/novelgraph/tree/agent/novelgraph-docs-readiness)
 - [Branch commits](https://github.com/CSandbatch/novelgraph/commits/agent/novelgraph-docs-readiness/)
-- [Latest implementation commit](https://github.com/CSandbatch/novelgraph/commit/d216275)
 
 ## Runtime and architecture
 
