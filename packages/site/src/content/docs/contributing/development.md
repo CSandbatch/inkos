@@ -10,6 +10,8 @@ pnpm build
 pnpm test
 pnpm typecheck
 pnpm site:dev
+pnpm site:build
+pnpm site:links
 ```
 
 The monorepo contains the transactional core, CLI, local Studio, and static public site. Add graph invariants to the core before adding UI affordances that depend on them. Agent nodes require typed contracts, explicit capabilities, durable events, idempotency behavior, and budget tests.

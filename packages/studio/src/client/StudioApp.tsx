@@ -13,23 +13,23 @@ const nav = [
   ["/graph", "Story graph", "05"], ["/mystery", "Mystery", "06"], ["/workflow", "DAG control", "07"], ["/reviews", "Review center", "08"], ["/exports", "Exports", "09"],
 ] as const;
 
-const RouterContext = createContext<{ path: string; navigate: (path: string, replace?: boolean) => void } | null>(null);
+const RouterContext = createContext<{ path: string; embedded: boolean; navigate: (path: string, replace?: boolean) => void } | null>(null);
 function useRouter() { const value = useContext(RouterContext); if (!value) throw new Error("Router is unavailable"); return value; }
 function RouterHost({ embedded, children }: { embedded: boolean; children: React.ReactNode }) {
   const [path, setPath] = useState(embedded ? "/" : window.location.pathname);
   useEffect(() => { if (embedded) return; const update = () => setPath(window.location.pathname); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, [embedded]);
   const navigate = (next: string, replace = false) => { if (!embedded) window.history[replace ? "replaceState" : "pushState"]({}, "", next); setPath(next); };
-  return <RouterContext.Provider value={{ path, navigate }}>{children}</RouterContext.Provider>;
+  return <RouterContext.Provider value={{ path, embedded, navigate }}>{children}</RouterContext.Provider>;
 }
 function NavLink({ to, end = false, className = "", children }: { to: string; end?: boolean; className?: string; children: React.ReactNode }) {
-  const { path, navigate } = useRouter(); const active = end ? path === to : path === to || (to !== "/" && path.startsWith(`${to}/`));
-  return <a className={`${className}${active ? " active" : ""}`.trim()} href={to} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); navigate(to); } }}>{children}</a>;
+  const { path, embedded, navigate } = useRouter(); const active = end ? path === to : path === to || (to !== "/" && path.startsWith(`${to}/`));
+  return <a className={`${className}${active ? " active" : ""}`.trim()} href={embedded ? `#${to}` : to} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); navigate(to); } }}>{children}</a>;
 }
 
 function Icon({ name }: { name: string }) { return <span className="icon" aria-hidden="true">{name}</span>; }
 
 function Frame({ source }: { source: StudioDataSource }) {
-  const { path, navigate } = useRouter();
+  const { path, embedded, navigate } = useRouter();
   const dashboard = useQuery({ queryKey: ["dashboard"], queryFn: () => source.dashboard() });
   const firstBook = dashboard.data?.books[0];
   const [palette, setPalette] = useState(false);
@@ -47,7 +47,7 @@ function Frame({ source }: { source: StudioDataSource }) {
     : <Empty />;
   return <div className="studio-shell">
     <aside className="rail">
-      <a className="brand" href="/"><span className="brand-mark">N/G</span><span><b>NovelGraph</b><small>STUDIO / ALPHA</small></span></a>
+      <NavLink className="brand" to="/" end><span className="brand-mark">N/G</span><span><b>NovelGraph</b><small>STUDIO / ALPHA</small></span></NavLink>
       <nav aria-label="Studio navigation">{nav.map(([to, label, number]) => <NavLink key={to} end={to === "/"} to={to}><span>{number}</span>{label}</NavLink>)}</nav>
       <div className="rail-status"><span className="signal verified" />LOCAL ONLY<small>{source.mode === "demo" ? "Fixture mode" : "SQLite connected"}</small></div>
     </aside>
@@ -55,7 +55,7 @@ function Frame({ source }: { source: StudioDataSource }) {
       <header className="topbar"><div className="breadcrumbs"><span>NOVELGRAPH</span><i>/</i><b>{firstBook?.title ?? "UNCONFIGURED"}</b></div><button className="command" onClick={() => setPalette(true)}>Search or command <kbd>⌘ K</kbd></button><span className="privacy"><span className="signal verified" /> PRIVATE WORKSPACE</span></header>
       {page}
     </main>
-    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={to} onClick={(event) => { event.preventDefault(); navigate(to); setPalette(false); }} key={to}>{label}<span>↵</span></a>)}</div></div>}
+    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={embedded ? `#${to}` : to} onClick={(event) => { event.preventDefault(); navigate(to); setPalette(false); }} key={to}>{label}<span>↵</span></a>)}</div></div>}
   </div>;
 }
 

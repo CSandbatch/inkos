@@ -1,17 +1,13 @@
 ---
-title: Privacy and telemetry
-description: What stays local and the exact optional diagnostics boundary.
+title: Privacy
+description: Current local storage, provider, demo, and diagnostics boundaries.
 slug: docs/operations/privacy
 ---
 
-Manuscripts, prompts, model responses, graph data, credentials, paths, project names, and research snapshots remain local and are prohibited from telemetry.
+The local Studio stores project state in `.novelgraph/studio.sqlite` and writes exports beneath `.novelgraph/exports/`. It has no hosted manuscript service, account system, or cloud synchronization. The unauthenticated API binds to loopback by default and must not be exposed to an untrusted network.
 
-Optional anonymous diagnostics may include only:
+The repository contains a strict validator for a proposed anonymous diagnostics payload. It does not contain a telemetry sender, collector, persistent consent setting, payload-preview screen, or deletion workflow. The **Share anonymous diagnostics** checkbox in New book is not wired to project creation. This build transmits no diagnostics through that control.
 
-- random installation identifier;
-- NovelGraph, Node.js, and operating-system versions;
-- command or workflow name;
-- duration bucket and success/failure category;
-- coarse, documented error code.
+The public demo uses fixture data in the browser. It accepts no provider key, performs no model call, and writes no server-side project or export.
 
-Telemetry is off until explicitly enabled, has a persistent off switch, and must show the payload before transmission. The public demo uses fixture data and performs no model or manuscript requests.
+Read [Privacy and telemetry](/novelgraph/docs/operations/privacy-and-telemetry/) for the exact local data scope, the allowlisted diagnostic fields, and external-worker responsibilities.

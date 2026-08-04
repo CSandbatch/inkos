@@ -36,7 +36,7 @@ body:
     attributes:
       label: NovelGraph version
       description: Output of `novelgraph --version`
-      placeholder: "0.4.9"
+      placeholder: "0.5.0-source or commit SHA"
     validations:
       required: true
 
