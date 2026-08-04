@@ -15,7 +15,6 @@ This is the canonical link page for the current NovelGraph implementation work.
 - [Draft pull request #6](https://github.com/CSandbatch/novelgraph/pull/6)
 - [Implementation branch](https://github.com/CSandbatch/novelgraph/tree/agent/novelgraph-docs-readiness)
 - [Branch commits](https://github.com/CSandbatch/novelgraph/commits/agent/novelgraph-docs-readiness/)
-- [Latest implementation commit](https://github.com/CSandbatch/novelgraph/commit/d216275)
 
 ## Architecture and runtime
 
@@ -30,6 +29,5 @@ VS Code/Codex is the development surface. Hermes Agent is the runtime operator f
 executing inside NovelGraph. NovelGraph remains authoritative for canonical TEI, graph state,
 approvals, provenance, sealed content, and export.
 
-This page uses absolute labels such as “latest implementation commit” and “current branch” rather
-than relative terms such as “today” or “yesterday.” Update the commit link when a new milestone is
-published.
+This page uses stable branch and pull-request links rather than hard-coded commit hashes, so a
+history rewrite does not leave a misleading “latest commit” reference behind.
