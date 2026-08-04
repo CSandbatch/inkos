@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added Hermes-aware repository instructions, scoped package context files, disposable agent memory boundaries, task-loop commands, and Hermes availability diagnostics.
+- Added a canonical project hub linking the repository, live site, implementation branch, commits, draft PR, documentation, and Hermes runtime guidance.
 
 All notable NovelGraph changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project is still pre-1.0 and may make breaking changes between minor releases.
 

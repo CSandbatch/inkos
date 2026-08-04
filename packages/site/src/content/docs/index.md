@@ -4,7 +4,7 @@ description: Plan, draft, audit, revise, and close fiction through a local inspe
 slug: docs
 ---
 
-NovelGraph documentation distinguishes the working local alpha from the promoted release target. Start with [Getting started](/novelgraph/docs/getting-started/) to build and launch Studio from source. Read [Capability status](/novelgraph/docs/reference/capability-status/) before depending on an alpha feature, and use [Shipping readiness](/novelgraph/docs/operations/shipping-readiness/) when preparing npm or GitHub releases.
+NovelGraph documentation distinguishes the working local alpha from the promoted release target. Use the [Project hub](/novelgraph/docs/project-hub/) for the repository, live website, current implementation branch, commits, draft PR, runtime, and architecture links. Start with [Getting started](/novelgraph/docs/getting-started/) to build and launch Studio from source. Read [Capability status](/novelgraph/docs/reference/capability-status/) before depending on an alpha feature, and use [Shipping readiness](/novelgraph/docs/operations/shipping-readiness/) when preparing npm or GitHub releases.
 
 ## Choose a route
 
