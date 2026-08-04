@@ -23,15 +23,74 @@ novelgraph init --lang en
 
 English is the only accepted language. The generated `.env` contains placeholders and is ignored by Git. Initialization stops when `novelgraph.json` already exists.
 
+## `novelgraph auth`
+
+Sign in to a model provider with the OAuth 2.0 device flow (RFC 8628). Full walkthrough:
+[Sign in to a model provider](/novelgraph/docs/guides/provider-sign-in/).
+
+### `novelgraph auth configure`
+
+Record the OAuth client ID and endpoints for a provider. NovelGraph ships no client ID; register a device-flow client with the provider first.
+
+```bash
+novelgraph auth configure --provider chatgpt --client-id <id> --issuer <url>
+```
+
+| Option | Purpose |
+| --- | --- |
+| `--provider <id>` | Provider id (`chatgpt`, `codex`, or one you define) |
+| `--client-id <id>` | OAuth client identifier issued to this installation |
+| `--client-secret <secret>` | Confidential clients only; public clients use PKCE |
+| `--issuer <url>` | OIDC issuer; endpoints are discovered from it |
+| `--device-endpoint <url>` | Explicit device authorization endpoint, skipping discovery |
+| `--token-endpoint <url>` | Explicit token endpoint, skipping discovery |
+| `--revocation-endpoint <url>` | Explicit revocation endpoint |
+| `--scopes <list>` | Space- or comma-separated scopes |
+| `--api-base-url <url>` | Base URL used for inference after sign-in |
+| `--model <name>` | Default model |
+
+Settings are written to `~/.novelgraph/auth.json`. No secret is stored there. Matching `NOVELGRAPH_<PROVIDER>_*` environment variables take precedence.
+
+### `novelgraph auth login`
+
+Start the device flow. Prints a verification URI and a user code. A browser opens unless `--no-open` is passed. The command completes when the request is approved.
+
+```bash
+novelgraph auth login --provider chatgpt
+```
+
+### `novelgraph auth status`
+
+Show sign-in state per provider and name the credential-storage backend in use.
+
+```bash
+novelgraph auth status
+novelgraph auth status --json
+```
+
+States: `authenticated`, `refreshable`, `expired`, `not-configured`, `no-client-id`.
+
+### `novelgraph auth logout`
+
+Revoke where the provider supports it, then delete stored tokens. `--all` covers every provider.
+
+### `novelgraph auth token`
+
+Print a valid access token for scripting, refreshing it first if required. It refuses to write to a terminal. Pipe or redirect it.
+
+```bash
+novelgraph auth token --provider chatgpt | your-tool
+```
+
 ## `novelgraph doctor`
 
-Check Node version, the English project boundary, project and global environment files, and the Studio database location.
+Check Node version, the English project boundary, project and global environment files, the Studio database location, the credential-storage backend, and provider sign-in state.
 
 ```bash
 novelgraph doctor
 ```
 
-The command exits nonzero when a required check fails. A missing database is informational until Studio has been launched once.
+The command exits nonzero when a required check fails. A missing database is informational until Studio has been launched once. Credential storage fails only when tokens are actually stored on a machine with no OS credential store; an unauthenticated project has nothing at risk.
 
 ## `novelgraph studio`
 
@@ -57,12 +116,15 @@ novelgraph config set llm.temperature 0.4
 novelgraph config set-global \
   --provider openai \
   --base-url https://api.openai.com/v1 \
-  --api-key YOUR_LOCAL_KEY \
   --model MODEL_ID
 novelgraph config show-global
 ```
 
-`show` and `show-global` mask API keys. Project settings live in `novelgraph.json`; global provider settings live in the user-level `.novelgraph/.env`. Project environment values override the global file.
+`novelgraph config set llm.apiKey` is **refused**. It wrote a credential into `novelgraph.json`, which is normally committed to version control. Use `novelgraph auth login` instead. Providers with no device flow can set `NOVELGRAPH_LLM_API_KEY` in an ignored `.env`.
+
+`config set-global --api-key` still accepts a key for those providers but is now optional and warns: it writes plaintext to `~/.novelgraph/.env`.
+
+`show` and `show-global` mask API keys. Project settings live in `novelgraph.json`; global provider settings live in the user-level `.novelgraph/.env`. OAuth provider settings live in `~/.novelgraph/auth.json` and contain no secrets. Project environment values override the global file.
 
 The source build still exposes model-override subcommands with legacy worker names. Treat them as compatibility-only until they are replaced by Sol, Terra, Luna, and typed DAG-node routing. Do not build new automation around those names.
 

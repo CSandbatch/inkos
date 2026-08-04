@@ -49,7 +49,27 @@ node packages/cli/dist/index.js doctor
 node packages/cli/dist/index.js studio --port 4567
 ```
 
-Studio binds to `127.0.0.1`, creates `.novelgraph/studio.sqlite` inside the selected project, and opens the browser. Omit `--port` to let the CLI select an available ephemeral port. `doctor` checks Node and local project files; it does not test a model provider.
+Studio binds to `127.0.0.1`, creates `.novelgraph/studio.sqlite` inside the selected project, and opens the browser. Omit `--port` to let the CLI select an available ephemeral port. `doctor` checks Node, local project files, the credential-storage backend, and provider sign-in state; it does not make a provider call.
+
+## Sign in to a model provider
+
+NovelGraph authenticates with the OAuth 2.0 device flow ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)), with PKCE on every exchange. You approve in a browser on any device; no long-lived secret is pasted into a terminal or a project file.
+
+NovelGraph ships **no OAuth client ID**. Register a device-flow client with your provider, then:
+
+```bash
+novelgraph auth configure --provider chatgpt --client-id <id> --issuer <url>
+novelgraph auth login --provider chatgpt
+novelgraph auth status
+```
+
+Endpoints are read from the issuer's `/.well-known/openid-configuration`, so no provider URL is hardcoded. Studio offers the same flow under **Model access**.
+
+Tokens are held in the operating system credential store — Windows DPAPI, macOS Keychain, or libsecret — and `auth status` names which backend is in use. Where none is available, NovelGraph falls back to a `0600` file and says so rather than implying protection it does not provide. Refresh is automatic; `logout` revokes server-side where the provider supports it and always clears local tokens.
+
+`novelgraph config set llm.apiKey` is refused. It wrote a credential into `novelgraph.json`, which is normally committed to version control. API keys remain available through an ignored `.env` for providers with no device flow.
+
+Signing in establishes access; it does not start production work. No node calls a model in this alpha. Whether a given provider account may be used through third-party software is set by that provider — confirm your client registration permits it. See the [sign-in guide](https://csandbatch.github.io/novelgraph/docs/guides/provider-sign-in/).
 
 After maintainers publish and verify the exact `0.5.0` artifacts, the intended command is:
 
@@ -103,6 +123,7 @@ The independent English Prose Patterns 2026 pack identifies phrases and structur
 
 ## Current Studio routes
 
+- **Model access** configures provider sign-in and shows where tokens are stored.
 - **Overview** shows books, blockers, budgets, and recent work.
 - **New book** creates a series and book shell and seeds discovery.
 - **Discovery** records turns and candidates, then proposes and resolves a Story Charter.
@@ -138,13 +159,35 @@ corepack pnpm site:build
 corepack pnpm site:links
 ```
 
+## Develop in VS Code; run workers through Hermes
+
+VS Code/Codex is the development surface for NovelGraph. Hermes Agent is the runtime operator for
+agents executing inside the product. Each executable worker will use its own versioned Hermes
+profile with scoped skills, MCP tools, memory mode, sandbox, provider/model, and NovelGraph
+capability policy. The repository constitution is `AGENTS.md`, with scoped instructions under each
+major package. The task loop records disposable session state in `.agent/task.json` and keeps Hermes
+memory separate from canonical NovelGraph state:
+
+```bash
+corepack pnpm hermes:doctor
+corepack pnpm agent:init -- --id task-123 --objective "Describe the task" --scope packages/core --acceptance "Tests pass|Docs updated"
+corepack pnpm agent:context -- --scope packages/core
+corepack pnpm agent:check
+```
+
+Hermes is not required for repository development checks, but it is the intended runtime operator
+for governed NovelGraph workers. See the [Hermes Agent workflow](/novelgraph/docs/guides/hermes-agent/)
+for profile, memory, MCP, security, and documentation rules.
+
 Package smoke scripts pack the three planned artifacts and install them into temporary projects. A complete Playwright acceptance suite has not yet been added; unit and component tests do not prove the full browser workflow.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Report security defects through [SECURITY.md](SECURITY.md). Never put a vulnerability in a public issue. The [architecture guide](https://csandbatch.github.io/novelgraph/docs/concepts/architecture/) explains the transaction and knowledge boundaries.
 
 ## Boundaries
 
-NovelGraph is English-only, local-first, single-author software. It has no account system, cloud manuscript sync, or collaborative editing. Markdown and JSON are exports; SQLite is authoritative. Open-web research remains untrusted until the author approves a cited claim. Research URL handling still requires additional SSRF hardening before promoted release. A passing closure gate establishes only the checks implemented in this alpha, not literary merit, market fit, factual truth, or legal clearance.
+NovelGraph is English-only, local-first, single-author software. It has no account system of its own, no cloud manuscript sync, and no collaborative editing. Provider sign-in authenticates you to a third party; it does not create a NovelGraph account, and NovelGraph operates no server. Markdown and JSON are exports; SQLite is authoritative.
+
+Local-first describes where your project lives — SQLite state, revisions, sealed solutions, and research snapshots stay in the project directory. It does not mean model calls happen locally: once a provider-backed node exists, request content, which may include manuscript text, is sent to the provider you configured and handled under their terms. Open-web research remains untrusted until the author approves a cited claim. Research URL handling still requires additional SSRF hardening before promoted release. A passing closure gate establishes only the checks implemented in this alpha, not literary merit, market fit, factual truth, or legal clearance.
 
 ## License
 
