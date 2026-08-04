@@ -14,6 +14,8 @@ import {
   MysterySolutionSchema, MysterySuspectSchema, TimelineEventSchema, DiscoveryEngine,
   DiscoveryTurnInputSchema, ScratchpadEntryInputSchema, StoryThrustCandidateInputSchema,
   StoryCharterInputSchema, KnowledgeClaimInputSchema, AgentRoleSchema,
+  beginLogin, logout as logoutProvider, statusAll, describeStorage, loadProvider, saveProviderConfig,
+  MissingClientIdError, OAuthError, type DeviceAuthorization, type StoredCredential,
 } from "@actalk/novelgraph-core";
 
 export interface StartStudioOptions {
@@ -97,6 +99,22 @@ export function createStudioApp(projectRoot: string): Hono {
     const approvals = store.db.prepare("SELECT id, 'approval' AS source, kind AS title, rationale AS detail, 'warning' AS severity, status FROM approvals WHERE book_id = ?").all(id);
     return c.json([...reader, ...approvals]);
   });
+  app.post("/api/v1/books/:bookId/reviews/:reviewId/resolve", async (c) => {
+    const body = await c.req.json<{ approved: boolean; rationale: string }>();
+    if (!body.rationale?.trim()) return c.json({ error: "A rationale is required" }, 400);
+    const bookId = c.req.param("bookId"); const reviewId = c.req.param("reviewId");
+    const reader = store.db.prepare("SELECT id FROM reader_feedback WHERE id = ? AND book_id = ? AND resolved_at IS NULL").get(reviewId, bookId);
+    const approval = store.db.prepare("SELECT id FROM approvals WHERE id = ? AND book_id = ? AND status = 'pending'").get(reviewId, bookId);
+    if (!reader && !approval) return c.json({ error: "Open review not found" }, 404);
+    if (reader) {
+      store.db.prepare("UPDATE reader_feedback SET resolved_at = ? WHERE id = ? AND book_id = ?").run(new Date().toISOString(), reviewId, bookId);
+      store.recordEvent(bookId, "author", body.approved ? "review.approved" : "review.rejected", "reader-feedback", reviewId, null, { approved: body.approved }, body.rationale);
+    } else {
+      store.resolveApproval(reviewId, body.approved);
+      store.recordEvent(bookId, "author", body.approved ? "approval.approved" : "approval.rejected", "approval", reviewId, null, { approved: body.approved }, body.rationale);
+    }
+    return c.json({ ok: true });
+  });
   app.post("/api/v1/books/:bookId/mystery", (c) => c.json({ error: "Deprecated endpoint. Use /api/v1/books/:bookId/mystery/solution with solution:write capability." }, 410));
   app.get("/api/v1/books/:bookId/mystery/workbench", (c) => c.json(fairPlay.workbench(c.req.param("bookId"))));
   app.get("/api/v1/books/:bookId/mystery/policy", (c) => { const policy = fairPlay.getPolicy(c.req.param("bookId")); return policy ? c.json(policy) : c.json({ error: "Mystery policy not configured" }, 404); });
@@ -131,6 +149,86 @@ export function createStudioApp(projectRoot: string): Hono {
   app.post("/api/v1/books/:bookId/research/:researchId/approve", async (c) => { const body = await c.req.json<{ rationale: string }>(); return c.json({ approvalId: research.approve(c.req.param("bookId"), c.req.param("researchId"), body.rationale) }); });
   app.get("/api/v1/knowledge/search", (c) => c.json({ matches: knowledge.search(c.req.query("q") ?? "") }));
   app.post("/api/v1/books/:bookId/export", async (c) => { const id = c.req.param("bookId"); const outputDirectory = join(projectRoot, ".novelgraph", "exports", id); await store.exportBook(id, outputDirectory); return c.json({ outputDirectory, files: readdirSync(outputDirectory) }); });
+
+  // ── Authentication (OAuth 2.0 device flow, RFC 8628) ──────────────────────
+  // The token exchange stays on the server. The browser only ever sees the user
+  // code and verification URI, never the device code, refresh token, or access
+  // token — so a Studio tab cannot leak a credential.
+  interface PendingLogin {
+    authorization: DeviceAuthorization;
+    startedAt: number;
+    state: "pending" | "complete" | "failed";
+    error?: string;
+    credentialExpiresAt?: number;
+  }
+  const pendingLogins = new Map<string, PendingLogin>();
+
+  app.get("/api/v1/auth/status", async (c) => c.json({
+    storage: await describeStorage(),
+    providers: await statusAll(),
+  }));
+
+  app.post("/api/v1/auth/:providerId/configure", async (c) => {
+    const body = await c.req.json<Record<string, unknown>>();
+    const allowed = ["clientId", "clientSecret", "issuer", "deviceAuthorizationEndpoint",
+      "tokenEndpoint", "revocationEndpoint", "apiBaseUrl", "defaultModel"] as const;
+    const patch: Record<string, unknown> = {};
+    for (const key of allowed) if (typeof body[key] === "string" && body[key]) patch[key] = body[key];
+    if (Array.isArray(body.scopes)) patch.scopes = body.scopes.filter((s): s is string => typeof s === "string");
+    await saveProviderConfig(c.req.param("providerId"), patch);
+    const provider = await loadProvider(c.req.param("providerId"));
+    return c.json({ configured: Boolean(provider.clientId), providerId: provider.id });
+  });
+
+  app.post("/api/v1/auth/:providerId/login", async (c) => {
+    const providerId = c.req.param("providerId");
+    try {
+      const handle = await beginLogin(providerId);
+      pendingLogins.set(providerId, { authorization: handle.authorization, startedAt: Date.now(), state: "pending" });
+      // Resolve in the background; the browser polls the status route.
+      void handle.completed.then(
+        (credential: StoredCredential) => {
+          const entry = pendingLogins.get(providerId);
+          if (entry) { entry.state = "complete"; entry.credentialExpiresAt = credential.expiresAt; }
+        },
+        (error: unknown) => {
+          const entry = pendingLogins.get(providerId);
+          if (entry) { entry.state = "failed"; entry.error = error instanceof Error ? error.message : String(error); }
+        },
+      );
+      return c.json({
+        userCode: handle.authorization.user_code,
+        verificationUri: handle.authorization.verification_uri,
+        verificationUriComplete: handle.authorization.verification_uri_complete,
+        expiresIn: handle.authorization.expires_in,
+        interval: handle.authorization.interval,
+      }, 201);
+    } catch (error) {
+      if (error instanceof MissingClientIdError) return c.json({ error: error.message, code: "no_client_id" }, 409);
+      if (error instanceof OAuthError) return c.json({ error: error.message, code: error.code }, 502);
+      throw error;
+    }
+  });
+
+  app.get("/api/v1/auth/:providerId/login", (c) => {
+    const pending = pendingLogins.get(c.req.param("providerId"));
+    if (!pending) return c.json({ state: "idle" });
+    return c.json({
+      state: pending.state,
+      error: pending.error,
+      userCode: pending.authorization.user_code,
+      verificationUri: pending.authorization.verification_uri,
+      elapsedSeconds: Math.round((Date.now() - pending.startedAt) / 1000),
+      expiresIn: pending.authorization.expires_in,
+      credentialExpiresAt: pending.credentialExpiresAt,
+    });
+  });
+
+  app.post("/api/v1/auth/:providerId/logout", async (c) => {
+    const providerId = c.req.param("providerId");
+    pendingLogins.delete(providerId);
+    return c.json(await logoutProvider(providerId));
+  });
 
   app.onError((error, c) => c.json({ error: error.message }, 400));
   app.use("/*", serveStatic({ root: staticRoot }));

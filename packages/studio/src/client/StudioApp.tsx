@@ -5,31 +5,32 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Background, Controls, ReactFlow, type Edge, type Node } from "@xyflow/react";
 import cytoscape from "cytoscape";
-import type { BookRecord, GraphData, MysteryMode, StudioDataSource } from "../shared/index.js";
+import type { BookRecord, GraphData, MysteryMode, ReviewRecord, StudioDataSource } from "../shared/index.js";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 2_000, retry: 1 } } });
 const nav = [
   ["/", "Overview", "01"], ["/setup", "New book", "02"], ["/discovery", "Discovery", "03"], ["/editor", "Manuscript", "04"],
   ["/graph", "Story graph", "05"], ["/mystery", "Mystery", "06"], ["/workflow", "DAG control", "07"], ["/reviews", "Review center", "08"], ["/exports", "Exports", "09"],
+  ["/access", "Model access", "10"],
 ] as const;
 
-const RouterContext = createContext<{ path: string; navigate: (path: string, replace?: boolean) => void } | null>(null);
+const RouterContext = createContext<{ path: string; embedded: boolean; navigate: (path: string, replace?: boolean) => void } | null>(null);
 function useRouter() { const value = useContext(RouterContext); if (!value) throw new Error("Router is unavailable"); return value; }
 function RouterHost({ embedded, children }: { embedded: boolean; children: React.ReactNode }) {
   const [path, setPath] = useState(embedded ? "/" : window.location.pathname);
   useEffect(() => { if (embedded) return; const update = () => setPath(window.location.pathname); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, [embedded]);
   const navigate = (next: string, replace = false) => { if (!embedded) window.history[replace ? "replaceState" : "pushState"]({}, "", next); setPath(next); };
-  return <RouterContext.Provider value={{ path, navigate }}>{children}</RouterContext.Provider>;
+  return <RouterContext.Provider value={{ path, embedded, navigate }}>{children}</RouterContext.Provider>;
 }
 function NavLink({ to, end = false, className = "", children }: { to: string; end?: boolean; className?: string; children: React.ReactNode }) {
-  const { path, navigate } = useRouter(); const active = end ? path === to : path === to || (to !== "/" && path.startsWith(`${to}/`));
-  return <a className={`${className}${active ? " active" : ""}`.trim()} href={to} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); navigate(to); } }}>{children}</a>;
+  const { path, embedded, navigate } = useRouter(); const active = end ? path === to : path === to || (to !== "/" && path.startsWith(`${to}/`));
+  return <a className={`${className}${active ? " active" : ""}`.trim()} href={embedded ? `#${to}` : to} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) { event.preventDefault(); navigate(to); } }}>{children}</a>;
 }
 
 function Icon({ name }: { name: string }) { return <span className="icon" aria-hidden="true">{name}</span>; }
 
 function Frame({ source }: { source: StudioDataSource }) {
-  const { path, navigate } = useRouter();
+  const { path, embedded, navigate } = useRouter();
   const dashboard = useQuery({ queryKey: ["dashboard"], queryFn: () => source.dashboard() });
   const firstBook = dashboard.data?.books[0];
   const [palette, setPalette] = useState(false);
@@ -44,10 +45,11 @@ function Frame({ source }: { source: StudioDataSource }) {
     : path === "/workflow" ? (firstBook ? <Workflow source={source} book={firstBook} /> : <Empty />)
     : path === "/reviews" ? (firstBook ? <Reviews source={source} book={firstBook} /> : <Empty />)
     : path === "/exports" ? (firstBook ? <Exports source={source} book={firstBook} /> : <Empty />)
+    : path === "/access" ? <Access source={source} />
     : <Empty />;
   return <div className="studio-shell">
     <aside className="rail">
-      <a className="brand" href="/"><span className="brand-mark">N/G</span><span><b>NovelGraph</b><small>STUDIO / ALPHA</small></span></a>
+      <NavLink className="brand" to="/" end><span className="brand-mark">N/G</span><span><b>NovelGraph</b><small>STUDIO / ALPHA</small></span></NavLink>
       <nav aria-label="Studio navigation">{nav.map(([to, label, number]) => <NavLink key={to} end={to === "/"} to={to}><span>{number}</span>{label}</NavLink>)}</nav>
       <div className="rail-status"><span className="signal verified" />LOCAL ONLY<small>{source.mode === "demo" ? "Fixture mode" : "SQLite connected"}</small></div>
     </aside>
@@ -55,12 +57,119 @@ function Frame({ source }: { source: StudioDataSource }) {
       <header className="topbar"><div className="breadcrumbs"><span>NOVELGRAPH</span><i>/</i><b>{firstBook?.title ?? "UNCONFIGURED"}</b></div><button className="command" onClick={() => setPalette(true)}>Search or command <kbd>⌘ K</kbd></button><span className="privacy"><span className="signal verified" /> PRIVATE WORKSPACE</span></header>
       {page}
     </main>
-    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={to} onClick={(event) => { event.preventDefault(); navigate(to); setPalette(false); }} key={to}>{label}<span>↵</span></a>)}</div></div>}
+    {palette && <div className="modal-backdrop" onClick={() => setPalette(false)}><div className="palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={(event) => event.stopPropagation()}><input autoFocus placeholder="Type a command…"/><p>JUMP TO</p>{nav.map(([to, label]) => <a href={embedded ? `#${to}` : to} onClick={(event) => { event.preventDefault(); navigate(to); setPalette(false); }} key={to}>{label}<span>↵</span></a>)}</div></div>}
   </div>;
 }
 
 function PageHeader({ eyebrow, title, detail, action }: { eyebrow: string; title: string; detail: string; action?: React.ReactNode }) { return <div className="page-header"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{detail}</p></div>{action}</div>; }
 function Empty() { return <section className="page"><PageHeader eyebrow="NO PROJECT" title="Create a project first." detail="A series and book establish the graph, revision history, and workflow boundaries."/><NavLink className="button primary" to="/setup">Configure project</NavLink></section>; }
+
+const AUTH_TONE: Record<string, string> = {
+  "authenticated": "verified", "refreshable": "active", "expired": "attention",
+  "not-configured": "", "no-client-id": "attention",
+};
+
+/**
+ * Model provider sign-in via the OAuth device flow.
+ *
+ * The browser never touches a token: it POSTs to start the flow, shows the user
+ * code, and polls a status route. The device code, access token, and refresh
+ * token stay in the local server process and the OS credential store.
+ */
+function Access({ source }: { source: StudioDataSource }) {
+  const client = useQueryClient();
+  const status = useQuery({ queryKey: ["auth-status"], queryFn: () => source.authStatus() });
+  const [active, setActive] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const progress = useQuery({
+    queryKey: ["auth-login", active],
+    queryFn: () => source.pollAuthLogin(active as string),
+    enabled: Boolean(active),
+    refetchInterval: (query) => {
+      const state = query.state.data?.state;
+      return state === "pending" ? 2_000 : false;
+    },
+  });
+
+  useEffect(() => {
+    if (progress.data?.state === "complete") {
+      setActive(null);
+      void client.invalidateQueries({ queryKey: ["auth-status"] });
+    }
+    if (progress.data?.state === "failed") {
+      setError(progress.data.error ?? "Sign-in failed.");
+      setActive(null);
+    }
+  }, [progress.data?.state]);
+
+  const login = useMutation({
+    mutationFn: (providerId: string) => source.beginAuthLogin(providerId),
+    onMutate: () => setError(null),
+    onSuccess: (_prompt, providerId) => setActive(providerId),
+    onError: (e: Error) => setError(e.message),
+  });
+  const signOut = useMutation({
+    mutationFn: (providerId: string) => source.authLogout(providerId),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["auth-status"] }),
+  });
+
+  const prompt = login.data;
+  const storage = status.data?.storage;
+
+  return <section className="page">
+    <PageHeader
+      eyebrow="MODEL ACCESS"
+      title="Provider sign-in"
+      detail="NovelGraph signs in with the OAuth 2.0 device flow. Tokens are held by this local process and the operating system credential store — never in project files."
+    />
+
+    {storage && <div className={`notice${storage.protected ? "" : " attention"}`}>
+      <b>Credential storage</b>
+      <p>{storage.description}</p>
+      {!storage.protected && <p>No operating-system credential store was available. Tokens on this machine are readable by your user account.</p>}
+    </div>}
+
+    {error && <div className="notice attention"><b>Sign-in failed</b><p>{error}</p></div>}
+
+    {prompt && active && <div className="notice">
+      <b>Finish signing in</b>
+      <p>Open <a href={prompt.verificationUri} target="_blank" rel="noreferrer">{prompt.verificationUri}</a> and enter this code:</p>
+      <p className="device-code"><code>{prompt.userCode}</code></p>
+      <p>Waiting for approval… {progress.data?.elapsedSeconds ? `${progress.data.elapsedSeconds}s` : ""}</p>
+      <button className="button" onClick={() => { setActive(null); }}>Cancel</button>
+    </div>}
+
+    <table className="grid">
+      <thead><tr><th>Provider</th><th>State</th><th>Detail</th><th /></tr></thead>
+      <tbody>
+        {(status.data?.providers ?? []).map((provider) => <tr key={provider.providerId}>
+          <td><b>{provider.displayName}</b><br /><small>{provider.providerId}</small></td>
+          <td><span className={`signal ${AUTH_TONE[provider.state] ?? ""}`.trim()} />{provider.state.replace(/-/gu, " ")}</td>
+          <td>{provider.detail}{provider.scopes?.length ? <><br /><small>scopes: {provider.scopes.join(" ")}</small></> : null}</td>
+          <td>
+            {provider.state === "authenticated" || provider.state === "refreshable" || provider.state === "expired"
+              ? <button className="button" disabled={signOut.isPending} onClick={() => signOut.mutate(provider.providerId)}>Sign out</button>
+              : <button className="button primary" disabled={login.isPending || provider.state === "no-client-id"} onClick={() => login.mutate(provider.providerId)}>Sign in</button>}
+          </td>
+        </tr>)}
+      </tbody>
+    </table>
+
+    <div className="notice">
+      <b>Before the first sign-in</b>
+      <p>
+        NovelGraph does not ship an OAuth client ID. Register a device-flow client with the
+        provider, then record it from a terminal:
+      </p>
+      <p><code>novelgraph auth configure --provider chatgpt --client-id &lt;id&gt; --issuer &lt;url&gt;</code></p>
+      <p>
+        Using a provider account through NovelGraph is subject to that provider's terms. Confirm
+        your client registration permits it.
+      </p>
+    </div>
+  </section>;
+}
 
 function Dashboard({ source }: { source: StudioDataSource }) {
   const data = useQuery({ queryKey: ["dashboard"], queryFn: () => source.dashboard() });
@@ -162,7 +271,11 @@ function GraphView({ source, book }: { source: StudioDataSource; book: BookRecor
 
 function Workflow({ source, book }: { source: StudioDataSource; book: BookRecord }) { const [jobId, setJobId] = useState<string>(); const detail = useQuery({ queryKey: ["job", jobId], queryFn: () => source.job(jobId!), enabled: Boolean(jobId), refetchInterval: 2_000 }); const run = useMutation({ mutationFn: () => source.startJob(book.id, 100), onSuccess: ({ id }) => setJobId(id) }); const fallback = ["policy","research","solution","evidence","timeline","solution-approval","scene-plan","draft","validate","adversarial","fairness","realism","reader-panel","prose","revise","reaudit","approval"].map((node_key, index, all) => ({ id: node_key, node_key, kind: node_key, status: index === 0 ? "ready" : "pending", capability: node_key.includes("solution") ? "solution:read" : "reader-view:read", artifact_visibility: node_key === "draft" ? "reader-visible" : "author-only", depends_on_json: JSON.stringify(index ? [all[index - 1]] : []) })); const records = detail.data?.nodes ?? fallback; const nodes: Node[] = records.map((node, index) => ({ id: node.node_key, position: { x: (index % 6) * 190, y: Math.floor(index/6) * 150 }, data: { label: <div className="flow-node"><small>{String(index+1).padStart(2,"0")} / {node.artifact_visibility ?? "author-only"}</small><b>{node.kind.toUpperCase()}</b><span className={`node-status ${node.status}`}>{node.status} · {node.capability}</span></div> }, className: `flow-${node.status}` })); const edges: Edge[] = records.flatMap((node) => ((JSON.parse(node.depends_on_json) as string[]) ?? []).map((dependency) => ({ id: `${dependency}-${node.node_key}`, source: dependency, target: node.node_key, animated: node.status === "running" }))); return <section className="page"><PageHeader eyebrow="SUPERVISED EXECUTION" title="DAG control room" detail="Typed nodes, explicit capabilities, artifact visibility, durable state, and hard budget stops." action={<button className="button primary" onClick={() => run.mutate()} disabled={run.isPending}>RUN WORKFLOW</button>}/><div className="workflow-grid"><article className="panel flow-wrap"><ReactFlow nodes={nodes} edges={edges} fitView proOptions={{ hideAttribution: true }}><Background color="#28333a" gap={22}/><Controls/></ReactFlow></article><article className="panel"><PanelTitle index="L" title="EVENT + ACCESS LOG"/>{detail.data?.events.map((event) => <div className="log-line" key={event.id}><span className={`signal ${event.level === "warning" ? "attention" : "active"}`}/><code>{event.message}</code></div>) ?? <p className="empty-copy">Start a run to create a durable workflow record.</p>}{detail.data?.solutionAccess?.map((event, index) => <div className="log-line" key={`${event.actor}-${index}`}><span className={`signal ${event.allowed ? "verified" : "blocked"}`}/><code>{event.actor} · {event.capability} · {event.allowed ? "ALLOWED" : "DENIED"}</code></div>)}{detail.data?.artifacts?.map((artifact) => <div className="log-line" key={artifact.id}><span className="signal active"/><code>{artifact.kind} · {artifact.visibility} · {artifact.rule_pack_version}</code></div>)}{detail.data && <div className="budget"><span>RUN BUDGET</span><b>${(detail.data.job.used_cents/100).toFixed(2)} / ${(detail.data.job.budget_cents/100).toFixed(2)}</b><progress value={detail.data.job.used_cents} max={detail.data.job.budget_cents}/></div>}</article></div></section>; }
 
-function Reviews({ source, book }: { source: StudioDataSource; book: BookRecord }) { const data = useQuery({ queryKey: ["reviews", book.id], queryFn: () => source.reviews(book.id) }); return <section className="page"><PageHeader eyebrow="AUTHOR DECISION QUEUE" title="Review center" detail="Agent findings are proposals. Canon-changing work remains yours to approve."/><div className="review-grid">{data.data?.map((review) => <article className={`review-card ${review.severity}`} key={review.id}><div><code>{review.source.toUpperCase()}</code><span className={`status ${review.status}`}>{review.status}</span></div><h2>{review.title}</h2><p>{review.detail}</p><footer><button className="button">REJECT</button><button className="button primary">APPROVE WITH RATIONALE</button></footer></article>)}{data.data?.length === 0 && <p>No pending reviews.</p>}</div></section>; }
+function Reviews({ source, book }: { source: StudioDataSource; book: BookRecord }) {
+  const client = useQueryClient(); const data = useQuery({ queryKey: ["reviews", book.id], queryFn: () => source.reviews(book.id) });
+  const resolve = useMutation({ mutationFn: ({ review, approved }: { review: ReviewRecord; approved: boolean }) => { const rationale = window.prompt(approved ? "Approval rationale" : "Rejection rationale"); if (!rationale?.trim()) throw new Error("A rationale is required"); return source.resolveReview(book.id, review.id, approved, rationale); }, onSuccess: () => client.invalidateQueries({ queryKey: ["reviews", book.id] }) });
+  return <section className="page"><PageHeader eyebrow="AUTHOR DECISION QUEUE" title="Review center" detail="Agent findings are proposals. Canon-changing work remains yours to approve."/><div className="review-grid">{data.data?.map((review) => <article className={`review-card ${review.severity}`} key={review.id}><div><code>{review.source.toUpperCase()}</code><span className={`status ${review.status}`}>{review.status}</span></div><h2>{review.title}</h2><p>{review.detail}</p><footer>{review.status === "open" || review.status === "pending" ? <><button className="button" disabled={resolve.isPending} onClick={() => resolve.mutate({ review, approved: false })}>REJECT</button><button className="button primary" disabled={resolve.isPending} onClick={() => resolve.mutate({ review, approved: true })}>APPROVE WITH RATIONALE</button></> : <small>Decision recorded</small>}</footer></article>)}{data.data?.length === 0 && <p>No pending reviews.</p>}{resolve.error && <div className="notice blocked">{resolve.error.message}</div>}</div></section>;
+}
 function Exports({ source, book }: { source: StudioDataSource; book: BookRecord }) { const closure = useQuery({ queryKey: ["closure", book.id], queryFn: () => source.closure(book.id) }); const run = useMutation({ mutationFn: () => source.exportBook(book.id) }); return <section className="page"><PageHeader eyebrow="PUBLISHING READINESS" title="Export center" detail="Generate portable manuscript files with an auditable closure and citation record."/><div className="export-grid"><article className={`closure ${closure.data?.publishable ? "verified" : "blocked"}`}><span className="seal">{closure.data?.publishable ? "✓" : "!"}</span><div><p>PUBLICATION GATE</p><h2>{closure.data?.publishable ? "READY" : "BLOCKED"}</h2><small>{closure.data?.findings.length ?? 0} active finding(s)</small></div></article><article className="panel"><PanelTitle index="F" title="EXPORT BUNDLE"/><ul><li>manuscript.md</li><li>closure-report.json</li><li>book.json</li></ul><button className="button primary" disabled={!closure.data?.publishable || run.isPending} onClick={() => run.mutate()}>GENERATE EXPORT</button>{!closure.data?.publishable && <p className="error">Resolve critical findings before export.</p>}{run.data && <code>{run.data.outputDirectory}</code>}</article></div><div className="finding-list">{closure.data?.findings.map((finding) => <article key={finding.code + finding.entityId}><code>{finding.code}</code><p>{finding.message}</p><span>{finding.severity}</span></article>)}</div></section>; }
 
 export function StudioApp({ dataSource, embedded = false }: { dataSource: StudioDataSource; embedded?: boolean }) { return <QueryClientProvider client={queryClient}><RouterHost embedded={embedded}><Frame source={dataSource}/></RouterHost></QueryClientProvider>; }

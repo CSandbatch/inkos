@@ -6,7 +6,7 @@ slug: docs/guides/series-linking
 
 Every NovelGraph book belongs to a series, even when the series contains one book. The series relationship gives a book a place to inherit continuity from, while the book keeps its own charter, chapters, revisions, obligations, and local canon. A linked series is not permission for one installment to silently rewrite another.
 
-The canonical [series-linking diagram](/diagrams/07-series-linking.svg) shows the intended decision path for shared continuity.
+The canonical [series-linking diagram](/novelgraph/diagrams/07-series-linking.svg) shows the intended decision path for shared continuity.
 
 Textual equivalent:
 

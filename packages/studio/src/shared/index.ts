@@ -34,6 +34,7 @@ export interface StudioDataSource {
   startJob(bookId: string, budgetCents: number): Promise<{ id: string }>;
   job(jobId: string): Promise<JobDetail>;
   reviews(bookId: string): Promise<ReviewRecord[]>;
+  resolveReview(bookId: string, reviewId: string, approved: boolean, rationale: string): Promise<void>;
   closure(bookId: string): Promise<ClosureReport>;
   exportBook(bookId: string): Promise<{ outputDirectory: string; files: string[] }>;
   mysteryWorkbench(bookId: string): Promise<MysteryWorkbenchData>;
@@ -52,7 +53,18 @@ export interface StudioDataSource {
   proposeCharter(bookId: string, input: Record<string, unknown>): Promise<{ id: string; version: number; approvalId: string }>;
   resolveCharter(charterId: string, approved: boolean, rationale: string): Promise<void>;
   dossier(bookId: string, role: AgentRole): Promise<Record<string, unknown>>;
+  authStatus(): Promise<AuthStatusData>;
+  beginAuthLogin(providerId: string): Promise<DeviceLoginPrompt>;
+  pollAuthLogin(providerId: string): Promise<DeviceLoginProgress>;
+  authLogout(providerId: string): Promise<{ revoked: boolean; cleared: boolean }>;
 }
+
+export type AuthProviderState = "authenticated" | "expired" | "refreshable" | "not-configured" | "no-client-id";
+export interface AuthProviderStatus { providerId: string; displayName: string; state: AuthProviderState; detail: string; backend?: string; expiresAt?: number; scopes?: string[]; }
+export interface AuthStorageInfo { backend: string; description: string; protected: boolean; }
+export interface AuthStatusData { storage: AuthStorageInfo; providers: AuthProviderStatus[]; }
+export interface DeviceLoginPrompt { userCode: string; verificationUri: string; verificationUriComplete?: string; expiresIn: number; interval: number; }
+export interface DeviceLoginProgress { state: "idle" | "pending" | "complete" | "failed"; error?: string; userCode?: string; verificationUri?: string; elapsedSeconds?: number; expiresIn?: number; credentialExpiresAt?: number; }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/v1${path}`, { ...init, headers: { "content-type": "application/json", ...init?.headers } });
@@ -72,6 +84,7 @@ export class LocalStudioDataSource implements StudioDataSource {
   startJob = (bookId: string, budgetCents: number) => request<{ id: string }>(`/books/${bookId}/jobs`, { method: "POST", body: JSON.stringify({ idempotencyKey: crypto.randomUUID(), budgetCents }) });
   job = (jobId: string) => request<JobDetail>(`/jobs/${jobId}`);
   reviews = (bookId: string) => request<ReviewRecord[]>(`/books/${bookId}/reviews`);
+  resolveReview = async (bookId: string, reviewId: string, approved: boolean, rationale: string) => { await request(`/books/${bookId}/reviews/${reviewId}/resolve`, { method: "POST", body: JSON.stringify({ approved, rationale }) }); };
   closure = (bookId: string) => request<ClosureReport>(`/books/${bookId}/closure`);
   exportBook = (bookId: string) => request<{ outputDirectory: string; files: string[] }>(`/books/${bookId}/export`, { method: "POST" });
   mysteryWorkbench = (bookId: string) => request<MysteryWorkbenchData>(`/books/${bookId}/mystery/workbench`);
@@ -90,8 +103,11 @@ export class LocalStudioDataSource implements StudioDataSource {
   proposeCharter = (bookId: string, input: Record<string, unknown>) => request<{ id: string; version: number; approvalId: string }>(`/books/${bookId}/charters`, { method: "POST", body: JSON.stringify(input) });
   resolveCharter = async (charterId: string, approved: boolean, rationale: string) => { await request(`/charters/${charterId}/resolve`, { method: "POST", body: JSON.stringify({ approved, rationale }) }); };
   dossier = (bookId: string, role: AgentRole) => request<Record<string, unknown>>(`/books/${bookId}/dossiers/${role}`);
+  authStatus = () => request<AuthStatusData>("/auth/status");
+  beginAuthLogin = (providerId: string) => request<DeviceLoginPrompt>(`/auth/${providerId}/login`, { method: "POST" });
+  pollAuthLogin = (providerId: string) => request<DeviceLoginProgress>(`/auth/${providerId}/login`);
+  authLogout = (providerId: string) => request<{ revoked: boolean; cleared: boolean }>(`/auth/${providerId}/logout`, { method: "POST" });
 }
-
 const chapterText = `The clock in Calder House had stopped at 11:43. Mara found the brass key beneath the victim's untouched teacup, where anyone entering from the hall could have seen it.\n\nElias claimed he heard the clock strike midnight from the garden. Mara wrote the statement down twice. A stopped clock could not testify, but a liar often volunteered a witness.`;
 const demoBook: BookRecord = { id: "demo-book", series_id: "demo-series", series_title: "The Calder House Files", title: "A Clock Without Hands", premise: "A locked-room death is solved through what the witnesses could not have heard.", genre_pack: "mystery", planned_order: 1 };
 const demoChapter: ChapterRecord = { id: "demo-chapter", book_id: demoBook.id, number: 1, title: "The Silent Chime", content_markdown: chapterText, status: "draft", updated_at: new Date().toISOString() };
@@ -118,6 +134,7 @@ export class FixtureStudioDataSource implements StudioDataSource {
   startJob = async (_bookId?: string, _budgetCents?: number) => ({ id: "demo-job" });
   job = async (_jobId?: string) => ({ job: { id: "demo-job", book_id: demoBook.id, status: "blocked", used_cents: 18, budget_cents: 75, updated_at: new Date().toISOString() }, nodes: ["policy", "research", "solution", "evidence", "timeline", "solution-approval", "scene-plan", "draft", "validate", "adversarial", "fairness", "realism", "reader-panel", "prose", "revise", "reaudit", "approval"].map((key, index) => ({ id: key, node_key: key, kind: key, status: index < 9 ? "completed" : index === 9 ? "blocked" : "pending", capability: index === 2 ? "solution:write" : index < 7 ? "solution:read" : "reader-view:read", depends_on_json: "[]" })), events: [{ id: "j1", level: "warning", message: "Adversarial solver found an unsupported alternative timeline", created_at: new Date().toISOString() }] });
   reviews = async (_bookId?: string): Promise<ReviewRecord[]> => [{ id: "review-1", source: "reader", title: "Impossible auditory evidence", detail: "Elias says he heard midnight strike, but the clock stopped at 11:43.", severity: "critical", status: "open" }, { id: "review-2", source: "approval", title: "Canon change requires approval", detail: "Moving the clock failure later would alter the locked solution.", severity: "warning", status: "pending" }];
+  resolveReview = async (_bookId: string, _reviewId: string, _approved: boolean, _rationale: string) => undefined;
   closure = async (_bookId?: string) => ({ publishable: false, findings: [{ code: "OPEN_HARD_OBLIGATION", severity: "critical", message: "Hard obligation remains open: Explain the stopped clock", entityId: "ob-clock" }], generatedAt: new Date().toISOString() });
   exportBook = async (_bookId?: string) => ({ outputDirectory: "Demo exports are not written", files: ["manuscript.md", "closure-report.json", "book.json"] });
   mysteryWorkbench = async (_bookId?: string): Promise<MysteryWorkbenchData> => ({ policy: demoPolicy, suspects: [{ id: "elias", bookId: demoBook.id, name: "Elias Calder", relationshipToTarget: "Nephew", visibleMotive: "Inheritance", introducedChapter: 1, prominent: true }], evidence: demoEvidence, timeline: [{ id: "time-death", bookId: demoBook.id, label: "Estimated death", earliest: "2026-10-14T23:35:00-05:00", latest: "2026-10-14T23:50:00-05:00", reliability: "highly-probable", timeKind: "estimated", source: "Medical examination" }], access: [{ id: "access-cellar", characterId: "elias", accessKind: "physical", resource: "Cellar stair", evidenceIds: ["ev-clock"] }], knowledge: [{ id: "know-clock", characterId: "elias", fact: "The clock had stopped", state: "conceals", chapter: 1 }], hypotheses: [{ id: "hyp-false", kind: "false", summary: "An intruder entered through the garden", status: "active", supportingEvidence: ["ev-camera"], falsifyingEvidence: ["ev-clock"] }], deductions: [{ id: "ded-clock", conclusion: "Elias fabricated the midnight time", evidenceIds: ["ev-clock"], sequence: 1, visibility: "solution-authorized" }], findings: demoFindings });
@@ -151,4 +168,16 @@ export class FixtureStudioDataSource implements StudioDataSource {
   proposeCharter = async () => ({ id: "demo-charter", version: 1, approvalId: "demo-charter-approval" });
   resolveCharter = async () => undefined;
   dossier = async (_bookId: string, role: AgentRole) => ({ agentRole: role, charter: null, knowledgeBases: ["literary", "series", "book"], scratchpad: ["The stopped clock constrains the testimony."], unresolved: ["Mara's personal cost"], capabilities: role === "sol-orchestrator" ? ["charter:propose", "approval:request"] : ["scratchpad:write"] });
+  // The public demo never authenticates: it holds no credentials and reaches no
+  // provider. Sign-in is reported as unavailable rather than simulated.
+  authStatus = async (): Promise<AuthStatusData> => ({
+    storage: { backend: "demo", description: "Fixture demonstration — no credential storage", protected: false },
+    providers: [
+      { providerId: "chatgpt", displayName: "ChatGPT / OpenAI", state: "not-configured", detail: "Sign-in is disabled in the public demonstration." },
+      { providerId: "codex", displayName: "OpenAI Codex", state: "not-configured", detail: "Sign-in is disabled in the public demonstration." },
+    ],
+  });
+  beginAuthLogin = async (): Promise<DeviceLoginPrompt> => { throw new Error("Sign-in is disabled in the public demonstration."); };
+  pollAuthLogin = async (): Promise<DeviceLoginProgress> => ({ state: "idle" });
+  authLogout = async () => ({ revoked: false, cleared: false });
 }

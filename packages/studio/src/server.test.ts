@@ -41,4 +41,16 @@ describe("fair-play Studio API", () => {
     expect((await app.request(`/api/v1/jobs/${job.id}/nodes/${ready.nodes[0].id}/begin`, { method: "POST", headers: { "content-type": "application/json", "x-novelgraph-capabilities": "canon:propose" }, body: JSON.stringify({ input: {} }) })).status).toBe(200);
     expect((await app.request(`/api/v1/jobs/${job.id}/nodes/${ready.nodes[0].id}/complete`, { method: "POST", headers: { "content-type": "application/json", "x-novelgraph-capabilities": "canon:propose" }, body: JSON.stringify({ output: { configured: true } }) })).status).toBe(200);
   });
+
+  it("records review decisions and requires a rationale", async () => {
+    const root = mkdtempSync(join(tmpdir(), "novelgraph-api-")); directories.push(root); const app = createStudioApp(root); apps.push(app);
+    const created = await app.request("/api/v1/projects", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ seriesTitle: "Cases", bookTitle: "Case", premise: "Evidence", genrePack: "general", seedMystery: false }) }); const { bookId } = await created.json() as { bookId: string };
+    const charter = await (await app.request(`/api/v1/books/${bookId}/charters`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mainThrust: "A test thrust", readerPromise: ["A clear ending"], protagonist: { name: "A" }, centralConflict: "A versus B" }) })).json() as { approvalId: string };
+    const feedback = await app.request(`/api/v1/books/${bookId}/reviews`, { headers: { accept: "application/json" } });
+    expect(feedback.status).toBe(200);
+    const reviews = await feedback.json() as Array<{ id: string; status: string }>;
+    expect(reviews.some((review) => review.id === charter.approvalId && review.status === "pending")).toBe(true);
+    expect((await app.request(`/api/v1/books/${bookId}/reviews/${charter.approvalId}/resolve`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ approved: true, rationale: "Author accepted the proposed charter." }) })).status).toBe(200);
+    expect((await (await app.request(`/api/v1/books/${bookId}/reviews`)).json() as Array<{ id: string; status: string }>).find((review) => review.id === charter.approvalId)?.status).toBe("approved");
+  });
 });

@@ -6,7 +6,7 @@ slug: docs/concepts/narrative-surfaces
 
 The manuscript is a narrative surface: the words and ordering a reader encounters. It is not the complete internal account of the story. NovelGraph stores chapters and immutable revisions alongside story state, then uses bounded projections when a task must reason from what a reader could know rather than from everything recorded about the book.
 
-The canonical [knowledge-layers diagram](/diagrams/03-knowledge-layers.svg) shows book canon projecting toward narrative surfaces. The [reader-projection diagram](/diagrams/08-reader-projection.svg) shows the more specific mystery path.
+The canonical [knowledge-layers diagram](/novelgraph/diagrams/03-knowledge-layers.svg) shows book canon projecting toward narrative surfaces. The [reader-projection diagram](/novelgraph/diagrams/08-reader-projection.svg) shows the more specific mystery path.
 
 Textual equivalent:
 
@@ -43,7 +43,7 @@ Mystery work makes the distinction concrete. `readerProjection(bookId, throughCh
 
 The projection does more than hide one solution field. Suspect private fields such as actual movements, hidden pressure, unrelated secrets, and reasons a suspect is not responsible are removed. Evidence is recursively sanitized for keys such as `trueMeaning`, `culprit`, `solution`, `secret`, `actualEvent`, and `actualMovements`. Its corroboration and contradiction lists are filtered to evidence that is already visible. Access records, hypotheses, and solution-authorized deductions do not enter this projection.
 
-This is a data boundary, not an instruction asking an agent to pretend ignorance. A drafting node in the mystery workflow has `reader-view:read` and produces a reader-visible artifact. The adversarial solver also has `reader-view:read`, so it attempts a solution from the same limited material. The fairness auditor receives `solution:read` and can compare that reader-facing case with the sealed solution and the solver result.
+This is a data boundary, not an instruction asking a role to pretend ignorance. The mystery workflow declares a drafting node with `reader-view:read` and a reader-visible artifact, an adversarial solver with the same reader projection, and a fairness auditor with `solution:read`. Those are workflow contracts and artifact-visibility declarations. The current job engine persists transitions supplied by its caller; it does not execute these nodes or call a provider for them.
 
 ## Artifact visibility controls workflow handoffs
 
@@ -69,3 +69,7 @@ When those records change, the mystery engine marks existing validation runs sta
 Use the chapter surface to control sequence, tone, narration, and disclosure. Use the book state to track what must remain possible, what the reader has been promised, and what another scene relies on. When a revision changes only expression, it may remain a surface revision. When it changes a premise, a causal link, a clue’s meaning, or a locked solution, make the change visible in the relevant state and rerun the affected checks.
 
 The purpose is not to force prose into database-shaped language. It is to prevent a convenient paragraph from quietly solving, contradicting, or erasing the story that other scenes are still trying to tell.
+
+## Implementation boundary
+
+The Studio exposes mystery workbench and reader-projection data through the mystery API, while chapter and revision routes manage the manuscript surface. The projection is deterministic and chapter-bounded, but it does not prove that prose has been semantically checked against every record. Prose-pattern analysis is a separate Studio API operation and remains advisory; it is not automatically run as part of chapter editing or mystery validation.

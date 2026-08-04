@@ -17,3 +17,8 @@ _notes/
 _tmp_*
 test-project/
 .venv*/
+
+# Session-local agent state. Disposable and carries no authority; see
+# .agent/README.md, which is the one file here that is committed.
+.agent/*
+!.agent/README.md

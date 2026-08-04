@@ -21,12 +21,14 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm docs:check
-      - run: pnpm diagrams:check
-      - run: pnpm copy:lint
-      - run: pnpm typecheck
+      # `lint` includes typecheck, public-copy lint, generated docs, diagrams,
+      # the capability registry, and the provenance ledger.
+      - run: pnpm lint
       - run: pnpm test
       - run: pnpm site:build
+      - run: pnpm site:links
+      - name: Verify Hermes integration tooling
+        run: pnpm agent:test
       - name: Verify publishable tarballs
         shell: bash
         run: |

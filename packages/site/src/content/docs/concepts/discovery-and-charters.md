@@ -6,7 +6,13 @@ slug: docs/concepts/discovery-and-charters
 
 Discovery is the interval before NovelGraph is allowed to treat a book idea as a production premise. It records what the author says, what an agent has inferred, what remains unresolved, and the alternatives considered. Its output is not a manuscript or an outline. Its decisive output is an approved Story Charter.
 
-The lifecycle is shown in the canonical [discovery-state diagram](/diagrams/01-discovery-state.svg) and [charter-lifecycle diagram](/diagrams/05-charter-lifecycle.svg).
+The lifecycle is shown in the canonical [discovery-state diagram](/novelgraph/diagrams/01-discovery-state.svg) and [charter-lifecycle diagram](/novelgraph/diagrams/05-charter-lifecycle.svg).
+
+## Implementation boundary
+
+The discovery model is implemented as a stateful core and Studio API, not as a provider-backed conversation runner. The current Studio discovery room uses a fixed sequence of questions. An author reply is recorded and the current UI can add a Luna observation to the session scratchpad; it does not invoke Sol, Terra, or Luna through an external provider. The workflow job engine can persist a durable DAG supplied by its caller, but it does not execute those roles by itself.
+
+The API exposes discovery start/read and turn routes at `/api/v1/books/:bookId/discovery` and `/api/v1/discovery/:sessionId/turns`, plus scratchpad, thrust, charter, approval, claim, and dossier routes. Role capabilities are included in dossiers as context metadata; the discovery and knowledge routes do not independently enforce those capabilities. Treat the role tables below as the intended handoff contract and the current dossier shape, not as an authorization boundary.
 
 Textual equivalent:
 

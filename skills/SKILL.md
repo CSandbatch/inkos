@@ -35,16 +35,32 @@ NovelGraph treats a manuscript as the visible narrative surface of a structured 
 From a project directory:
 
 ```bash
-npx @actalk/novelgraph studio
-```
-
-For a locally installed CLI:
-
-```bash
 novelgraph studio
 ```
 
+The `0.5.0` npm packages are not published, so run the built CLI from a source checkout:
+`node /path/to/novelgraph/packages/cli/dist/index.js studio`.
+
 The server binds to loopback by default. Do not expose it to a LAN unless the author explicitly requests that change and understands the warning.
+
+## Provider sign-in
+
+NovelGraph authenticates to model providers with the OAuth 2.0 device flow (RFC 8628) plus PKCE.
+
+```bash
+novelgraph auth configure --provider chatgpt --client-id <id> --issuer <url>
+novelgraph auth login --provider chatgpt
+novelgraph auth status
+```
+
+Rules to observe:
+
+- NovelGraph ships **no OAuth client ID**. Never invent one, and never present a provider endpoint URL as known — endpoints come from the issuer's OIDC discovery document or explicit configuration.
+- Tokens live in the OS credential store (Windows DPAPI, macOS Keychain, libsecret). Never write a credential into `novelgraph.json`, a project `.env` committed to version control, a prompt, or a log.
+- `novelgraph config set llm.apiKey` is refused by design. Do not suggest it as a workaround.
+- `novelgraph auth token` refuses to print to a terminal. Pipe it.
+- Signing in grants access; it does not start production work. No node calls a model in this alpha.
+- Whether a provider account may be used through third-party software is the provider's decision. Do not assert that a subscription covers programmatic use.
 
 ## Discovery workflow
 
