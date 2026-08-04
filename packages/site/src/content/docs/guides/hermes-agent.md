@@ -26,7 +26,10 @@ hermes doctor
 
 `hermes:doctor` is safe to run when Hermes is not installed. It reports `Hermes unavailable` and exits nonzero; it does not claim that NovelGraph's unit tests executed Hermes. Hermes' own `hermes doctor` additionally checks its configuration, provider login, optional tools, and memory directory; provider setup is intentionally left to the operator.
 
-Hermes selects the first matching context file in each directory using `.hermes.md`, `AGENTS.md`, `CLAUDE.md`, then `.cursorrules`. NovelGraph therefore keeps `AGENTS.md` authoritative and does not add `.hermes.md`. The root file is loaded at session startup; nested `AGENTS.md` files are discovered as Hermes enters those directories through tool calls.
+Hermes gives `.hermes.md` priority over `AGENTS.md` in each directory. The compatibility files
+`CLAUDE.md` and `.cursorrules` are fallback choices. NovelGraph therefore keeps `AGENTS.md`
+authoritative and does not add `.hermes.md`. The root file is loaded at session startup; nested
+`AGENTS.md` files are discovered as Hermes enters those directories through tool calls.
 
 ## Start a task
 
@@ -58,10 +61,11 @@ Hermes memory under `%LOCALAPPDATA%\\hermes\\memories` and skills are working co
 Do not put credentials, prompts, manuscript text, model responses, or sealed mystery solutions in `.agent/memory/`, telemetry, or shared task context. Hermes may propose artifacts and findings, but only a human-approved NovelGraph transaction can change canon.
 
 Each executable NovelGraph worker must have its own versioned Hermes profile. The profile records
-the worker contract, provider/model, enabled skill versions, MCP server/tool allowlist, memory mode,
-sandbox/backend, budget, and required NovelGraph capabilities. MCP servers and Hermes subagents must
-be explicitly allowlisted. Start with read-only repository/context tools. Do not expose SQLite writes,
-canonical commit operations, credentials, or sealed content to an unconstrained Hermes session.
+the worker contract, provider/model, enabled skill versions, and MCP server/tool allowlist. It also
+records memory mode, sandbox/backend, budget, and required NovelGraph capabilities. MCP servers and
+Hermes subagents must be explicitly allowlisted. Start with read-only repository/context tools. Do
+not expose SQLite writes or canonical commit operations. Keep credentials and sealed content outside
+unconstrained Hermes sessions.
 
 NovelGraph issues the capability grant and records the resolved Hermes profile for every attempt.
 Hermes may propose artifacts and findings; only the governed NovelGraph workflow can commit canon,

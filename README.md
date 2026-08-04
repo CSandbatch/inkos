@@ -17,6 +17,8 @@
   <a href="https://csandbatch.github.io/novelgraph/docs/reference/capability-status/">Capability status</a>
 </p>
 
+<p><a href="PROJECT.md">Project hub: repository, website, branch commits, draft PR, runtime, and plan links in one place.</a></p>
+
 ![NovelGraph Signal Grid: a manuscript surface connected to causal and workflow nodes](packages/site/public/assets/signal-grid-hero.png)
 
 > NovelGraph 0.5 is source alpha software. SQLite story state, conversational discovery records, Story Charter approval, the Fair-Play Detective rule pack, durable job state, and a local Studio are implemented. Automatic provider-backed Sol, Terra, and Luna execution, complete review and closure controls, browser acceptance coverage, and published npm packages are not yet available.
